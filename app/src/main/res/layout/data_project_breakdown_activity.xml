@@ -12,15 +12,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.Toolbar
+        <include
             android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            android:elevation="4dp"
-            android:theme="@style/AppTheme"
-            app:popupTheme="@style/AppTheme">
-        </android.support.v7.widget.Toolbar>
+            layout="@layout/toolbar_layout">
+        </include>
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tab_layout"
@@ -34,11 +29,8 @@
             android:background="@android:color/white" />
     </RelativeLayout>
 
-    <ListView
+    <include
         android:id="@+id/navigation_drawer"
-        android:layout_width="240dp"
-        android:layout_height="match_parent"
-        android:choiceMode="singleChoice"
-        android:layout_gravity="start" />
+        layout="@layout/navigation_drawer_layout"/>
 
 </android.support.v4.widget.DrawerLayout>

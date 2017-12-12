@@ -3,14 +3,14 @@ package umich.jakebock.graphme.activities;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import umich.jakebock.graphme.R;
 import umich.jakebock.graphme.support_classes.DataObjectBreakdownFragmentPagerAdapter;
+import umich.jakebock.graphme.support_classes.MyNavigationDrawer;
+import umich.jakebock.graphme.support_classes.MyToolBar;
 
 public class DataProjectBreakdownActivity extends AppCompatActivity
 {
@@ -32,35 +32,22 @@ public class DataProjectBreakdownActivity extends AppCompatActivity
 
     private void createNavigationDrawer()
     {
-        // Create the Drawer Layout
-        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        // Create the Custom Navigation Drawer
+        MyNavigationDrawer navigationDrawer = new MyNavigationDrawer(this, (ListView) findViewById(R.id.navigation_drawer));
 
-        // Create the Toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-
-        // Create the Navigation Drawer
-        ListView navigationDrawer = (ListView) findViewById(R.id.navigation_drawer);
-
-        // Get the List of Options
-        String[] navigationDrawerList = getResources().getStringArray(R.array.navigation_drawer_list);
-
-        // Set the adapter for the list view
-        navigationDrawer.setAdapter(new ArrayAdapter<String>(this, R.layout.navigation_drawer_list_item, navigationDrawerList));
+        navigationDrawer.initializeNavigationDrawer();
     }
 
     private void createToolbar()
     {
-        // Create the ToolBar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-
         // Set the Support Action Bar
-        setSupportActionBar(toolbar);
+        setSupportActionBar((Toolbar)findViewById(R.id.toolbar));
 
-        // Set the Menu Frame
-        getSupportActionBar().setHomeAsUpIndicator(android.R.drawable.menu_frame);
+        // Create the Custom Toolbar
+        MyToolBar toolbar = new MyToolBar(getSupportActionBar(), getResources().getString(R.string.toolbar_project_title));
 
-        // Set the Menu Frame
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
+        // Initialize the Toolbar
+        toolbar.initializeToolbar();
 
         // Set the Title with the Current Project
         // TODO
