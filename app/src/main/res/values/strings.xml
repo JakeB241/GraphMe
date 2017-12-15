@@ -14,4 +14,11 @@
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="title_activity_data_project">DataProjectActivity</string>
     <string name="toolbar_project_title">Projects</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="backup_projects">Backup Projects</string>
+    <string name="manage_projects">Manage Projects</string>
+    <string name="share_projects">Share Projects</string>
+    <string name="settings">Settings</string>
 </resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="none">
+        <item
+            android:id="@+id/manage_projects"
+            android:icon="@drawable/ic_timeline_black_24dp"
+            android:title="@string/manage_projects" />
+        <item
+            android:id="@+id/backup_projects"
+            android:icon="@drawable/ic_cloud_black_24dp"
+            android:title="@string/backup_projects" />
+        <item
+            android:id="@+id/share_projects"
+            android:icon="@drawable/ic_share_black_24dp"
+            android:title="@string/share_projects" />
+    </group>
+
+</menu>

@@ -1,5 +1,6 @@
 package umich.jakebock.graphme.fragments;
 
+
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -9,24 +10,22 @@ import android.view.ViewGroup;
 
 import umich.jakebock.graphme.R;
 
-public class ListFragment extends Fragment {
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class ProjectEditorFragment extends Fragment {
 
-    public ListFragment() {}
+
+    public ProjectEditorFragment() {}
+
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
-        // Create the Root View
-        View rootView = inflater.inflate(R.layout.fragment_list, container, false);
-
-        // Create the Floating Action Button
-        createAddDataObjectButton(rootView);
-
-        // Return the Root View
-        return rootView;
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_project_editor, container, false);
     }
 
-    private void createAddDataObjectButton(View view)
+    private void createAddProjectObjectButton(View view)
     {
         // Create the Floating Action Button
         FloatingActionButton addButton = (FloatingActionButton) view.findViewById(R.id.add_button);
@@ -39,8 +38,9 @@ public class ListFragment extends Fragment {
         {
             public void onClick(View v)
             {
-                // TODO Create Data
+                // TODO Create Project
             }
         });
     }
+
 }
