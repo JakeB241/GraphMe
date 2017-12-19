@@ -1,5 +1,6 @@
 package umich.jakebock.graphme.classes;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -9,4 +10,6 @@ import java.util.List;
 public class DataProject
 {
     private List<DataObject> dataObjectList;
+    private String           projectTitle;
+    private Date             updatedTime;
 }

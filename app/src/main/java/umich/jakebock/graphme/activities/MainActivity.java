@@ -12,21 +12,27 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.RelativeLayout;
 
 import umich.jakebock.graphme.R;
+import umich.jakebock.graphme.fragments.ProjectEditorFragment;
 import umich.jakebock.graphme.support_classes.DataObjectBreakdownFragmentPagerAdapter;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
-    private DrawerLayout drawerLayout;
-    private Toolbar      toolbar;
-    private TabLayout    tabLayout;
-    private ViewPager    viewPager;
+    private RelativeLayout  contentMain;
+    private DrawerLayout    drawerLayout;
+    private Toolbar         toolbar;
+    private TabLayout       tabLayout;
+    private ViewPager       viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        // Call the Constructor
         super.onCreate(savedInstanceState);
+
+        // Set the Content View
         setContentView(R.layout.activity_main);
 
         // Initialize Views
@@ -38,8 +44,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Initialize the ToolBar
         initializeToolbar();
 
-        // Create the Tab Layout
-        initializeTabLayout();
+        // If there isn't any saved data, start on the Project Editor Page
+        if (savedInstanceState == null)
+        {
+            // Start the Project Editor Fragment
+            getSupportFragmentManager().beginTransaction().add(R.id.content_main, new ProjectEditorFragment()).commit();
+        }
+
+        else
+        {
+            // Create the Tab Layout
+            initializeTabLayout();
+        }
     }
 
     private void initializeViews()
@@ -49,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar         = findViewById(R.id.toolbar);
         tabLayout       = findViewById(R.id.tab_layout);
         viewPager       = findViewById(R.id.view_pager);
+        contentMain     = findViewById(R.id.content_main);
     }
 
 
@@ -80,8 +97,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        // Set the Title with the Current Project
-        // TODO
+        // TODO Set the Title with the Current Project
     }
 
     private void initializeTabLayout()
@@ -106,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Add the TabLayout Icons
         listTab      .setIcon(R.drawable.list_icon      );
         statisticsTab.setIcon(R.drawable.statistics_icon);
-        graphTab     .setIcon(R.drawable.graph_icon);
+        graphTab     .setIcon(R.drawable.graph_icon     );
 
         // Ensure that the ListTab is Selected First
         listTab.select();

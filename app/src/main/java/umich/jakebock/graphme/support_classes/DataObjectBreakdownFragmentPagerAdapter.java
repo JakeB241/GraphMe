@@ -30,14 +30,10 @@ public class DataObjectBreakdownFragmentPagerAdapter extends FragmentPagerAdapte
     {
         switch (position)
         {
-            case LIST_TAB_POSITION:
-                return new ListFragment();
-            case STATISTICS_TAB_POSITION:
-                return new StatisticsFragment();
-            case GRAPH_TAB_POSITION:
-                return new GraphFragment();
-            default:
-                return null;
+            case LIST_TAB_POSITION:         return new ListFragment();
+            case STATISTICS_TAB_POSITION:   return new StatisticsFragment();
+            case GRAPH_TAB_POSITION:        return new GraphFragment();
+            default:                        return null;
         }
     }
 
@@ -46,23 +42,5 @@ public class DataObjectBreakdownFragmentPagerAdapter extends FragmentPagerAdapte
     public int getCount()
     {
         return NUMBER_OF_TABS;
-    }
-
-    // This determines the title for each tab
-    @Override
-    public CharSequence getPageTitle(int position)
-    {
-        // Generate title based on item position
-        switch (position)
-        {
-            case LIST_TAB_POSITION:
-                return null;
-            case STATISTICS_TAB_POSITION:
-                return null;
-            case GRAPH_TAB_POSITION:
-                return null;
-            default:
-                return null;
-        }
     }
 }
