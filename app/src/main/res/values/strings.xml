@@ -21,4 +21,8 @@
     <string name="manage_projects">Manage Projects</string>
     <string name="share_projects">Share Projects</string>
     <string name="settings">Settings</string>
+    <string name="project_name_hint">Project Name</string>
+    <string name="import_image">Import Image</string>
+    <string name="ok_label">OK</string>
+    <string name="cancel_label">Cancel</string>
 </resources>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:id="@+id/project_creator"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/darkGray"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/project_information"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center">
+
+    <Button
+        android:id="@+id/import_image_button"
+        android:layout_width="@dimen/project_creation_image_size"
+        android:layout_height="@dimen/project_creation_image_size"
+        android:text="@string/import_image"
+        android:visibility="visible"/>
+
+    <ImageButton
+        android:id="@+id/import_image_image_button"
+        android:layout_width="@dimen/project_creation_image_size"
+        android:layout_height="@dimen/project_creation_image_size"
+        android:scaleType="centerInside"
+        android:visibility="gone"/>
+
+    <EditText
+        android:id="@+id/project_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
+        android:ems="12"
+        android:textColor="@color/black"
+        android:hint="@string/project_name_hint"
+        android:inputType="text" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:background="@color/gray"
+        android:layout_below="@id/project_information">
+
+        <Button
+            android:id="@+id/ok_button"
+            android:text="@string/ok_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:layout_marginEnd="20dp"/>
+
+        <Button
+            android:id="@+id/cancel_button"
+            android:text="@string/cancel_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"/>
+
+    </LinearLayout>
+</RelativeLayout>

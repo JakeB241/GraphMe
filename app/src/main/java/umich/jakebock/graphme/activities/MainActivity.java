@@ -16,7 +16,7 @@ import android.widget.RelativeLayout;
 
 import umich.jakebock.graphme.R;
 import umich.jakebock.graphme.fragments.ProjectEditorFragment;
-import umich.jakebock.graphme.support_classes.DataObjectBreakdownFragmentPagerAdapter;
+import umich.jakebock.graphme.support_classes.TabFragmentPagerAdapter;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
@@ -68,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         contentMain     = findViewById(R.id.content_main);
     }
 
-
     private void initializeNavigationDrawer()
     {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -103,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void initializeTabLayout()
     {
         // Create the Fragment Pager Adapter
-        DataObjectBreakdownFragmentPagerAdapter adapter = new DataObjectBreakdownFragmentPagerAdapter(getSupportFragmentManager());
+        TabFragmentPagerAdapter adapter = new TabFragmentPagerAdapter(getSupportFragmentManager());
 
         // Set the adapter onto the view pager
         viewPager.setAdapter(adapter);
@@ -115,9 +114,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.colorPrimary));
 
         // Fetch the Tabs
-        TabLayout.Tab listTab       = tabLayout.getTabAt(DataObjectBreakdownFragmentPagerAdapter.LIST_TAB_POSITION       );
-        TabLayout.Tab statisticsTab = tabLayout.getTabAt(DataObjectBreakdownFragmentPagerAdapter.STATISTICS_TAB_POSITION );
-        TabLayout.Tab graphTab      = tabLayout.getTabAt(DataObjectBreakdownFragmentPagerAdapter.GRAPH_TAB_POSITION      );
+        TabLayout.Tab listTab       = tabLayout.getTabAt(TabFragmentPagerAdapter.LIST_TAB_POSITION       );
+        TabLayout.Tab statisticsTab = tabLayout.getTabAt(TabFragmentPagerAdapter.STATISTICS_TAB_POSITION );
+        TabLayout.Tab graphTab      = tabLayout.getTabAt(TabFragmentPagerAdapter.GRAPH_TAB_POSITION      );
 
         // Add the TabLayout Icons
         listTab      .setIcon(R.drawable.list_icon      );
