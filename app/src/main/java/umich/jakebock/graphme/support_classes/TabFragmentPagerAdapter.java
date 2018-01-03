@@ -19,9 +19,18 @@ public class TabFragmentPagerAdapter extends FragmentPagerAdapter
     public  static final int GRAPH_TAB_POSITION        = 2;
     private static final int NUMBER_OF_TABS            = 3;
 
+    private ListFragment        listFragment;
+    private StatisticsFragment  statisticsFragment;
+    private GraphFragment       graphFragment;
+
     public TabFragmentPagerAdapter(FragmentManager fragmentManager)
     {
         super(fragmentManager);
+
+        // Create an Instance of all Fragments
+        listFragment        = new ListFragment();
+        statisticsFragment  = new StatisticsFragment();
+        graphFragment       = new GraphFragment();
     }
 
     // This determines the fragment for each tab
@@ -30,9 +39,9 @@ public class TabFragmentPagerAdapter extends FragmentPagerAdapter
     {
         switch (position)
         {
-            case LIST_TAB_POSITION:         return new ListFragment();
-            case STATISTICS_TAB_POSITION:   return new StatisticsFragment();
-            case GRAPH_TAB_POSITION:        return new GraphFragment();
+            case LIST_TAB_POSITION:         return listFragment;
+            case STATISTICS_TAB_POSITION:   return statisticsFragment;
+            case GRAPH_TAB_POSITION:        return graphFragment;
             default:                        return null;
         }
     }

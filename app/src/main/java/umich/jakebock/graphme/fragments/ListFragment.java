@@ -9,7 +9,9 @@ import android.view.ViewGroup;
 
 import umich.jakebock.graphme.R;
 
-public class ListFragment extends Fragment {
+public class ListFragment extends Fragment
+{
+    private View rootView;
 
     public ListFragment() {}
 
@@ -17,19 +19,19 @@ public class ListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         // Create the Root View
-        View rootView = inflater.inflate(R.layout.fragment_list, container, false);
+        rootView = inflater.inflate(R.layout.fragment_list, container, false);
 
         // Create the Floating Action Button
-        createAddDataObjectButton(rootView);
+        createAddDataObjectButton();
 
         // Return the Root View
         return rootView;
     }
 
-    private void createAddDataObjectButton(View view)
+    private void createAddDataObjectButton()
     {
         // Create the Floating Action Button
-        FloatingActionButton addButton = (FloatingActionButton) view.findViewById(R.id.add_button);
+        FloatingActionButton addButton = (FloatingActionButton) rootView.findViewById(R.id.add_button);
 
         // Set the Add Button
         addButton.setImageResource(android.R.drawable.ic_input_add);

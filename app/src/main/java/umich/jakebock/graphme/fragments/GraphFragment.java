@@ -9,12 +9,14 @@ import android.view.ViewGroup;
 import umich.jakebock.graphme.R;
 
 
-public class GraphFragment extends Fragment {
+public class GraphFragment extends Fragment
+{
 
     public GraphFragment() {}
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    {
         View rootView = inflater.inflate(R.layout.fragment_graph, container, false);
         return rootView;
     }

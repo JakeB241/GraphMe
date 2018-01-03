@@ -1,6 +1,7 @@
 package umich.jakebock.graphme.support_classes;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,8 +48,9 @@ public class ProjectListAdapter extends ArrayAdapter<DataProject> implements Vie
         //}
     }
 
+    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent)
+    public View getView(int position, View convertView, @NonNull ViewGroup parent)
     {
         // Get the data item for this position
         DataProject dataProject = getItem(position);
@@ -66,16 +68,12 @@ public class ProjectListAdapter extends ArrayAdapter<DataProject> implements Vie
             projectViewHolder.projectImage      = (ImageView) convertView.findViewById(R.id.project_image);
             projectViewHolder.projectName       = (TextView)  convertView.findViewById(R.id.project_name);
             projectViewHolder.lastUpdatedTime   = (TextView)  convertView.findViewById(R.id.updated_time);
-
-            result=convertView;
-
             convertView.setTag(projectViewHolder);
         }
 
         else
         {
             projectViewHolder = (ProjectViewHolder) convertView.getTag();
-            result=convertView;
         }
 
         projectViewHolder.projectName.setText(dataProject.getProjectTitle());

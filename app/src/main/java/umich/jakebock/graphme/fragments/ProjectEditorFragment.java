@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +45,9 @@ public class ProjectEditorFragment extends Fragment
         // Populate the Project List
         populateProjectListView();
 
+        // Initialize Toolbar
+        initializeToolbar();
+
         // Initialize the Add Button
         initializeAddButton();
 
@@ -53,8 +58,11 @@ public class ProjectEditorFragment extends Fragment
     @Override
     public void onResume()
     {
-        // Populate the Project List
+        // Re Populate the Project List
         populateProjectListView();
+
+        // Re Initialize Toolbar
+        initializeToolbar();
 
         // Call the Activity On Resume
         super.onResume();
@@ -79,7 +87,23 @@ public class ProjectEditorFragment extends Fragment
         {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
+                // Create the Fragment
+                ProjectBreakdownFragment projectBreakdownFragment = new ProjectBreakdownFragment();
 
+                // Create the Bundle for the Data Project Selected
+                Bundle bundle = new Bundle();
+
+                // Fetch the Project Name
+                String projectName = ((TextView)view.findViewById(R.id.project_name)).getText().toString();
+
+                // Add the Data Project Name
+                bundle.putString("PROJECT_NAME", projectName);
+
+                // Add the Bundle to the Fragment
+                projectBreakdownFragment.setArguments(bundle);
+
+                // Transition to the Project Breakdown Fragment
+                getActivity().getSupportFragmentManager().beginTransaction().add(R.id.content_main, projectBreakdownFragment).addToBackStack("ProjectEditorFragment").commit();
             }
         });
 
@@ -160,6 +184,16 @@ public class ProjectEditorFragment extends Fragment
             }
         });
     }
+
+    private void initializeToolbar()
+    {
+        // Fetch the Action Bar
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+
+        // Set the Action Bar Title
+        actionBar.setTitle(R.string.toolbar_project_title);
+    }
+
 
     private void showProjectCreationFragment()
     {
