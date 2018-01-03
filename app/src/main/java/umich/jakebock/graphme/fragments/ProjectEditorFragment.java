@@ -1,7 +1,9 @@
 package umich.jakebock.graphme.fragments;
 
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -9,7 +11,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -26,6 +30,7 @@ public class ProjectEditorFragment extends Fragment
 {
     private View                    rootView;
     private ArrayList<DataProject>  projectList;
+    private DataProjectContainer    dataProjectContainer;
 
     public ProjectEditorFragment() {}
 
@@ -34,9 +39,6 @@ public class ProjectEditorFragment extends Fragment
     {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_project_editor, container, false);
-
-        // Initalize the Data Project Container and Load the Projects
-        initializeDataProjectContainer(getActivity().getApplicationContext());
 
         // Populate the Project List
         populateProjectListView();
@@ -51,9 +53,6 @@ public class ProjectEditorFragment extends Fragment
     @Override
     public void onResume()
     {
-        // Initalize the Data Project Container and Load the Projects
-        initializeDataProjectContainer(getActivity().getApplicationContext());
-
         // Populate the Project List
         populateProjectListView();
 
@@ -63,6 +62,9 @@ public class ProjectEditorFragment extends Fragment
 
     private void populateProjectListView()
     {
+        // Initalize the Data Project Container and Load the Projects
+        initializeDataProjectContainer(getActivity().getApplicationContext());
+
         // Fetch the List View
         ListView projectListView = rootView.findViewById(R.id.project_list_view);
 
@@ -71,12 +73,73 @@ public class ProjectEditorFragment extends Fragment
 
         // Set the Adapter for the List View
         projectListView.setAdapter(adapter);
+
+        // Set the OnClickListener for the List Adapter
+        projectListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+            {
+
+            }
+        });
+
+        projectListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener()
+        {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id)
+            {
+                // Fetch the Project Name
+                String projectName = ((TextView)view.findViewById(R.id.project_name)).getText().toString();
+
+                // Show the Alert Dialog
+                showAlertDialog(projectName);
+
+                // Return to Prevent Further Processing
+                return true;
+            }
+        });
+    }
+
+    private void showAlertDialog(final String projectName)
+    {
+        // Create the Alert Dialog
+        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+
+        // Set the Message of the Alert Dialog
+        alert.setMessage(projectName + " will be deleted.");
+
+        // Create the Delete Button
+        alert.setPositiveButton("Delete", new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                // Delete the Project
+                projectList = dataProjectContainer.deleteProject(projectName);
+
+                // Re-Create the Project List View
+                populateProjectListView();
+            }
+        });
+
+        // Create the Cancel Button
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                dialog.dismiss();
+            }
+        });
+
+        // Show the Alert Dialog
+        alert.show();
     }
 
     private void initializeDataProjectContainer(Context context)
     {
         // Create a New Instance of the Data Project Container
-        DataProjectContainer dataProjectContainer = new DataProjectContainer(context);
+        dataProjectContainer = new DataProjectContainer(context);
 
         // Load All Projects from Device Memory
         projectList = dataProjectContainer.loadProjects();

@@ -53,6 +53,16 @@ public class DataProjectContainer
         }
     }
 
+    public ArrayList<DataProject> deleteProject(String projectName)
+    {
+        // Delete the Project
+        context.deleteFile(projectName + ".g4m");
+
+        // Return the Files
+        return loadProjects();
+    }
+
+
     public ArrayList<DataProject> loadProjects()
     {
         // Return the List of Projects
