@@ -12,7 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.RelativeLayout;
 
 import umich.jakebock.graphme.R;
 import umich.jakebock.graphme.fragments.ProjectEditorFragment;
@@ -20,11 +19,10 @@ import umich.jakebock.graphme.support_classes.TabFragmentPagerAdapter;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
-    private RelativeLayout  contentMain;
-    private DrawerLayout    drawerLayout;
-    private Toolbar         toolbar;
-    private TabLayout       tabLayout;
-    private ViewPager       viewPager;
+    private DrawerLayout            drawerLayout;
+    private Toolbar                 toolbar;
+    private TabLayout               tabLayout;
+    private ViewPager               viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -65,7 +63,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar         = findViewById(R.id.toolbar);
         tabLayout       = findViewById(R.id.tab_layout);
         viewPager       = findViewById(R.id.view_pager);
-        contentMain     = findViewById(R.id.content_main);
     }
 
     private void initializeNavigationDrawer()
@@ -82,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Fetch the Support Action Toolbar
         ActionBar actionBar = getSupportActionBar();
 
-        // Set the Title
+        // Set the Project Page Title
         actionBar.setTitle(getResources().getString(R.string.toolbar_project_title));
 
         // Set the Menu Frame
@@ -95,8 +92,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
-
-        // TODO Set the Title with the Current Project
     }
 
     private void initializeTabLayout()
@@ -144,8 +139,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        // Inflate the Menu
+        getMenuInflater().inflate(R.menu.default_menu, menu);
         return true;
     }
 

@@ -22,9 +22,10 @@ public class DataProject
     @SuppressLint("SimpleDateFormat")
     private DateFormat dateFormat = new SimpleDateFormat("MM/dd/yy HH:mm:ss");
 
-    public DataProject(String projectTitle)
+    public DataProject(String projectTitle, Bitmap projectImage)
     {
         this.projectTitle   = projectTitle;
+        this.projectImage   = projectImage;
         this.dataObjectList = new ArrayList<DataObject>();
         this.updatedTime    = returnCurrentTimeWithLabel();
     }

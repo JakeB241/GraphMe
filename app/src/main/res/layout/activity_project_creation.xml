@@ -1,0 +1,59 @@
+<RelativeLayout
+    android:id="@+id/project_creator"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar_layout">
+    </include>
+
+    <LinearLayout
+        android:id="@+id/project_information"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/darkGray"
+        android:gravity="center"
+        android:layout_below="@+id/toolbar">
+
+        <Button
+            android:id="@+id/import_image_button"
+            android:layout_width="@dimen/project_creation_image_size"
+            android:layout_height="@dimen/project_creation_image_size"
+            android:text="@string/import_image"
+            android:visibility="visible"/>
+
+        <ImageButton
+            android:id="@+id/import_image_image_button"
+            android:layout_width="@dimen/project_creation_image_size"
+            android:layout_height="@dimen/project_creation_image_size"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            android:visibility="gone"/>
+
+        <EditText
+            android:id="@+id/project_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginStart="15dp"
+            android:ems="12"
+            android:textColor="@color/black"
+            android:hint="@string/project_name_hint"
+            android:inputType="text" />
+
+    </LinearLayout>
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/gray"
+        android:layout_below="@+id/project_information"
+        android:layout_margin="10dp"
+        android:padding="10dp">
+
+    </ListView>
+
+</RelativeLayout>

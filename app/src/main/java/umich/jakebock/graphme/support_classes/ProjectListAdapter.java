@@ -20,7 +20,7 @@ import umich.jakebock.graphme.classes.DataProject;
 public class ProjectListAdapter extends ArrayAdapter<DataProject> implements View.OnClickListener{
 
     private ArrayList<DataProject> dataSet;
-    Context mContext;
+    Context context;
 
     // View lookup cache
     private static class ProjectViewHolder
@@ -34,7 +34,7 @@ public class ProjectListAdapter extends ArrayAdapter<DataProject> implements Vie
     {
         super(context, R.layout.project_item, data);
         this.dataSet  = data;
-        this.mContext = context;
+        this.context = context;
     }
 
     @Override

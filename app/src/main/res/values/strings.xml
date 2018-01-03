@@ -25,4 +25,8 @@
     <string name="import_image">Import Image</string>
     <string name="ok_label">OK</string>
     <string name="cancel_label">Cancel</string>
+    <string name="data_object_string">Data</string>
+    <string name="create_project_string">Create Project</string>
+    <string name="done">DONE</string>
+    <string name="title_activity_project_creation">Create Project</string>
 </resources>
