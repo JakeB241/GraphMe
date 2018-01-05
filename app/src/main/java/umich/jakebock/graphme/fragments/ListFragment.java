@@ -21,14 +21,14 @@ public class ListFragment extends Fragment
         // Create the Root View
         rootView = inflater.inflate(R.layout.fragment_list, container, false);
 
-        // Create the Floating Action Button
-        createAddDataObjectButton();
+        // Initialize the Floating Action Button
+        initializeAddDataObjectButton();
 
         // Return the Root View
         return rootView;
     }
 
-    private void createAddDataObjectButton()
+    private void initializeAddDataObjectButton()
     {
         // Create the Floating Action Button
         FloatingActionButton addButton = (FloatingActionButton) rootView.findViewById(R.id.add_button);

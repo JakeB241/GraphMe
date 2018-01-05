@@ -103,7 +103,11 @@ public class ProjectEditorFragment extends Fragment
                 projectBreakdownFragment.setArguments(bundle);
 
                 // Transition to the Project Breakdown Fragment
-                getActivity().getSupportFragmentManager().beginTransaction().add(R.id.content_main, projectBreakdownFragment).addToBackStack("ProjectEditorFragment").commit();
+                getActivity().getSupportFragmentManager().beginTransaction().
+                                                         setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out).
+                                                         add(R.id.content_main, projectBreakdownFragment).
+                                                         addToBackStack("ProjectEditorFragment").
+                                                         commit();
             }
         });
 

@@ -78,7 +78,7 @@ public class ProjectListAdapter extends ArrayAdapter<DataProject> implements Vie
 
         projectViewHolder.projectName.setText(dataProject.getProjectTitle());
         projectViewHolder.lastUpdatedTime.setText(dataProject.getUpdatedTime());
-        projectViewHolder.projectImage.setImageBitmap(dataProject.getProjectImage());
+        projectViewHolder.projectImage.setImageBitmap(dataProject.returnBitmapImage());
         //projectViewHolder.info.setOnClickListener(this);
         //projectViewHolder.info.setTag(position);
         // Return the completed view to render on screen

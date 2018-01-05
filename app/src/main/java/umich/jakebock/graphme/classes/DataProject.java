@@ -2,6 +2,7 @@ package umich.jakebock.graphme.classes;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -17,22 +18,37 @@ public class DataProject
     private ArrayList<DataObject> dataObjectList;
     private String                projectTitle;
     private String                updatedTime;
-    private Bitmap                projectImage;
+    private String                projectImageFilePath;
 
     @SuppressLint("SimpleDateFormat")
     private DateFormat dateFormat = new SimpleDateFormat("MM/dd/yy HH:mm:ss");
 
-    public DataProject(String projectTitle, Bitmap projectImage)
+    public DataProject(String projectTitle, String projectImageFilePath)
     {
-        this.projectTitle   = projectTitle;
-        this.projectImage   = projectImage;
-        this.dataObjectList = new ArrayList<DataObject>();
-        this.updatedTime    = returnCurrentTimeWithLabel();
+        this.projectTitle           = projectTitle;
+        this.projectImageFilePath   = projectImageFilePath;
+        this.updatedTime            = returnCurrentTimeWithLabel();
+        this.dataObjectList         = new ArrayList<DataObject>();
     }
 
-    private String returnCurrentTimeWithLabel() {
+    public DataProject(String projectTitle, String projectImageFilePath, String updatedTime)
+    {
+        this.projectTitle           = projectTitle;
+        this.projectImageFilePath   = projectImageFilePath;
+        this.updatedTime            = updatedTime;
+        this.dataObjectList         = new ArrayList<DataObject>();
+    }
+
+    private String returnCurrentTimeWithLabel()
+    {
         return "Updated: " + dateFormat.format(new Date());
     }
+
+    public Bitmap returnBitmapImage()
+    {
+        return BitmapFactory.decodeFile(projectImageFilePath);
+    }
+
 
     public ArrayList<DataObject> getDataObjectList() {
         return dataObjectList;
@@ -58,11 +74,11 @@ public class DataProject
         this.updatedTime = updatedTime;
     }
 
-    public Bitmap getProjectImage() {
-        return projectImage;
+    public String getProjectImageFilePath() {
+        return projectImageFilePath;
     }
 
-    public void setProjectImage(Bitmap projectImage) {
-        this.projectImage = projectImage;
+    public void setProjectImageFilePath(String projectImage) {
+        this.projectImageFilePath = projectImage;
     }
 }

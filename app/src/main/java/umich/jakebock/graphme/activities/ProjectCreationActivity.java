@@ -1,9 +1,12 @@
 package umich.jakebock.graphme.activities;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.CursorLoader;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
@@ -17,8 +20,11 @@ import android.widget.ImageButton;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 
+import pub.devrel.easypermissions.EasyPermissions;
 import umich.jakebock.graphme.R;
+import umich.jakebock.graphme.classes.DataObject;
 import umich.jakebock.graphme.classes.DataProject;
 import umich.jakebock.graphme.support_classes.DataProjectContainer;
 
@@ -28,8 +34,8 @@ public class ProjectCreationActivity extends AppCompatActivity
     private DataProject          dataProject;
     private DataProjectContainer dataProjectContainer;
 
-    private String projectTitle = null;
-    private Bitmap projectImage = null;
+    private String projectTitle;
+    private String projectImageFilePath = "";
 
     private int GALLERY_REQUEST_CODE = 3;
 
@@ -80,27 +86,15 @@ public class ProjectCreationActivity extends AppCompatActivity
                 if (projectTitle.length() > 0)
                 {
                     // Create the New Data Project
-                    dataProject = new DataProject(projectTitle, projectImage);
+                    dataProject = new DataProject(projectTitle, projectImageFilePath);
+
+                    // TODO Create the List of Data Objects
 
                     // Create the Data Project Container
                     dataProjectContainer = new DataProjectContainer(getApplicationContext());
 
                     // Create the New Project
-                    dataProjectContainer.createProject(dataProject);
-
-                    // Fetch the List View
-                    //ListView projectListView = fragment.getView().findViewById(R.id.project_list_view);
-
-                    //// Create the List of Data Project
-                    //// TODO Get the List from Memory
-                    //ArrayList<DataProject> dataProjectArrayList = new ArrayList<DataProject>();
-                    //dataProjectArrayList.add(dataProject);
-
-                    //// Create the List Adapter
-                    //ProjectListAdapter adapter = new ProjectListAdapter(dataProjectArrayList, activity.getApplicationContext());
-
-                    //// Set the Adapter for the List View
-                    //projectListView.setAdapter(adapter);
+                    dataProjectContainer.createProject(dataProject, new ArrayList<DataObject>());
 
                     // Return to the Main Activity
                     finish();
@@ -131,8 +125,14 @@ public class ProjectCreationActivity extends AppCompatActivity
                 // Set the Button to GONE
                 findViewById(R.id.import_image_button).setVisibility(View.GONE);
 
+                // Fetch the Data
+                Uri selectedImageURI = data.getData();
+
                 // Set the Image to the Bitmap of the Selected Image
-                imageButton.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData()));
+                imageButton.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageURI));
+
+                // Fetch the File for the Image
+                projectImageFilePath = getRealPathFromURI(selectedImageURI);
             }
 
             catch (FileNotFoundException e)
@@ -147,15 +147,25 @@ public class ProjectCreationActivity extends AppCompatActivity
         }
     }
 
+    public String getRealPathFromURI(Uri contentUri)
+    {
+        String[] proj = { MediaStore.Images.Media.DATA };
+
+        //This method was deprecated in API level 11
+        //Cursor cursor = managedQuery(contentUri, proj, null, null, null);
+
+        CursorLoader cursorLoader = new CursorLoader(this, contentUri, proj, null, null, null);
+        Cursor cursor = cursorLoader.loadInBackground();
+
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        return cursor.getString(column_index);
+    }
+
     private void collectDataProjectInformation()
     {
         // Fetch the Project Title
         projectTitle = ((EditText) findViewById(R.id.project_name)).getText().toString();
-
-        // Fetch the Project Image
-        ImageButton imageButton = (ImageButton) findViewById(R.id.import_image_image_button);
-        if ((imageButton.getDrawable()) != null)
-            projectImage = ((BitmapDrawable) imageButton.getDrawable()).getBitmap();
     }
 
     private void initializeToolbar()
@@ -176,6 +186,35 @@ public class ProjectCreationActivity extends AppCompatActivity
         actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
+    private void startGalleryRequest()
+    {
+        String[] galleryPermissions = new String[0];
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN)
+        {
+            galleryPermissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        }
+
+        if ((!galleryPermissions[0].equals("")) && (EasyPermissions.hasPermissions(this, galleryPermissions)))
+        {
+            startActivityForResult(new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI), GALLERY_REQUEST_CODE);;
+        }
+
+        else
+        {
+            EasyPermissions.requestPermissions(this, "Access for storage",101, galleryPermissions);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
+    {
+        // If request is cancelled, the result arrays are empty.
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+        {
+            startGalleryRequest();
+        }
+    }
+
     private void initializeViews()
     {
         // Request Focus on the Edit Text
@@ -185,7 +224,7 @@ public class ProjectCreationActivity extends AppCompatActivity
         findViewById(R.id.import_image_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivityForResult(new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI), GALLERY_REQUEST_CODE);
+                startGalleryRequest();
             }
         });
 
@@ -194,7 +233,7 @@ public class ProjectCreationActivity extends AppCompatActivity
         findViewById(R.id.import_image_image_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivityForResult(new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI), GALLERY_REQUEST_CODE);
+                startGalleryRequest();
             }
         });
     }
