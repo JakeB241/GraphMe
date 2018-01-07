@@ -29,4 +29,6 @@
     <string name="create_project_string">Create Project</string>
     <string name="done">DONE</string>
     <string name="title_activity_project_creation">Create Project</string>
+    <string name="edit">EDIT</string>
+    <string name="delete">DELETE</string>
 </resources>

@@ -10,7 +10,10 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -111,7 +114,9 @@ public class ProjectEditorFragment extends Fragment
             }
         });
 
-        projectListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener()
+        projectListView .setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        projectListView .setMultiChoiceModeListener(new ModeCallback());
+        /*projectListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener()
         {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id)
@@ -125,7 +130,7 @@ public class ProjectEditorFragment extends Fragment
                 // Return to Prevent Further Processing
                 return true;
             }
-        });
+        });*/
     }
 
     private void showAlertDialog(final String projectName)
@@ -162,6 +167,48 @@ public class ProjectEditorFragment extends Fragment
 
         // Show the Alert Dialog
         alert.show();
+    }
+
+    private class ModeCallback implements ListView.MultiChoiceModeListener
+    {
+        @Override
+        public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked)
+        {
+
+        }
+
+        public boolean onCreateActionMode(ActionMode mode, Menu menu)
+        {
+            System.out.println("CALLED THE MODE CALLBACK");
+            getActivity().getMenuInflater().inflate(R.menu.project_editor_edit, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item)
+        {
+            switch (item.getItemId())
+            {
+                case R.id.action_menu_edit:
+                    break;
+                case R.id.action_menu_delete:
+                    break;
+                default:
+                    return false;
+
+            }
+
+            mode.finish();
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {}
     }
 
     private void initializeDataProjectContainer(Context context)

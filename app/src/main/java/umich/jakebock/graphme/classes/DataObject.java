@@ -11,6 +11,7 @@ public class DataObject
     private Date   objectDate;
     private String objectInformation;
 
+    // Begin Getters/Setters
     public Date getObjectDate() {
         return objectDate;
     }

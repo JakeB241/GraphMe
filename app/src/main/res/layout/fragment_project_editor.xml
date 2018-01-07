@@ -10,8 +10,9 @@
         android:id="@+id/project_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="15dp">
-    </ListView>
+        android:divider="@android:color/transparent"
+        android:dividerHeight="10sp"
+        android:layout_margin="15dp"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/add_button"

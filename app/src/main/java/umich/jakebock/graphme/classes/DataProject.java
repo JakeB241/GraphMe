@@ -1,6 +1,5 @@
 package umich.jakebock.graphme.classes;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
@@ -8,6 +7,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by Jake on 12/10/2017.
@@ -20,28 +20,33 @@ public class DataProject
     private String                updatedTime;
     private String                projectImageFilePath;
 
-    @SuppressLint("SimpleDateFormat")
-    private DateFormat dateFormat = new SimpleDateFormat("MM/dd/yy HH:mm:ss");
+    // Date Formatting
+    public static DateFormat dateFormat = new SimpleDateFormat("M/d/yy h:mm a", Locale.US);
 
     public DataProject(String projectTitle, String projectImageFilePath)
     {
         this.projectTitle           = projectTitle;
         this.projectImageFilePath   = projectImageFilePath;
-        this.updatedTime            = returnCurrentTimeWithLabel();
-        this.dataObjectList         = new ArrayList<DataObject>();
+        this.updatedTime            = prependUpdatedLabel(returnCurrentTime());
+        this.dataObjectList         = new ArrayList<>();
     }
 
     public DataProject(String projectTitle, String projectImageFilePath, String updatedTime)
     {
         this.projectTitle           = projectTitle;
         this.projectImageFilePath   = projectImageFilePath;
-        this.updatedTime            = updatedTime;
-        this.dataObjectList         = new ArrayList<DataObject>();
+        this.updatedTime            = prependUpdatedLabel(updatedTime);
+        this.dataObjectList         = new ArrayList<>();
     }
 
-    private String returnCurrentTimeWithLabel()
+    private String returnCurrentTime()
     {
-        return "Updated: " + dateFormat.format(new Date());
+        return dateFormat.format(new Date());
+    }
+
+    private String prependUpdatedLabel(String updatedTime)
+    {
+        return "Updated: " + updatedTime;
     }
 
     public Bitmap returnBitmapImage()
@@ -49,7 +54,7 @@ public class DataProject
         return BitmapFactory.decodeFile(projectImageFilePath);
     }
 
-
+    // Begin Getters/Setters
     public ArrayList<DataObject> getDataObjectList() {
         return dataObjectList;
     }

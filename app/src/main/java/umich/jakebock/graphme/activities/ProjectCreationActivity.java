@@ -20,11 +20,9 @@ import android.widget.ImageButton;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import pub.devrel.easypermissions.EasyPermissions;
 import umich.jakebock.graphme.R;
-import umich.jakebock.graphme.classes.DataObject;
 import umich.jakebock.graphme.classes.DataProject;
 import umich.jakebock.graphme.support_classes.DataProjectContainer;
 
@@ -85,16 +83,16 @@ public class ProjectCreationActivity extends AppCompatActivity
                 // Ensure the Project Title is Populated
                 if (projectTitle.length() > 0)
                 {
+                    // TODO Create the List of Data Objects
+
                     // Create the New Data Project
                     dataProject = new DataProject(projectTitle, projectImageFilePath);
-
-                    // TODO Create the List of Data Objects
 
                     // Create the Data Project Container
                     dataProjectContainer = new DataProjectContainer(getApplicationContext());
 
                     // Create the New Project
-                    dataProjectContainer.createProject(dataProject, new ArrayList<DataObject>());
+                    dataProjectContainer.createProject(dataProject);
 
                     // Return to the Main Activity
                     finish();
