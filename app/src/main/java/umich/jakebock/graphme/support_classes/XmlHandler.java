@@ -22,7 +22,7 @@ import umich.jakebock.graphme.classes.DataProject;
  * Created by Jake on 1/6/2018.
  */
 
-public class XmlHandler
+class XmlHandler
 {
     // File Suffix
     private String GRAPHME_FILE_SUFFIX = DataProjectContainer.GRAPHME_FILE_SUFFIX;

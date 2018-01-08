@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:background="@color/white"
+    android:background="@drawable/list_item_background"
     android:paddingStart="0dp"
     android:paddingLeft="0dp"
     android:paddingEnd="10dp"
@@ -28,8 +28,7 @@
         android:textSize="24sp"
         android:layout_marginBottom="5dp"
         android:layout_marginLeft="15dp"
-        android:layout_marginStart="15dp"
-        android:text="Project Name" />
+        android:layout_marginStart="15dp" />
 
     <TextView
         android:id="@+id/updated_time"
@@ -38,7 +37,6 @@
         android:layout_alignBottom="@+id/project_image"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:text="Updated: 10/12/2015 10:10am"
         android:textSize="12sp" />
 
 </RelativeLayout>

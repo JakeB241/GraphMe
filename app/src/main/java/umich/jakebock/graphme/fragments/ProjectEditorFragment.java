@@ -36,6 +36,8 @@ public class ProjectEditorFragment extends Fragment
     private View                    rootView;
     private ArrayList<DataProject>  projectList;
     private DataProjectContainer    dataProjectContainer;
+    private ListView                projectListView;
+    private ArrayList<String>       selectedProjects;
 
     public ProjectEditorFragment() {}
 
@@ -77,7 +79,7 @@ public class ProjectEditorFragment extends Fragment
         initializeDataProjectContainer(getActivity().getApplicationContext());
 
         // Fetch the List View
-        ListView projectListView = rootView.findViewById(R.id.project_list_view);
+        projectListView = rootView.findViewById(R.id.project_list_view);
 
         // Create the List Adapter
         ProjectListAdapter adapter = new ProjectListAdapter(projectList, getActivity().getApplicationContext());
@@ -114,32 +116,22 @@ public class ProjectEditorFragment extends Fragment
             }
         });
 
-        projectListView .setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-        projectListView .setMultiChoiceModeListener(new ModeCallback());
-        /*projectListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener()
-        {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id)
-            {
-                // Fetch the Project Name
-                String projectName = ((TextView)view.findViewById(R.id.project_name)).getText().toString();
-
-                // Show the Alert Dialog
-                showAlertDialog(projectName);
-
-                // Return to Prevent Further Processing
-                return true;
-            }
-        });*/
+        projectListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        projectListView.setMultiChoiceModeListener(new ModeCallback());
     }
 
-    private void showAlertDialog(final String projectName)
+    private void showDeleteAlertDialog()
     {
         // Create the Alert Dialog
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
+        // Get the Message that will be Displayed
+        String message;
+        if (selectedProjects.size() == 1) message = (selectedProjects.get(0));
+        else                              message = selectedProjects.size() + " Projects";
+
         // Set the Message of the Alert Dialog
-        alert.setMessage(projectName + " will be deleted.");
+        alert.setMessage(message + " will be deleted.");
 
         // Create the Delete Button
         alert.setPositiveButton("Delete", new DialogInterface.OnClickListener()
@@ -147,8 +139,8 @@ public class ProjectEditorFragment extends Fragment
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
-                // Delete the Project
-                projectList = dataProjectContainer.deleteProject(projectName);
+                // Delete the Projects
+                projectList = dataProjectContainer.deleteProjects(selectedProjects);
 
                 // Re-Create the Project List View
                 populateProjectListView();
@@ -169,40 +161,50 @@ public class ProjectEditorFragment extends Fragment
         alert.show();
     }
 
+    // Listener for the Action Mode Callback for the Action Bar (Long Click on List Items)
     private class ModeCallback implements ListView.MultiChoiceModeListener
     {
         @Override
         public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked)
         {
+            // Fetch the Project Name
+            String projectName = ((TextView) projectListView.getChildAt(position).findViewById(R.id.project_name)).getText().toString();
 
+            // Add/Remove from the Selected Projects List
+            if (checked) selectedProjects.add   (projectName);
+            else         selectedProjects.remove(projectName);
         }
 
         public boolean onCreateActionMode(ActionMode mode, Menu menu)
         {
-            System.out.println("CALLED THE MODE CALLBACK");
+            // Initialize the Selected Projects
+            selectedProjects = new ArrayList<>();
+
+            // Inflate the Project Editor Edit Menu
             getActivity().getMenuInflater().inflate(R.menu.project_editor_edit, menu);
             return true;
         }
 
         @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
-        }
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) { return false; }
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item)
         {
+            // Switch for the Item ID
             switch (item.getItemId())
             {
                 case R.id.action_menu_edit:
                     break;
                 case R.id.action_menu_delete:
+                    showDeleteAlertDialog();
                     break;
                 default:
                     return false;
 
             }
 
+            // Finish the Action Mode
             mode.finish();
             return true;
         }
@@ -241,8 +243,12 @@ public class ProjectEditorFragment extends Fragment
         // Fetch the Action Bar
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
 
-        // Set the Action Bar Title
-        actionBar.setTitle(R.string.toolbar_project_title);
+
+        if (actionBar != null)
+        {
+            // Set the Action Bar Title
+            actionBar.setTitle(R.string.toolbar_project_title);
+        }
     }
 
 

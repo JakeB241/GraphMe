@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import umich.jakebock.graphme.classes.DataProject;
 
@@ -45,10 +47,11 @@ public class DataProjectContainer
         }
     }
 
-    public ArrayList<DataProject> deleteProject(String projectName)
+    public ArrayList<DataProject> deleteProjects(ArrayList<String> projectNames)
     {
-        // Delete the Project
-        context.deleteFile(projectName + GRAPHME_FILE_SUFFIX);
+        // Delete the Projects
+        for (String projectName : projectNames)
+            context.deleteFile(projectName + GRAPHME_FILE_SUFFIX);
 
         // Return the Files
         return loadProjects();
@@ -61,6 +64,18 @@ public class DataProjectContainer
 
         // Parse the Project List and Return the Data Projects
         XmlHandler xmlHandler = new XmlHandler();
-        return xmlHandler.parseXMLFile(projectList);
+        ArrayList<DataProject> projectArrayList = xmlHandler.parseXMLFile(projectList);
+
+        // Sort the Data Project by Update Time
+        Collections.sort(projectArrayList, new Comparator<DataProject>()
+        {
+            public int compare(DataProject dataProjectOne, DataProject dataProjectTwo)
+            {
+                return dataProjectTwo.getUpdatedTime().compareTo(dataProjectOne.getUpdatedTime());
+            }
+        });
+
+        // Return the Project Array List
+        return projectArrayList;
     }
 }

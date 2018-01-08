@@ -18,10 +18,10 @@ import umich.jakebock.graphme.classes.DataProject;
  * Created by Jake on 12/19/2017.
  */
 
-public class ProjectListAdapter extends ArrayAdapter<DataProject> implements View.OnClickListener{
-
-    private ArrayList<DataProject> dataSet;
-    Context context;
+public class ProjectListAdapter extends ArrayAdapter<DataProject> implements View.OnClickListener
+{
+    private ArrayList<DataProject>  dataSet;
+    Context                         context;
 
     // View lookup cache
     private static class ProjectViewHolder
@@ -42,10 +42,6 @@ public class ProjectListAdapter extends ArrayAdapter<DataProject> implements Vie
     public void onClick(View v)
     {
         DataProject dataProject = (DataProject) getItem((Integer) v.getTag());
-
-        //switch (v.getId())
-        //{
-        //}
     }
 
     @NonNull
@@ -57,8 +53,6 @@ public class ProjectListAdapter extends ArrayAdapter<DataProject> implements Vie
 
         // Check if an existing view is being reused, otherwise inflate the view
         ProjectViewHolder projectViewHolder; // view lookup cache stored in tag
-
-        final View result;
 
         if (convertView == null)
         {
