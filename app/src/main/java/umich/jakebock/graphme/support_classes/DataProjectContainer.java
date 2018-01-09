@@ -28,12 +28,18 @@ public class DataProjectContainer
         this.context = context;
     }
 
-    public void createProject(DataProject dataProject)
+    public boolean createProject(DataProject dataProject)
     {
         try
         {
-            // Create the File (Override File if Already Exists)
+            // Create the FileName
             String filename = dataProject.getProjectTitle() + GRAPHME_FILE_SUFFIX;
+
+            // If the File Exists, Return False
+            for (File file : context.getFilesDir().listFiles())
+                if (file.getName().equals(filename))
+                    return false;
+
             FileOutputStream fileOutputStream = context.openFileOutput(filename, Context.MODE_PRIVATE);
 
             // Create the XML File
@@ -44,6 +50,8 @@ public class DataProjectContainer
         {
             e.printStackTrace();
         }
+
+        return true;
     }
 
     public ArrayList<DataProject> deleteProjects(ArrayList<DataProject> projects)

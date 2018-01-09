@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -21,6 +22,7 @@ import android.widget.ImageButton;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import pub.devrel.easypermissions.EasyPermissions;
 import umich.jakebock.graphme.R;
@@ -80,6 +82,7 @@ public class ProjectCreationActivity extends AppCompatActivity
 
                 // Return to the Main Activity
                 finish();
+                return true;
 
             // Checkbox Menu Clicked
             case R.id.action_menu_done:
@@ -88,21 +91,36 @@ public class ProjectCreationActivity extends AppCompatActivity
                 collectDataProjectInformation();
 
                 // Ensure the Project Title is Populated
-                if (projectTitle.length() > 0)
+                if (projectTitle.length() >= 1 && projectTitle.length() <= 15)
                 {
                     // TODO Create the List of Data Objects
 
                     // Create the New Data Project
                     dataProject = new DataProject(projectTitle, projectImageFilePath);
 
-                    // Create the New Project
-                    new DataProjectContainer(getApplicationContext()).createProject(dataProject);
+                    // Attempt to Create the New Project
+                    // Project Creation Successful
+                    if (new DataProjectContainer(getApplicationContext()).createProject(dataProject))
+                    {
+                        // Return to the Main Activity
+                        finish();
+                    }
 
-                    // TODO Error Checking for Project with Same Name
-
-                    // Return to the Main Activity
-                    finish();
+                    // Project Creation Failed
+                    else
+                    {
+                        // Set the Error State for Project Existing
+                        projectName.setError("Project Exists");
+                    }
                 }
+
+                // Invalid Project Name
+                else
+                {
+                    projectName.setError("Project Name Must be Between 1-15 Characters");
+                }
+
+                return true;
 
             default:
 
@@ -204,7 +222,7 @@ public class ProjectCreationActivity extends AppCompatActivity
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults)
     {
         // If request is cancelled, the result arrays are empty.
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
@@ -234,6 +252,14 @@ public class ProjectCreationActivity extends AppCompatActivity
 
             // Set the Image of the Image Button
             importImageImageButton.setImageBitmap(dataProject.returnBitmapImage());
+
+            // Delete the Previous Project from Internal Storage
+            ArrayList<DataProject> projectToDelete = new ArrayList<>();
+            projectToDelete.add(dataProject);
+            new DataProjectContainer(getApplicationContext()).deleteProjects(projectToDelete);
+
+            // Get the Image Path
+            projectImageFilePath = dataProject.getProjectImageFilePath();
         }
 
         // Add Listener for Import Image Button
