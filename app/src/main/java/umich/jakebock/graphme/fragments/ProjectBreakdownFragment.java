@@ -11,15 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import umich.jakebock.graphme.R;
+import umich.jakebock.graphme.classes.DataProject;
 import umich.jakebock.graphme.support_classes.TabFragmentPagerAdapter;
 
 
 public class ProjectBreakdownFragment extends Fragment
 {
     private View        rootView;
-    private TabLayout   tabLayout;
-    private ViewPager   viewPager;
-    private String      currentProjectName;
+    private DataProject currentDataProject;
 
     public ProjectBreakdownFragment() {}
 
@@ -30,7 +29,7 @@ public class ProjectBreakdownFragment extends Fragment
         rootView = inflater.inflate(R.layout.fragment_project_breakdown, container, false);
 
         // Fetch the Project Name
-        currentProjectName = getArguments().getString("PROJECT_NAME");
+        currentDataProject = (DataProject) getArguments().getSerializable("DATA_PROJECT");
 
         // Initialize the Toolbar
         initializeToolbar();
@@ -53,13 +52,13 @@ public class ProjectBreakdownFragment extends Fragment
     private void initializeTabLayout()
     {
         // Create the Fragment Pager Adapter
-        TabFragmentPagerAdapter adapter = new TabFragmentPagerAdapter(getActivity().getSupportFragmentManager());
+        TabFragmentPagerAdapter adapter = new TabFragmentPagerAdapter(getActivity().getSupportFragmentManager(), currentDataProject);
 
         // Initialize the Tab Layout
-        tabLayout = rootView.findViewById(R.id.tab_layout);
+        TabLayout tabLayout = rootView.findViewById(R.id.tab_layout);
 
         // Initialize the View Pager
-        viewPager = rootView.findViewById(R.id.view_pager);
+        ViewPager viewPager = rootView.findViewById(R.id.view_pager);
 
         // Set the adapter onto the view pager
         viewPager.setAdapter(adapter);
@@ -76,12 +75,12 @@ public class ProjectBreakdownFragment extends Fragment
         TabLayout.Tab graphTab      = tabLayout.getTabAt(TabFragmentPagerAdapter.GRAPH_TAB_POSITION      );
 
         // Add the TabLayout Icons
-        listTab      .setIcon(R.drawable.list_icon      );
-        statisticsTab.setIcon(R.drawable.statistics_icon);
-        graphTab     .setIcon(R.drawable.graph_icon     );
+        if (listTab         != null) listTab      .setIcon(R.drawable.list_icon      );
+        if (statisticsTab   != null) statisticsTab.setIcon(R.drawable.statistics_icon);
+        if (graphTab        != null) graphTab     .setIcon(R.drawable.graph_icon     );
 
         // Ensure that the ListTab is Selected First
-        listTab.select();
+        if (listTab != null) listTab.select();
     }
 
     private void restoreToolbar()
@@ -90,7 +89,7 @@ public class ProjectBreakdownFragment extends Fragment
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
 
         // Set the Action Bar Title
-        actionBar.setTitle(R.string.toolbar_project_title);
+        if (actionBar != null) actionBar.setTitle(R.string.toolbar_project_title);
     }
 
     private void initializeToolbar()
@@ -99,6 +98,6 @@ public class ProjectBreakdownFragment extends Fragment
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
 
         // Set the Action Bar Title
-        actionBar.setTitle(currentProjectName);
+        if (actionBar != null) actionBar.setTitle(currentDataProject.getProjectTitle());
     }
 }

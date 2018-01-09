@@ -32,13 +32,12 @@ public class DataProjectContainer
     {
         try
         {
-            // Create the File
+            // Create the File (Override File if Already Exists)
             String filename = dataProject.getProjectTitle() + GRAPHME_FILE_SUFFIX;
-            FileOutputStream fileOutputStream = context.openFileOutput(filename, Context.MODE_APPEND);
+            FileOutputStream fileOutputStream = context.openFileOutput(filename, Context.MODE_PRIVATE);
 
             // Create the XML File
-            XmlHandler xmlHandler = new XmlHandler();
-            xmlHandler.createXMLProject(dataProject, fileOutputStream);
+            new XmlHandler().createXMLProject(dataProject, fileOutputStream);
         }
 
         catch (FileNotFoundException e)
@@ -47,11 +46,11 @@ public class DataProjectContainer
         }
     }
 
-    public ArrayList<DataProject> deleteProjects(ArrayList<String> projectNames)
+    public ArrayList<DataProject> deleteProjects(ArrayList<DataProject> projects)
     {
         // Delete the Projects
-        for (String projectName : projectNames)
-            context.deleteFile(projectName + GRAPHME_FILE_SUFFIX);
+        for (DataProject project : projects)
+            context.deleteFile(project.getProjectTitle() + GRAPHME_FILE_SUFFIX);
 
         // Return the Files
         return loadProjects();
@@ -63,8 +62,7 @@ public class DataProjectContainer
         File[] projectList = context.getFilesDir().listFiles();
 
         // Parse the Project List and Return the Data Projects
-        XmlHandler xmlHandler = new XmlHandler();
-        ArrayList<DataProject> projectArrayList = xmlHandler.parseXMLFile(projectList);
+        ArrayList<DataProject> projectArrayList = new XmlHandler().parseXMLFile(projectList);
 
         // Sort the Data Project by Update Time
         Collections.sort(projectArrayList, new Comparator<DataProject>()

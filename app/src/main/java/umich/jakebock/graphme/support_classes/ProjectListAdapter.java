@@ -18,30 +18,25 @@ import umich.jakebock.graphme.classes.DataProject;
  * Created by Jake on 12/19/2017.
  */
 
-public class ProjectListAdapter extends ArrayAdapter<DataProject> implements View.OnClickListener
+public class ProjectListAdapter extends ArrayAdapter<DataProject>
 {
-    private ArrayList<DataProject>  dataSet;
-    Context                         context;
+    private Context context;
 
     // View lookup cache
     private static class ProjectViewHolder
     {
-        ImageView projectImage;
-        TextView  projectName;
-        TextView  lastUpdatedTime;
+        ImageView   projectImage;
+        TextView    projectName;
+        TextView    lastUpdatedTime;
     }
 
     public ProjectListAdapter(ArrayList<DataProject> data, Context context)
     {
+        // Call the Super
         super(context, R.layout.project_item, data);
-        this.dataSet  = data;
-        this.context = context;
-    }
 
-    @Override
-    public void onClick(View v)
-    {
-        DataProject dataProject = (DataProject) getItem((Integer) v.getTag());
+        // Initialize Data
+        this.context = context;
     }
 
     @NonNull
@@ -52,13 +47,12 @@ public class ProjectListAdapter extends ArrayAdapter<DataProject> implements Vie
         DataProject dataProject = getItem(position);
 
         // Check if an existing view is being reused, otherwise inflate the view
-        ProjectViewHolder projectViewHolder; // view lookup cache stored in tag
+        ProjectViewHolder projectViewHolder;
 
         if (convertView == null)
         {
             projectViewHolder = new ProjectViewHolder();
-            LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.project_item, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.project_item, parent, false);
             projectViewHolder.projectImage      = (ImageView) convertView.findViewById(R.id.project_image);
             projectViewHolder.projectName       = (TextView)  convertView.findViewById(R.id.project_name);
             projectViewHolder.lastUpdatedTime   = (TextView)  convertView.findViewById(R.id.updated_time);
@@ -70,12 +64,16 @@ public class ProjectListAdapter extends ArrayAdapter<DataProject> implements Vie
             projectViewHolder = (ProjectViewHolder) convertView.getTag();
         }
 
-        projectViewHolder.projectName.setText(dataProject.getProjectTitle());
-        projectViewHolder.lastUpdatedTime.setText(dataProject.getUpdatedTime());
-        projectViewHolder.projectImage.setImageBitmap(dataProject.returnBitmapImage());
-        //projectViewHolder.info.setOnClickListener(this);
-        //projectViewHolder.info.setTag(position);
-        // Return the completed view to render on screen
+        // Ensure a Data Project is Found
+        if (dataProject != null)
+        {
+            // Set the View Parameters
+            projectViewHolder.projectName.setText(dataProject.getProjectTitle());
+            projectViewHolder.lastUpdatedTime.setText(dataProject.getUpdatedTime());
+            projectViewHolder.projectImage.setImageBitmap(dataProject.returnBitmapImage());
+        }
+
+        // Return the Completed View
         return convertView;
     }
 }

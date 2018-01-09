@@ -15,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
@@ -30,10 +31,13 @@ public class ProjectCreationActivity extends AppCompatActivity
 {
     private View                 rootView;
     private DataProject          dataProject;
-    private DataProjectContainer dataProjectContainer;
 
     private String projectTitle;
     private String projectImageFilePath = "";
+
+    private EditText    projectName;
+    private Button      importImageButton;
+    private ImageButton importImageImageButton;
 
     private int GALLERY_REQUEST_CODE = 3;
 
@@ -45,6 +49,9 @@ public class ProjectCreationActivity extends AppCompatActivity
 
         // Set the Content View
         setContentView(R.layout.activity_project_creation);
+
+        // Check to see if a Data Project was Passed to be Edited
+        dataProject = (DataProject) getIntent().getSerializableExtra("DATA_PROJECT");
 
         // Initalize the Views
         initializeViews();
@@ -88,11 +95,10 @@ public class ProjectCreationActivity extends AppCompatActivity
                     // Create the New Data Project
                     dataProject = new DataProject(projectTitle, projectImageFilePath);
 
-                    // Create the Data Project Container
-                    dataProjectContainer = new DataProjectContainer(getApplicationContext());
-
                     // Create the New Project
-                    dataProjectContainer.createProject(dataProject);
+                    new DataProjectContainer(getApplicationContext()).createProject(dataProject);
+
+                    // TODO Error Checking for Project with Same Name
 
                     // Return to the Main Activity
                     finish();
@@ -114,20 +120,17 @@ public class ProjectCreationActivity extends AppCompatActivity
         {
             try
             {
-                // Fetch the Image Button
-                ImageButton imageButton = findViewById(R.id.import_image_image_button);
-
                 // Set the Image Button to Visible
-                imageButton.setVisibility(View.VISIBLE);
+                importImageImageButton.setVisibility(View.VISIBLE);
 
                 // Set the Button to GONE
-                findViewById(R.id.import_image_button).setVisibility(View.GONE);
+                importImageButton.setVisibility(View.GONE);
 
                 // Fetch the Data
                 Uri selectedImageURI = data.getData();
 
                 // Set the Image to the Bitmap of the Selected Image
-                imageButton.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageURI));
+                importImageImageButton.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageURI));
 
                 // Fetch the File for the Image
                 projectImageFilePath = getRealPathFromURI(selectedImageURI);
@@ -149,9 +152,6 @@ public class ProjectCreationActivity extends AppCompatActivity
     {
         String[] proj = { MediaStore.Images.Media.DATA };
 
-        //This method was deprecated in API level 11
-        //Cursor cursor = managedQuery(contentUri, proj, null, null, null);
-
         CursorLoader cursorLoader = new CursorLoader(this, contentUri, proj, null, null, null);
         Cursor cursor = cursorLoader.loadInBackground();
 
@@ -163,7 +163,7 @@ public class ProjectCreationActivity extends AppCompatActivity
     private void collectDataProjectInformation()
     {
         // Fetch the Project Title
-        projectTitle = ((EditText) findViewById(R.id.project_name)).getText().toString();
+        projectTitle = projectName.getText().toString();
     }
 
     private void initializeToolbar()
@@ -215,11 +215,29 @@ public class ProjectCreationActivity extends AppCompatActivity
 
     private void initializeViews()
     {
-        // Request Focus on the Edit Text
-        findViewById(R.id.project_name).requestFocus();
+        // Fetch the Views
+        projectName             = findViewById(R.id.project_name);
+        importImageButton       = findViewById(R.id.import_image_button);
+        importImageImageButton  = findViewById(R.id.import_image_image_button);
+
+        // Set the Existing Data Project Parameters (If the Data Project was Passed In)
+        if (dataProject != null)
+        {
+            // Set the Text of the Project Name
+            projectName.setText(dataProject.getProjectTitle());
+
+            // Set the Image Button to Visible
+            importImageImageButton.setVisibility(View.VISIBLE);
+
+            // Set the Button to GONE
+            importImageButton.setVisibility(View.GONE);
+
+            // Set the Image of the Image Button
+            importImageImageButton.setImageBitmap(dataProject.returnBitmapImage());
+        }
 
         // Add Listener for Import Image Button
-        findViewById(R.id.import_image_button).setOnClickListener(new View.OnClickListener() {
+        importImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startGalleryRequest();
@@ -228,11 +246,14 @@ public class ProjectCreationActivity extends AppCompatActivity
 
         // Add Listener for Import Image Button
         // NOTE - This is after the first image has been selected
-        findViewById(R.id.import_image_image_button).setOnClickListener(new View.OnClickListener() {
+        importImageImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startGalleryRequest();
             }
         });
+
+        // Request Focus on the Edit Text
+        projectName.requestFocus();
     }
 }

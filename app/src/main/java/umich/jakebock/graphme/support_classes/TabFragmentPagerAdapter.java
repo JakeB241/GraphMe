@@ -1,9 +1,11 @@
 package umich.jakebock.graphme.support_classes;
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import umich.jakebock.graphme.classes.DataProject;
 import umich.jakebock.graphme.fragments.GraphFragment;
 import umich.jakebock.graphme.fragments.ListFragment;
 import umich.jakebock.graphme.fragments.StatisticsFragment;
@@ -23,7 +25,7 @@ public class TabFragmentPagerAdapter extends FragmentPagerAdapter
     private StatisticsFragment  statisticsFragment;
     private GraphFragment       graphFragment;
 
-    public TabFragmentPagerAdapter(FragmentManager fragmentManager)
+    public TabFragmentPagerAdapter(FragmentManager fragmentManager, DataProject dataProject)
     {
         super(fragmentManager);
 
@@ -31,6 +33,18 @@ public class TabFragmentPagerAdapter extends FragmentPagerAdapter
         listFragment        = new ListFragment();
         statisticsFragment  = new StatisticsFragment();
         graphFragment       = new GraphFragment();
+
+        // Create the Bundle
+        Bundle bundle = new Bundle();
+
+        // Add the Data Project to the Bundle
+        bundle.putSerializable("DATA_PROJECT", dataProject);
+
+        // Add the Data Project to the Fragments
+        listFragment        .setArguments(bundle);
+        statisticsFragment  .setArguments(bundle);
+        graphFragment       .setArguments(bundle);
+
     }
 
     // This determines the fragment for each tab

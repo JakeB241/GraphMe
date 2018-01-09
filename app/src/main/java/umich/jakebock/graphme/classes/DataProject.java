@@ -3,6 +3,7 @@ package umich.jakebock.graphme.classes;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.Locale;
  * Created by Jake on 12/10/2017.
  */
 
-public class DataProject
+public class DataProject implements Serializable
 {
     private ArrayList<DataObject> dataObjectList;
     private String                projectTitle;

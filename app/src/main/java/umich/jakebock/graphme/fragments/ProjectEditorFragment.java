@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -18,7 +19,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -28,16 +28,14 @@ import umich.jakebock.graphme.classes.DataProject;
 import umich.jakebock.graphme.support_classes.DataProjectContainer;
 import umich.jakebock.graphme.support_classes.ProjectListAdapter;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class ProjectEditorFragment extends Fragment
 {
     private View                    rootView;
-    private ArrayList<DataProject>  projectList;
     private DataProjectContainer    dataProjectContainer;
     private ListView                projectListView;
-    private ArrayList<String>       selectedProjects;
+
+    private ArrayList<DataProject>  projectList;
+    private ArrayList<DataProject>  selectedProjects;
 
     public ProjectEditorFragment() {}
 
@@ -87,54 +85,54 @@ public class ProjectEditorFragment extends Fragment
         // Set the Adapter for the List View
         projectListView.setAdapter(adapter);
 
-        // Set the OnClickListener for the List Adapter
+        // Set the Action Mode Callback
+        projectListView.setMultiChoiceModeListener(new ActionModeCallback());
+
+        // Set the On Click for the Project List View
         projectListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
+            @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
+                // Fetch the Data Project
+                DataProject dataProject = (DataProject) projectListView.getItemAtPosition(position);
+
                 // Create the Fragment
                 ProjectBreakdownFragment projectBreakdownFragment = new ProjectBreakdownFragment();
 
                 // Create the Bundle for the Data Project Selected
                 Bundle bundle = new Bundle();
 
-                // Fetch the Project Name
-                String projectName = ((TextView)view.findViewById(R.id.project_name)).getText().toString();
-
-                // Add the Data Project Name
-                bundle.putString("PROJECT_NAME", projectName);
+                // Add the Data Project
+                bundle.putSerializable("DATA_PROJECT", dataProject);
 
                 // Add the Bundle to the Fragment
                 projectBreakdownFragment.setArguments(bundle);
 
                 // Transition to the Project Breakdown Fragment
-                getActivity().getSupportFragmentManager().beginTransaction().
-                                                         setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out).
-                                                         add(R.id.content_main, projectBreakdownFragment).
-                                                         addToBackStack("ProjectEditorFragment").
-                                                         commit();
+                getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out).
+                                                                             add(R.id.content_main, projectBreakdownFragment).
+                                                                             addToBackStack("ProjectEditorFragment").
+                                                                             commit();
             }
         });
-
-        projectListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-        projectListView.setMultiChoiceModeListener(new ModeCallback());
     }
 
     private void showDeleteAlertDialog()
     {
         // Create the Alert Dialog
-        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         // Get the Message that will be Displayed
-        String message;
-        if (selectedProjects.size() == 1) message = (selectedProjects.get(0));
-        else                              message = selectedProjects.size() + " Projects";
+        String message = "";
+        if (selectedProjects.size() == 1) message = (selectedProjects.get(0).getProjectTitle());
+        else                              message =  selectedProjects.size() + " Projects";
 
         // Set the Message of the Alert Dialog
-        alert.setMessage(message + " will be deleted.");
+        builder.setMessage(message + " will be deleted.");
 
         // Create the Delete Button
-        alert.setPositiveButton("Delete", new DialogInterface.OnClickListener()
+        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener()
         {
             @Override
             public void onClick(DialogInterface dialog, int which)
@@ -148,7 +146,7 @@ public class ProjectEditorFragment extends Fragment
         });
 
         // Create the Cancel Button
-        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
         {
             @Override
             public void onClick(DialogInterface dialog, int which)
@@ -158,21 +156,30 @@ public class ProjectEditorFragment extends Fragment
         });
 
         // Show the Alert Dialog
+        AlertDialog alert = builder.create();
         alert.show();
+
+        // Set the Color of the Positive and Negative Button
+        alert.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(Color.BLACK);
+        alert.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
     }
 
     // Listener for the Action Mode Callback for the Action Bar (Long Click on List Items)
-    private class ModeCallback implements ListView.MultiChoiceModeListener
+    private class ActionModeCallback implements ListView.MultiChoiceModeListener
     {
         @Override
         public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked)
         {
-            // Fetch the Project Name
-            String projectName = ((TextView) projectListView.getChildAt(position).findViewById(R.id.project_name)).getText().toString();
+            // Fetch the Data Project of the Selected Item
+            DataProject selectedDataProject = (DataProject) projectListView.getItemAtPosition(position);
 
             // Add/Remove from the Selected Projects List
-            if (checked) selectedProjects.add   (projectName);
-            else         selectedProjects.remove(projectName);
+            if (checked) selectedProjects.add   (selectedDataProject);
+            else         selectedProjects.remove(selectedDataProject);
+
+            // Remove the Edit Button there are More Than One Selected Projects
+            if (selectedProjects.size() > 1) mode.getMenu().findItem(R.id.action_menu_edit).setVisible(false);
+            else                             mode.getMenu().findItem(R.id.action_menu_edit).setVisible(true);
         }
 
         public boolean onCreateActionMode(ActionMode mode, Menu menu)
@@ -195,6 +202,7 @@ public class ProjectEditorFragment extends Fragment
             switch (item.getItemId())
             {
                 case R.id.action_menu_edit:
+                    showProjectCreationFragment(selectedProjects.get(0));
                     break;
                 case R.id.action_menu_delete:
                     showDeleteAlertDialog();
@@ -233,7 +241,7 @@ public class ProjectEditorFragment extends Fragment
             public void onClick(View v)
             {
                 // Show the Project Creation Fragment
-                showProjectCreationFragment();
+                showProjectCreationFragment(null);
             }
         });
     }
@@ -243,19 +251,21 @@ public class ProjectEditorFragment extends Fragment
         // Fetch the Action Bar
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
 
-
-        if (actionBar != null)
-        {
-            // Set the Action Bar Title
-            actionBar.setTitle(R.string.toolbar_project_title);
-        }
+        // Set the Action Bar Title
+        if (actionBar != null) actionBar.setTitle(R.string.toolbar_project_title);
     }
 
 
-    private void showProjectCreationFragment()
+    private void showProjectCreationFragment(DataProject dataProject)
     {
+        // Create the Project Creation Activity
+        Intent projectCreationIntent = new Intent(getActivity(), ProjectCreationActivity.class);
+
+        // Add Extra to the Intent
+        if (dataProject != null) projectCreationIntent.putExtra("DATA_PROJECT", dataProject);
+
         // Create the Project Creation Activity with Animation
-        startActivity(new Intent(getActivity(), ProjectCreationActivity.class));
+        startActivity(projectCreationIntent);
         getActivity().overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
 }

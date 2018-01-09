@@ -9,14 +9,16 @@ import android.view.ViewGroup;
 import umich.jakebock.graphme.R;
 
 
-public class StatisticsFragment extends Fragment {
+public class StatisticsFragment extends Fragment
+{
+    private View rootView;
 
     public StatisticsFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        View rootView = inflater.inflate(R.layout.fragment_statistics, container, false);
+        rootView = inflater.inflate(R.layout.fragment_statistics, container, false);
         return rootView;
     }
 }

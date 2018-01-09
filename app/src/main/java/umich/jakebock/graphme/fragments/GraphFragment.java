@@ -7,17 +7,20 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import umich.jakebock.graphme.R;
+import umich.jakebock.graphme.classes.DataProject;
 
 
 public class GraphFragment extends Fragment
 {
+    private View rootView;
+    private DataProject currentDataProject;
 
     public GraphFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        View rootView = inflater.inflate(R.layout.fragment_graph, container, false);
+        rootView = inflater.inflate(R.layout.fragment_graph, container, false);
         return rootView;
     }
 }

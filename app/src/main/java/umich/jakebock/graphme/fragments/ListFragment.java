@@ -8,10 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import umich.jakebock.graphme.R;
+import umich.jakebock.graphme.classes.DataProject;
 
 public class ListFragment extends Fragment
 {
     private View rootView;
+    private DataProject currentDataProject;
 
     public ListFragment() {}
 
