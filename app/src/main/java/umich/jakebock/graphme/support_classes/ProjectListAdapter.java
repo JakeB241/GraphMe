@@ -9,8 +9,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
 import umich.jakebock.graphme.R;
 import umich.jakebock.graphme.classes.DataProject;
 
@@ -30,10 +28,10 @@ public class ProjectListAdapter extends ArrayAdapter<DataProject>
         TextView    lastUpdatedTime;
     }
 
-    public ProjectListAdapter(ArrayList<DataProject> data, Context context)
+    public ProjectListAdapter(Context context)
     {
         // Call the Super
-        super(context, R.layout.project_item, data);
+        super(context, R.layout.project_item);
 
         // Initialize Data
         this.context = context;

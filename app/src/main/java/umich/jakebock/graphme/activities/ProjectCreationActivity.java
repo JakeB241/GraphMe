@@ -23,6 +23,7 @@ import android.widget.ImageButton;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import pub.devrel.easypermissions.EasyPermissions;
 import umich.jakebock.graphme.R;
@@ -90,35 +91,36 @@ public class ProjectCreationActivity extends AppCompatActivity
                 // Collect the Project Information
                 collectDataProjectInformation();
 
+                // Create the Data Project Container
+                DataProjectContainer container = new DataProjectContainer(getApplicationContext());
+
                 // Ensure the Project Title is Populated
-                if (projectTitle.length() >= 1 && projectTitle.length() <= 15)
-                {
-                    // TODO Create the List of Data Objects
-
-                    // Create the New Data Project
-                    dataProject = new DataProject(projectTitle, projectImageFilePath);
-
-                    // Attempt to Create the New Project
-                    // Project Creation Successful
-                    if (new DataProjectContainer(getApplicationContext()).createProject(dataProject))
-                    {
-                        // Return to the Main Activity
-                        finish();
-                    }
-
-                    // Project Creation Failed
-                    else
-                    {
-                        // Set the Error State for Project Existing
-                        projectName.setError("Project Exists");
-                    }
-                }
-
-                // Invalid Project Name
-                else
+                if (projectTitle.length() < 1 || projectTitle.length() > 15)
                 {
                     projectName.setError("Project Name Must be Between 1-15 Characters");
+                    return false;
                 }
+
+                // Ensure this is Not an Edit and the Project Exist
+                else if (dataProject == null && container.projectExists(projectTitle))
+                {
+                    projectName.setError("Project Exists");
+                    return false;
+                }
+
+                // TODO Create the List of Data Objects
+
+                // Delete the Previous Project from Internal Storage (If this is an Edit)
+                if (dataProject != null) container.deleteProjects(new ArrayList<DataProject>(Collections.singletonList(dataProject)));
+
+                // Create the New Data Project
+                dataProject = new DataProject(projectTitle, projectImageFilePath);
+
+                // Create the New Project
+                container.createProject(dataProject);
+
+                // Return to the Main Activity
+                finish();
 
                 return true;
 
@@ -252,11 +254,6 @@ public class ProjectCreationActivity extends AppCompatActivity
 
             // Set the Image of the Image Button
             importImageImageButton.setImageBitmap(dataProject.returnBitmapImage());
-
-            // Delete the Previous Project from Internal Storage
-            ArrayList<DataProject> projectToDelete = new ArrayList<>();
-            projectToDelete.add(dataProject);
-            new DataProjectContainer(getApplicationContext()).deleteProjects(projectToDelete);
 
             // Get the Image Path
             projectImageFilePath = dataProject.getProjectImageFilePath();

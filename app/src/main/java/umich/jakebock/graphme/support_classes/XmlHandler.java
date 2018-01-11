@@ -77,7 +77,7 @@ class XmlHandler
                 serializer.startTag     ("", DATA_OBJECT_TAG);
 
                 // Data Object Update Time
-                writeTag(serializer, DATA_OBJECT_UPDATE_TIME_TAG, dataObject.getObjectDate().toString());
+                writeTag(serializer, DATA_OBJECT_UPDATE_TIME_TAG, dataObject.getUpdatedTime().toString());
 
                 // Data Object Information
                 writeTag(serializer, DATA_OBJECT_INFORMATION_TAG, dataObject.getObjectInformation());

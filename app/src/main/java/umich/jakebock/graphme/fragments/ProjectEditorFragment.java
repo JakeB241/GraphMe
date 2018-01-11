@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ActionMode;
@@ -17,6 +18,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -34,8 +37,12 @@ public class ProjectEditorFragment extends Fragment
     private DataProjectContainer    dataProjectContainer;
     private ListView                projectListView;
 
-    private ArrayList<DataProject>  projectList;
     private ArrayList<DataProject>  selectedProjects;
+    private ArrayList<View>         selectedViews;
+    private ProjectListAdapter      adapter;
+
+    private FragmentActivity fragmentActivity;
+    private Context applicationContext;
 
     public ProjectEditorFragment() {}
 
@@ -44,6 +51,10 @@ public class ProjectEditorFragment extends Fragment
     {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_project_editor, container, false);
+
+        // Fetch the Activity and the Context
+        fragmentActivity    = getActivity();
+        applicationContext  = fragmentActivity.getApplicationContext();
 
         // Populate the Project List
         populateProjectListView();
@@ -73,14 +84,14 @@ public class ProjectEditorFragment extends Fragment
 
     private void populateProjectListView()
     {
-        // Initalize the Data Project Container and Load the Projects
-        initializeDataProjectContainer(getActivity().getApplicationContext());
-
         // Fetch the List View
         projectListView = rootView.findViewById(R.id.project_list_view);
 
         // Create the List Adapter
-        ProjectListAdapter adapter = new ProjectListAdapter(projectList, getActivity().getApplicationContext());
+        adapter = new ProjectListAdapter(applicationContext);
+
+        // Initalize the Data Project Container and Load the Projects
+        initializeDataProjectContainer(applicationContext);
 
         // Set the Adapter for the List View
         projectListView.setAdapter(adapter);
@@ -110,7 +121,7 @@ public class ProjectEditorFragment extends Fragment
                 projectBreakdownFragment.setArguments(bundle);
 
                 // Transition to the Project Breakdown Fragment
-                getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out).
+                fragmentActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out).
                                                                              add(R.id.content_main, projectBreakdownFragment).
                                                                              addToBackStack("ProjectEditorFragment").
                                                                              commit();
@@ -121,7 +132,7 @@ public class ProjectEditorFragment extends Fragment
     private void showDeleteAlertDialog()
     {
         // Create the Alert Dialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(fragmentActivity);
 
         // Get the Message that will be Displayed
         String message = "";
@@ -137,11 +148,37 @@ public class ProjectEditorFragment extends Fragment
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
-                // Delete the Projects
-                projectList = dataProjectContainer.deleteProjects(selectedProjects);
+                // Create the Slide out Right Animation
+                Animation anim = AnimationUtils.loadAnimation(applicationContext, android.R.anim.slide_out_right);
 
-                // Re-Create the Project List View
-                populateProjectListView();
+                // Loop through the Selected Views and Start the Animation
+                for (View view : selectedViews) view.startAnimation(anim);
+
+                // Set the Animation Listener
+                anim.setAnimationListener(new Animation.AnimationListener()
+                {
+                    @Override
+                    public void onAnimationStart(Animation animation)
+                    {
+                        System.out.println("ANIMATION START");
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation)
+                    {
+                        // Clear the Adapter
+                        adapter.clear();
+
+                        // Delete the Projects
+                        adapter.addAll(dataProjectContainer.deleteProjects(selectedProjects));
+
+                        // Notify the Data Set Changed
+                        adapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {}
+                });
             }
         });
 
@@ -172,10 +209,20 @@ public class ProjectEditorFragment extends Fragment
         {
             // Fetch the Data Project of the Selected Item
             DataProject selectedDataProject = (DataProject) projectListView.getItemAtPosition(position);
+            View selectedView               = (View)        projectListView.getChildAt(position);
 
             // Add/Remove from the Selected Projects List
-            if (checked) selectedProjects.add   (selectedDataProject);
-            else         selectedProjects.remove(selectedDataProject);
+            if (checked)
+            {
+                selectedProjects.add(selectedDataProject);
+                selectedViews   .add(selectedView);
+            }
+
+            else
+            {
+                selectedProjects.remove(selectedDataProject);
+                selectedViews   .remove(selectedView);
+            }
 
             // Remove the Edit Button there are More Than One Selected Projects
             if (selectedProjects.size() > 1) mode.getMenu().findItem(R.id.action_menu_edit).setVisible(false);
@@ -187,8 +234,11 @@ public class ProjectEditorFragment extends Fragment
             // Initialize the Selected Projects
             selectedProjects = new ArrayList<>();
 
+            // Initialize the Selected Views
+            selectedViews = new ArrayList<>();
+
             // Inflate the Project Editor Edit Menu
-            getActivity().getMenuInflater().inflate(R.menu.project_editor_edit, menu);
+            fragmentActivity.getMenuInflater().inflate(R.menu.project_editor_edit, menu);
             return true;
         }
 
@@ -226,8 +276,11 @@ public class ProjectEditorFragment extends Fragment
         // Create a New Instance of the Data Project Container
         dataProjectContainer = new DataProjectContainer(context);
 
+        // Clear Previous
+        adapter.clear();
+
         // Load All Projects from Device Memory
-        projectList = dataProjectContainer.loadProjects();
+        adapter.addAll(dataProjectContainer.loadProjects());
     }
 
     private void initializeAddButton()
@@ -249,7 +302,7 @@ public class ProjectEditorFragment extends Fragment
     private void initializeToolbar()
     {
         // Fetch the Action Bar
-        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        ActionBar actionBar = ((AppCompatActivity)fragmentActivity).getSupportActionBar();
 
         // Set the Action Bar Title
         if (actionBar != null) actionBar.setTitle(R.string.toolbar_project_title);
@@ -259,13 +312,13 @@ public class ProjectEditorFragment extends Fragment
     private void showProjectCreationFragment(DataProject dataProject)
     {
         // Create the Project Creation Activity
-        Intent projectCreationIntent = new Intent(getActivity(), ProjectCreationActivity.class);
+        Intent projectCreationIntent = new Intent(fragmentActivity, ProjectCreationActivity.class);
 
         // Add Extra to the Intent
         if (dataProject != null) projectCreationIntent.putExtra("DATA_PROJECT", dataProject);
 
         // Create the Project Creation Activity with Animation
         startActivity(projectCreationIntent);
-        getActivity().overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+        fragmentActivity.overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
 }

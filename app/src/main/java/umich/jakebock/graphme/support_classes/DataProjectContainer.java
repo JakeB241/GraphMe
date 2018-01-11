@@ -28,7 +28,7 @@ public class DataProjectContainer
         this.context = context;
     }
 
-    public boolean createProject(DataProject dataProject)
+    public void createProject(DataProject dataProject)
     {
         try
         {
@@ -36,10 +36,9 @@ public class DataProjectContainer
             String filename = dataProject.getProjectTitle() + GRAPHME_FILE_SUFFIX;
 
             // If the File Exists, Return False
-            for (File file : context.getFilesDir().listFiles())
-                if (file.getName().equals(filename))
-                    return false;
+            if (projectExists(filename)) return;
 
+            // Create the File
             FileOutputStream fileOutputStream = context.openFileOutput(filename, Context.MODE_PRIVATE);
 
             // Create the XML File
@@ -51,7 +50,6 @@ public class DataProjectContainer
             e.printStackTrace();
         }
 
-        return true;
     }
 
     public ArrayList<DataProject> deleteProjects(ArrayList<DataProject> projects)
@@ -83,5 +81,19 @@ public class DataProjectContainer
 
         // Return the Project Array List
         return projectArrayList;
+    }
+
+    public boolean projectExists(String filename)
+    {
+        // Ensure the Filename End with the GraphMe Suffix
+        if (!filename.endsWith(GRAPHME_FILE_SUFFIX)) filename += GRAPHME_FILE_SUFFIX;
+
+        // If the File Exists, Return False
+        for (File file : context.getFilesDir().listFiles())
+            if (file.getName().equals(filename))
+                return true;
+
+        // Return True
+        return false;
     }
 }

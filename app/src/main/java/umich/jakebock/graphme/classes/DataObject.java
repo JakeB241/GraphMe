@@ -8,20 +8,37 @@ import java.util.Date;
 
 public class DataObject
 {
-    private Date   objectDate;
-    private String objectInformation;
+    private String  objectInformation;
+    private String  updatedTime;
+
+    public DataObject(String objectInformation)
+    {
+        this.objectInformation = objectInformation;
+        this.updatedTime       = returnCurrentTime();
+    }
+
+    public DataObject(String objectInformation, String updatedTime)
+    {
+        this.objectInformation = objectInformation;
+        this.updatedTime       = updatedTime;
+    }
+
+    private String returnCurrentTime()
+    {
+        return DataProject.dateFormat.format(new Date());
+    }
 
     // Begin Getters/Setters
-    public Date getObjectDate() {
-        return objectDate;
+    public String getUpdatedTime() {
+        return updatedTime;
     }
 
     public String getObjectInformation() {
         return objectInformation;
     }
 
-    public void setObjectDate(Date objectDate) {
-        this.objectDate = objectDate;
+    public void setUpdatedTime(String updatedTime) {
+        this.updatedTime = updatedTime;
     }
 
     public void setObjectInformation(String objectInformation) {
