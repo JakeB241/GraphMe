@@ -1,15 +1,22 @@
 package umich.jakebock.graphme.classes;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by Jake on 12/10/2017.
  */
 
-public class DataObject
+public class DataObject implements Serializable
 {
     private String  objectInformation;
     private String  updatedTime;
+
+    public DataObject()
+    {
+        this.objectInformation = "";
+        this.updatedTime       = returnCurrentTime();
+    }
 
     public DataObject(String objectInformation)
     {

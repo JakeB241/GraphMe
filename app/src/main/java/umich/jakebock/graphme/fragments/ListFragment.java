@@ -6,14 +6,18 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import umich.jakebock.graphme.R;
+import umich.jakebock.graphme.classes.DataObject;
 import umich.jakebock.graphme.classes.DataProject;
+import umich.jakebock.graphme.support_classes.DataObjectListAdapter;
 
 public class ListFragment extends Fragment
 {
-    private View rootView;
-    private DataProject currentDataProject;
+    private View                    rootView;
+    private DataProject             currentDataProject;
+    private DataObjectListAdapter   dataObjectListAdapter;
 
     public ListFragment() {}
 
@@ -23,6 +27,12 @@ public class ListFragment extends Fragment
         // Create the Root View
         rootView = inflater.inflate(R.layout.fragment_list, container, false);
 
+        // Fetch the Data Project
+        currentDataProject = (DataProject) getArguments().getSerializable("DATA_PROJECT");
+
+        // Initialize the Data Object List View
+        initializeDataObjectListView();
+
         // Initialize the Floating Action Button
         initializeAddDataObjectButton();
 
@@ -30,9 +40,26 @@ public class ListFragment extends Fragment
         return rootView;
     }
 
+    private void initializeDataObjectListView()
+    {
+        // Fetch the List VIew
+        ListView dataObjectListView = (ListView) rootView.findViewById(R.id.data_object_list_view);
+
+        // Initialize the List Adapter
+        dataObjectListAdapter = new DataObjectListAdapter(getActivity().getApplicationContext(), getActivity());
+
+        // Set the Data Objects for the List Adapter
+        dataObjectListAdapter.addAll(currentDataProject.getDataObjectList());
+
+        // Set the Adapter for the List View
+        dataObjectListView.setAdapter(dataObjectListAdapter);
+
+        dataObjectListAdapter.notifyDataSetChanged();
+    }
+
     private void initializeAddDataObjectButton()
     {
-        // Create the Floating Action Button
+        // Fetch the Floating Action Button
         FloatingActionButton addButton = (FloatingActionButton) rootView.findViewById(R.id.add_button);
 
         // Set the Add Button
@@ -43,7 +70,8 @@ public class ListFragment extends Fragment
         {
             public void onClick(View v)
             {
-                // TODO Create Data
+                dataObjectListAdapter.add(new DataObject());
+                dataObjectListAdapter.notifyDataSetChanged();
             }
         });
     }

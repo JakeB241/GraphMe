@@ -31,4 +31,5 @@
     <string name="title_activity_project_creation">Create Project</string>
     <string name="edit">EDIT</string>
     <string name="delete">DELETE</string>
+    <string name="title_activity_project_edit">Edit Project</string>
 </resources>

@@ -32,12 +32,20 @@ public class DataProject implements Serializable
         this.dataObjectList         = new ArrayList<>();
     }
 
-    public DataProject(String projectTitle, String projectImageFilePath, String updatedTime)
+    public DataProject(String projectTitle, String projectImageFilePath, ArrayList<DataObject> dataObjectList)
+    {
+        this.projectTitle           = projectTitle;
+        this.projectImageFilePath   = projectImageFilePath;
+        this.updatedTime            = prependUpdatedLabel(returnCurrentTime());
+        this.dataObjectList         = dataObjectList;
+    }
+
+    public DataProject(String projectTitle, String projectImageFilePath, String updatedTime, ArrayList<DataObject> dataObjectList)
     {
         this.projectTitle           = projectTitle;
         this.projectImageFilePath   = projectImageFilePath;
         this.updatedTime            = prependUpdatedLabel(updatedTime);
-        this.dataObjectList         = new ArrayList<>();
+        this.dataObjectList         = dataObjectList;
     }
 
     private String returnCurrentTime()
@@ -53,6 +61,11 @@ public class DataProject implements Serializable
     public Bitmap returnBitmapImage()
     {
         return BitmapFactory.decodeFile(projectImageFilePath);
+    }
+
+    public String returnNumberOfDataObjectsWithLabel()
+    {
+        return "Entries: " + dataObjectList.size();
     }
 
     // Begin Getters/Setters

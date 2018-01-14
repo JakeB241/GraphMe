@@ -19,6 +19,8 @@ public class ProjectBreakdownFragment extends Fragment
 {
     private View        rootView;
     private DataProject currentDataProject;
+    private TabLayout   tabLayout;
+    private ViewPager   viewPager;
 
     public ProjectBreakdownFragment() {}
 
@@ -28,7 +30,7 @@ public class ProjectBreakdownFragment extends Fragment
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_project_breakdown, container, false);
 
-        // Fetch the Project Name
+        // Fetch the Data Project
         currentDataProject = (DataProject) getArguments().getSerializable("DATA_PROJECT");
 
         // Initialize the Toolbar
@@ -55,10 +57,10 @@ public class ProjectBreakdownFragment extends Fragment
         TabFragmentPagerAdapter adapter = new TabFragmentPagerAdapter(getActivity().getSupportFragmentManager(), currentDataProject);
 
         // Initialize the Tab Layout
-        TabLayout tabLayout = rootView.findViewById(R.id.tab_layout);
+        tabLayout = rootView.findViewById(R.id.tab_layout);
 
         // Initialize the View Pager
-        ViewPager viewPager = rootView.findViewById(R.id.view_pager);
+        viewPager = rootView.findViewById(R.id.view_pager);
 
         // Set the adapter onto the view pager
         viewPager.setAdapter(adapter);

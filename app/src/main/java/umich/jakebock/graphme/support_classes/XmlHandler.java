@@ -76,11 +76,11 @@ class XmlHandler
                 // Data Object Start Tag
                 serializer.startTag     ("", DATA_OBJECT_TAG);
 
-                // Data Object Update Time
-                writeTag(serializer, DATA_OBJECT_UPDATE_TIME_TAG, dataObject.getUpdatedTime().toString());
-
                 // Data Object Information
                 writeTag(serializer, DATA_OBJECT_INFORMATION_TAG, dataObject.getObjectInformation());
+
+                // Data Object Update Time
+                writeTag(serializer, DATA_OBJECT_UPDATE_TIME_TAG, dataObject.getUpdatedTime());
 
                 // Data Object End Tag
                 serializer.endTag       ("", DATA_OBJECT_TAG);
@@ -126,8 +126,11 @@ class XmlHandler
                 String projectImageFilePath = null;
 
                 // Create the Object Attributes
-                String objectUpdateTime     = null;
                 String objectInformation    = null;
+                String objectUpdateTime     = null;
+
+                // Create the Array List of Data Objects
+                ArrayList<DataObject> dataObjects = new ArrayList<>();
 
                 try
                 {
@@ -142,7 +145,8 @@ class XmlHandler
                         if (parser.getEventType() == XmlPullParser.START_TAG)
                         {
                             // Switch on the Tags
-                            switch (parser.getName()) {
+                            switch (parser.getName())
+                            {
                                 case DATA_PROJECT_TITLE_TAG:
                                     projectTitle            = readTag(parser);
                                     break;
@@ -152,11 +156,14 @@ class XmlHandler
                                 case DATA_PROJECT_IMAGE_TAG:
                                     projectImageFilePath    = readTag(parser);
                                     break;
-                                case DATA_OBJECT_UPDATE_TIME_TAG:
-                                    objectUpdateTime        = readTag(parser);
-                                    break;
                                 case DATA_OBJECT_INFORMATION_TAG:
                                     objectInformation       = readTag(parser);
+                                    break;
+                                case DATA_OBJECT_UPDATE_TIME_TAG:
+                                    objectUpdateTime        = readTag(parser);
+
+                                    // Create the Data Object
+                                    dataObjects.add(new DataObject(objectInformation, objectUpdateTime));
                                     break;
                                 default:
                                     break;
@@ -176,7 +183,7 @@ class XmlHandler
                 }
 
                 // Create the Data Project Object
-                dataProjectList.add(new DataProject(projectTitle, projectImageFilePath, projectUpdateTime));
+                dataProjectList.add(new DataProject(projectTitle, projectImageFilePath, projectUpdateTime, dataObjects));
             }
         }
 

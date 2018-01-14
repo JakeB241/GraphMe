@@ -6,7 +6,7 @@
     tools:context="umich.jakebock.graphme.fragments.ListFragment">
 
     <ListView
-        android:id="@+id/data_item_list_view"
+        android:id="@+id/data_object_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="15dp">

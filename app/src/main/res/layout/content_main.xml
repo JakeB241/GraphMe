@@ -11,24 +11,4 @@
     android:background="@color/lightGray"
     tools:showIn="@layout/app_bar_main">
 
-    <RelativeLayout
-            android:id="@+id/tab_content_frame"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone">
-
-            <android.support.design.widget.TabLayout
-                android:id="@+id/tab_layout"
-                android:background="@color/colorAccent"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent" />
-
-            <android.support.v4.view.ViewPager
-                android:id="@+id/view_pager"
-                android:layout_below="@id/tab_layout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@android:color/white" />
-        </RelativeLayout>
-
 </RelativeLayout>

@@ -29,23 +29,28 @@ import umich.jakebock.graphme.R;
 import umich.jakebock.graphme.activities.ProjectCreationActivity;
 import umich.jakebock.graphme.classes.DataProject;
 import umich.jakebock.graphme.support_classes.DataProjectContainer;
-import umich.jakebock.graphme.support_classes.ProjectListAdapter;
+import umich.jakebock.graphme.support_classes.DataProjectListAdapter;
 
 public class ProjectEditorFragment extends Fragment
 {
+    // region Class Data
     private View                    rootView;
     private DataProjectContainer    dataProjectContainer;
     private ListView                projectListView;
 
     private ArrayList<DataProject>  selectedProjects;
     private ArrayList<View>         selectedViews;
-    private ProjectListAdapter      adapter;
+    private DataProjectListAdapter adapter;
 
     private FragmentActivity fragmentActivity;
     private Context applicationContext;
+    // endregion
 
+    // region Constructor
     public ProjectEditorFragment() {}
+    // endregion
 
+    // region Lifecycle Functions
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -81,14 +86,55 @@ public class ProjectEditorFragment extends Fragment
         // Call the Activity On Resume
         super.onResume();
     }
+    //endregion
 
+    // region Initializion Functions
+    private void initializeDataProjectContainer(Context context)
+    {
+        // Create a New Instance of the Data Project Container
+        dataProjectContainer = new DataProjectContainer(context);
+
+        // Clear Previous
+        adapter.clear();
+
+        // Load All Projects from Device Memory
+        adapter.addAll(dataProjectContainer.loadProjects());
+    }
+
+    private void initializeAddButton()
+    {
+        // Create the Floating Action Button
+        FloatingActionButton addButton = (FloatingActionButton) rootView.findViewById(R.id.add_button);
+
+        // Create the Listener for the Add Button
+        addButton.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                // Show the Project Creation Fragment
+                showProjectCreationFragment(null);
+            }
+        });
+    }
+
+    private void initializeToolbar()
+    {
+        // Fetch the Action Bar
+        ActionBar actionBar = ((AppCompatActivity)fragmentActivity).getSupportActionBar();
+
+        // Set the Action Bar Title
+        if (actionBar != null) actionBar.setTitle(R.string.toolbar_project_title);
+    }
+    // endregions
+
+    // region Fragment Specific Functions
     private void populateProjectListView()
     {
         // Fetch the List View
         projectListView = rootView.findViewById(R.id.project_list_view);
 
         // Create the List Adapter
-        adapter = new ProjectListAdapter(applicationContext);
+        adapter = new DataProjectListAdapter(applicationContext);
 
         // Initalize the Data Project Container and Load the Projects
         initializeDataProjectContainer(applicationContext);
@@ -100,33 +146,7 @@ public class ProjectEditorFragment extends Fragment
         projectListView.setMultiChoiceModeListener(new ActionModeCallback());
 
         // Set the On Click for the Project List View
-        projectListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-            {
-                // Fetch the Data Project
-                DataProject dataProject = (DataProject) projectListView.getItemAtPosition(position);
-
-                // Create the Fragment
-                ProjectBreakdownFragment projectBreakdownFragment = new ProjectBreakdownFragment();
-
-                // Create the Bundle for the Data Project Selected
-                Bundle bundle = new Bundle();
-
-                // Add the Data Project
-                bundle.putSerializable("DATA_PROJECT", dataProject);
-
-                // Add the Bundle to the Fragment
-                projectBreakdownFragment.setArguments(bundle);
-
-                // Transition to the Project Breakdown Fragment
-                fragmentActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out).
-                                                                             add(R.id.content_main, projectBreakdownFragment).
-                                                                             addToBackStack("ProjectEditorFragment").
-                                                                             commit();
-            }
-        });
+        projectListView.setOnItemClickListener(dataProjectItemClickedListener);
     }
 
     private void showDeleteAlertDialog()
@@ -143,54 +163,10 @@ public class ProjectEditorFragment extends Fragment
         builder.setMessage(message + " will be deleted.");
 
         // Create the Delete Button
-        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
-                // Create the Slide out Right Animation
-                Animation anim = AnimationUtils.loadAnimation(applicationContext, android.R.anim.slide_out_right);
-
-                // Loop through the Selected Views and Start the Animation
-                for (View view : selectedViews) view.startAnimation(anim);
-
-                // Set the Animation Listener
-                anim.setAnimationListener(new Animation.AnimationListener()
-                {
-                    @Override
-                    public void onAnimationStart(Animation animation)
-                    {
-                        System.out.println("ANIMATION START");
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation)
-                    {
-                        // Clear the Adapter
-                        adapter.clear();
-
-                        // Delete the Projects
-                        adapter.addAll(dataProjectContainer.deleteProjects(selectedProjects));
-
-                        // Notify the Data Set Changed
-                        adapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {}
-                });
-            }
-        });
+        builder.setPositiveButton("Delete", deleteButtonListener);
 
         // Create the Cancel Button
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
-                dialog.dismiss();
-            }
-        });
+        builder.setNegativeButton("Cancel", cancelButtonListener);
 
         // Show the Alert Dialog
         AlertDialog alert = builder.create();
@@ -200,6 +176,88 @@ public class ProjectEditorFragment extends Fragment
         alert.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(Color.BLACK);
         alert.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
     }
+    // endregion
+
+    // region Click Listeners
+    private AdapterView.OnItemClickListener dataProjectItemClickedListener = new AdapterView.OnItemClickListener()
+    {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+        {
+            // Fetch the Data Project
+            DataProject dataProject = (DataProject) projectListView.getItemAtPosition(position);
+
+            // Create the Fragment
+            ProjectBreakdownFragment projectBreakdownFragment = new ProjectBreakdownFragment();
+
+            // Create the Bundle for the Data Project Selected
+            Bundle bundle = new Bundle();
+
+            // Add the Data Project
+            bundle.putSerializable("DATA_PROJECT", dataProject);
+
+            // Add the Bundle to the Fragment
+            projectBreakdownFragment.setArguments(bundle);
+
+            // Transition to the Project Breakdown Fragment
+            fragmentActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out).
+                    add(R.id.content_main, projectBreakdownFragment).
+                    addToBackStack("ProjectEditorFragment").
+                    commit();
+        }
+    };
+
+    private DialogInterface.OnClickListener deleteButtonListener = new DialogInterface.OnClickListener()
+    {
+        @Override
+        public void onClick(DialogInterface dialog, int which)
+        {
+            // Create the Slide out Right Animation
+            Animation anim = AnimationUtils.loadAnimation(applicationContext, android.R.anim.slide_out_right);
+
+            // Loop through the Selected Views and Start the Animation
+            for (View view : selectedViews) view.startAnimation(anim);
+
+            // Set the Animation Listener
+            anim.setAnimationListener(new DeleteDataProjectAnimationListener());
+        }
+    };
+
+    private DialogInterface.OnClickListener cancelButtonListener = new DialogInterface.OnClickListener()
+    {
+        @Override
+        public void onClick(DialogInterface dialog, int which)
+        {
+            dialog.dismiss();
+        }
+    };
+
+    //endregion
+
+    // region Listener Classes
+    // Listener for Animation Listener Deleting the Data Project (Slide Right)
+    private class DeleteDataProjectAnimationListener implements Animation.AnimationListener
+    {
+        @Override
+        public void onAnimationStart(Animation animation) {}
+
+        @Override
+        public void onAnimationEnd(Animation animation)
+        {
+            // Clear the Adapter
+            adapter.clear();
+
+            // Delete the Projects
+            adapter.addAll(dataProjectContainer.deleteProjects(selectedProjects));
+
+            // Notify the Data Set Changed
+            adapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onAnimationRepeat(Animation animation) {}
+    }
+
 
     // Listener for the Action Mode Callback for the Action Bar (Long Click on List Items)
     private class ActionModeCallback implements ListView.MultiChoiceModeListener
@@ -270,45 +328,9 @@ public class ProjectEditorFragment extends Fragment
         @Override
         public void onDestroyActionMode(ActionMode mode) {}
     }
+    //endregion
 
-    private void initializeDataProjectContainer(Context context)
-    {
-        // Create a New Instance of the Data Project Container
-        dataProjectContainer = new DataProjectContainer(context);
-
-        // Clear Previous
-        adapter.clear();
-
-        // Load All Projects from Device Memory
-        adapter.addAll(dataProjectContainer.loadProjects());
-    }
-
-    private void initializeAddButton()
-    {
-        // Create the Floating Action Button
-        FloatingActionButton addButton = (FloatingActionButton) rootView.findViewById(R.id.add_button);
-
-        // Create the Listener for the Add Button
-        addButton.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                // Show the Project Creation Fragment
-                showProjectCreationFragment(null);
-            }
-        });
-    }
-
-    private void initializeToolbar()
-    {
-        // Fetch the Action Bar
-        ActionBar actionBar = ((AppCompatActivity)fragmentActivity).getSupportActionBar();
-
-        // Set the Action Bar Title
-        if (actionBar != null) actionBar.setTitle(R.string.toolbar_project_title);
-    }
-
-
+    // region Navigation Functions
     private void showProjectCreationFragment(DataProject dataProject)
     {
         // Create the Project Creation Activity
@@ -321,4 +343,5 @@ public class ProjectEditorFragment extends Fragment
         startActivity(projectCreationIntent);
         fragmentActivity.overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
+    // endregion
 }

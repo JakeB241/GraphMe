@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -27,13 +29,14 @@ import java.util.Collections;
 
 import pub.devrel.easypermissions.EasyPermissions;
 import umich.jakebock.graphme.R;
+import umich.jakebock.graphme.classes.DataObject;
 import umich.jakebock.graphme.classes.DataProject;
+import umich.jakebock.graphme.support_classes.DataObjectListAdapter;
 import umich.jakebock.graphme.support_classes.DataProjectContainer;
 
 public class ProjectCreationActivity extends AppCompatActivity
 {
-    private View                 rootView;
-    private DataProject          dataProject;
+    private DataProject currentDataProject;
 
     private String projectTitle;
     private String projectImageFilePath = "";
@@ -41,6 +44,9 @@ public class ProjectCreationActivity extends AppCompatActivity
     private EditText    projectName;
     private Button      importImageButton;
     private ImageButton importImageImageButton;
+
+    private ListView                dataObjectListView;
+    private DataObjectListAdapter   dataObjectListAdapter;
 
     private int GALLERY_REQUEST_CODE = 3;
 
@@ -54,13 +60,10 @@ public class ProjectCreationActivity extends AppCompatActivity
         setContentView(R.layout.activity_project_creation);
 
         // Check to see if a Data Project was Passed to be Edited
-        dataProject = (DataProject) getIntent().getSerializableExtra("DATA_PROJECT");
+        currentDataProject = (DataProject) getIntent().getSerializableExtra("DATA_PROJECT");
 
         // Initalize the Views
         initializeViews();
-
-        // Initialize the Toolbar
-        initializeToolbar();
     }
 
     @Override
@@ -88,8 +91,8 @@ public class ProjectCreationActivity extends AppCompatActivity
             // Checkbox Menu Clicked
             case R.id.action_menu_done:
 
-                // Collect the Project Information
-                collectDataProjectInformation();
+                // Fetch the Project Title
+                projectTitle = projectName.getText().toString();
 
                 // Create the Data Project Container
                 DataProjectContainer container = new DataProjectContainer(getApplicationContext());
@@ -102,22 +105,20 @@ public class ProjectCreationActivity extends AppCompatActivity
                 }
 
                 // Ensure this is Not an Edit and the Project Exist
-                else if (dataProject == null && container.projectExists(projectTitle))
+                else if (currentDataProject == null && container.projectExists(projectTitle))
                 {
                     projectName.setError("Project Exists");
                     return false;
                 }
 
-                // TODO Create the List of Data Objects
-
                 // Delete the Previous Project from Internal Storage (If this is an Edit)
-                if (dataProject != null) container.deleteProjects(new ArrayList<DataProject>(Collections.singletonList(dataProject)));
+                if (currentDataProject != null) container.deleteProjects(new ArrayList<>(Collections.singletonList(currentDataProject)));
 
                 // Create the New Data Project
-                dataProject = new DataProject(projectTitle, projectImageFilePath);
+                currentDataProject = new DataProject(projectTitle, projectImageFilePath, returnDataObjects());
 
                 // Create the New Project
-                container.createProject(dataProject);
+                container.createProject(currentDataProject);
 
                 // Return to the Main Activity
                 finish();
@@ -174,19 +175,12 @@ public class ProjectCreationActivity extends AppCompatActivity
 
         CursorLoader cursorLoader = new CursorLoader(this, contentUri, proj, null, null, null);
         Cursor cursor = cursorLoader.loadInBackground();
-
         int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
         cursor.moveToFirst();
         return cursor.getString(column_index);
     }
 
-    private void collectDataProjectInformation()
-    {
-        // Fetch the Project Title
-        projectTitle = projectName.getText().toString();
-    }
-
-    private void initializeToolbar()
+    private void initializeToolbar(String title)
     {
         // Set the Support Action Bar
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
@@ -194,33 +188,59 @@ public class ProjectCreationActivity extends AppCompatActivity
         // Fetch the Support Action Toolbar
         ActionBar actionBar = getSupportActionBar();
 
-        // Set the Project Page Title
-        actionBar.setTitle(getResources().getString(R.string.title_activity_project_creation));
+        if (actionBar != null)
+        {
+            // Set the Project Page Title title
+            actionBar.setTitle(title);
 
-        // Set the Menu Frame
-        actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
+            // Set the Menu Frame
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
 
-        // Set the Menu Frame
-        actionBar.setDisplayHomeAsUpEnabled(true);
+            // Set the Menu Frame
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
     }
+
+    private void initializeAddButton()
+    {
+        // Create the Floating Action Button
+        FloatingActionButton addButton = (FloatingActionButton) findViewById(R.id.add_button);
+
+        // Create the Listener for the Add Button
+        addButton.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                dataObjectListAdapter.add(new DataObject());
+                dataObjectListAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    private ArrayList<DataObject> returnDataObjects()
+    {
+        ArrayList<DataObject> dataObjects = new ArrayList<>();
+
+        for (int i=0 ; i < dataObjectListAdapter.getCount(); i++)
+        {
+            dataObjects.add(dataObjectListAdapter.getItem(i));
+        }
+
+        return dataObjects;
+    }
+
 
     private void startGalleryRequest()
     {
         String[] galleryPermissions = new String[0];
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN)
-        {
             galleryPermissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        }
 
         if ((!galleryPermissions[0].equals("")) && (EasyPermissions.hasPermissions(this, galleryPermissions)))
-        {
-            startActivityForResult(new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI), GALLERY_REQUEST_CODE);;
-        }
+            startActivityForResult(new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI), GALLERY_REQUEST_CODE);
 
         else
-        {
             EasyPermissions.requestPermissions(this, "Access for storage",101, galleryPermissions);
-        }
     }
 
     @Override
@@ -233,18 +253,30 @@ public class ProjectCreationActivity extends AppCompatActivity
         }
     }
 
+    private void initializeDataObjectListView()
+    {
+        // Create the List Adapter
+        dataObjectListAdapter = new DataObjectListAdapter(getApplicationContext(), ProjectCreationActivity.this);
+
+       if (currentDataProject != null && currentDataProject.getDataObjectList().size() > 0) dataObjectListAdapter.addAll(currentDataProject.getDataObjectList());
+
+        // Set the Adapter for the List View
+        dataObjectListView.setAdapter(dataObjectListAdapter);
+    }
+
     private void initializeViews()
     {
         // Fetch the Views
         projectName             = findViewById(R.id.project_name);
         importImageButton       = findViewById(R.id.import_image_button);
         importImageImageButton  = findViewById(R.id.import_image_image_button);
+        dataObjectListView      = findViewById(R.id.data_object_list_view);
 
         // Set the Existing Data Project Parameters (If the Data Project was Passed In)
-        if (dataProject != null)
+        if (currentDataProject != null)
         {
             // Set the Text of the Project Name
-            projectName.setText(dataProject.getProjectTitle());
+            projectName.setText(currentDataProject.getProjectTitle());
 
             // Set the Image Button to Visible
             importImageImageButton.setVisibility(View.VISIBLE);
@@ -253,10 +285,19 @@ public class ProjectCreationActivity extends AppCompatActivity
             importImageButton.setVisibility(View.GONE);
 
             // Set the Image of the Image Button
-            importImageImageButton.setImageBitmap(dataProject.returnBitmapImage());
+            importImageImageButton.setImageBitmap(currentDataProject.returnBitmapImage());
 
             // Get the Image Path
-            projectImageFilePath = dataProject.getProjectImageFilePath();
+            projectImageFilePath = currentDataProject.getProjectImageFilePath();
+
+            // Set the Toolbar to Edit Project
+            initializeToolbar(getResources().getString(R.string.title_activity_project_edit));
+        }
+
+        else
+        {
+            // Initialize the Toolbar to Create Project
+            initializeToolbar(getResources().getString(R.string.title_activity_project_creation));
         }
 
         // Add Listener for Import Image Button
@@ -276,7 +317,14 @@ public class ProjectCreationActivity extends AppCompatActivity
             }
         });
 
+
+        // Initialize the Add Button
+        initializeAddButton();
+
+        // Initialize the Data Object List View
+        initializeDataObjectListView();
+
         // Request Focus on the Edit Text
-        projectName.requestFocus();
+        //projectName.requestFocus();
     }
 }
