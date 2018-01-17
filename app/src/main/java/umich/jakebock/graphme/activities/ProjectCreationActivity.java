@@ -25,7 +25,6 @@ import android.widget.ListView;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import pub.devrel.easypermissions.EasyPermissions;
 import umich.jakebock.graphme.R;
@@ -112,13 +111,13 @@ public class ProjectCreationActivity extends AppCompatActivity
                 }
 
                 // Delete the Previous Project from Internal Storage (If this is an Edit)
-                if (currentDataProject != null) container.deleteProjects(new ArrayList<>(Collections.singletonList(currentDataProject)));
+                Boolean removePreviousProject = currentDataProject != null;
 
                 // Create the New Data Project
                 currentDataProject = new DataProject(projectTitle, projectImageFilePath, returnDataObjects());
 
                 // Create the New Project
-                container.createProject(currentDataProject);
+                container.createProject(currentDataProject, removePreviousProject);
 
                 // Return to the Main Activity
                 finish();

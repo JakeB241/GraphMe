@@ -7,12 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import umich.jakebock.graphme.R;
+import umich.jakebock.graphme.activities.MainActivity;
 import umich.jakebock.graphme.classes.DataProject;
 
 
 public class GraphFragment extends Fragment
 {
-    private View rootView;
+    private View        rootView;
     private DataProject currentDataProject;
 
     public GraphFragment() {}
@@ -21,6 +22,10 @@ public class GraphFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         rootView = inflater.inflate(R.layout.fragment_graph, container, false);
+
+        // Fetch the Data Project
+        currentDataProject = ((MainActivity)getActivity()).getCurrentDataProject();
+
         return rootView;
     }
 }

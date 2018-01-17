@@ -11,16 +11,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import umich.jakebock.graphme.R;
-import umich.jakebock.graphme.classes.DataProject;
+import umich.jakebock.graphme.activities.MainActivity;
 import umich.jakebock.graphme.support_classes.TabFragmentPagerAdapter;
 
 
 public class ProjectBreakdownFragment extends Fragment
 {
     private View        rootView;
-    private DataProject currentDataProject;
-    private TabLayout   tabLayout;
-    private ViewPager   viewPager;
 
     public ProjectBreakdownFragment() {}
 
@@ -29,9 +26,6 @@ public class ProjectBreakdownFragment extends Fragment
     {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_project_breakdown, container, false);
-
-        // Fetch the Data Project
-        currentDataProject = (DataProject) getArguments().getSerializable("DATA_PROJECT");
 
         // Initialize the Toolbar
         initializeToolbar();
@@ -43,24 +37,16 @@ public class ProjectBreakdownFragment extends Fragment
         return rootView;
     }
 
-    @Override
-    public void onDestroyView()
-    {
-        // Restore the Toolbar
-        restoreToolbar();
-        super.onDestroyView();
-    }
-
     private void initializeTabLayout()
     {
         // Create the Fragment Pager Adapter
-        TabFragmentPagerAdapter adapter = new TabFragmentPagerAdapter(getActivity().getSupportFragmentManager(), currentDataProject);
+        TabFragmentPagerAdapter adapter = new TabFragmentPagerAdapter(getChildFragmentManager());
 
         // Initialize the Tab Layout
-        tabLayout = rootView.findViewById(R.id.tab_layout);
+        TabLayout tabLayout = rootView.findViewById(R.id.tab_layout);
 
         // Initialize the View Pager
-        viewPager = rootView.findViewById(R.id.view_pager);
+        ViewPager viewPager = rootView.findViewById(R.id.view_pager);
 
         // Set the adapter onto the view pager
         viewPager.setAdapter(adapter);
@@ -85,21 +71,12 @@ public class ProjectBreakdownFragment extends Fragment
         if (listTab != null) listTab.select();
     }
 
-    private void restoreToolbar()
-    {
-        // Fetch the Action Bar
-        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
-
-        // Set the Action Bar Title
-        if (actionBar != null) actionBar.setTitle(R.string.toolbar_project_title);
-    }
-
     private void initializeToolbar()
     {
         // Fetch the Action Bar
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
 
-        // Set the Action Bar Title
-        if (actionBar != null) actionBar.setTitle(currentDataProject.getProjectTitle());
+        // Set the Action Bar Title to the Current Data Project Title
+        if (actionBar != null) actionBar.setTitle(((MainActivity) getActivity()).getCurrentDataProject().getProjectTitle());
     }
 }

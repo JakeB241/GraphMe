@@ -28,12 +28,15 @@ public class DataProjectContainer
         this.context = context;
     }
 
-    public void createProject(DataProject dataProject)
+    public void createProject(DataProject dataProject, Boolean removePreviousProject)
     {
         try
         {
             // Create the FileName
             String filename = dataProject.getProjectTitle() + GRAPHME_FILE_SUFFIX;
+
+            // Remove the Previous Version of the Project
+            if (removePreviousProject) deleteProjects(new ArrayList<>(Collections.singletonList(dataProject)));
 
             // If the File Exists, Return False
             if (projectExists(filename)) return;
@@ -49,7 +52,6 @@ public class DataProjectContainer
         {
             e.printStackTrace();
         }
-
     }
 
     public ArrayList<DataProject> deleteProjects(ArrayList<DataProject> projects)

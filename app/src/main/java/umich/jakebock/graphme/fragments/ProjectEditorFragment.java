@@ -2,14 +2,13 @@ package umich.jakebock.graphme.fragments;
 
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ActionMode;
@@ -26,6 +25,7 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 import umich.jakebock.graphme.R;
+import umich.jakebock.graphme.activities.MainActivity;
 import umich.jakebock.graphme.activities.ProjectCreationActivity;
 import umich.jakebock.graphme.classes.DataProject;
 import umich.jakebock.graphme.support_classes.DataProjectContainer;
@@ -40,10 +40,7 @@ public class ProjectEditorFragment extends Fragment
 
     private ArrayList<DataProject>  selectedProjects;
     private ArrayList<View>         selectedViews;
-    private DataProjectListAdapter adapter;
-
-    private FragmentActivity fragmentActivity;
-    private Context applicationContext;
+    private DataProjectListAdapter  adapter;
     // endregion
 
     // region Constructor
@@ -54,15 +51,16 @@ public class ProjectEditorFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
+        System.out.println("CREATED EDITOR VIEW");
+
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_project_editor, container, false);
 
-        // Fetch the Activity and the Context
-        fragmentActivity    = getActivity();
-        applicationContext  = fragmentActivity.getApplicationContext();
-
         // Populate the Project List
         populateProjectListView();
+
+        // Initialize the Back Stack Listener
+        initializeBackStackListener();
 
         // Initialize Toolbar
         initializeToolbar();
@@ -78,7 +76,7 @@ public class ProjectEditorFragment extends Fragment
     public void onResume()
     {
         // Re Populate the Project List
-        populateProjectListView();
+        fetchProjectsFromInternalStorage();
 
         // Re Initialize Toolbar
         initializeToolbar();
@@ -89,18 +87,6 @@ public class ProjectEditorFragment extends Fragment
     //endregion
 
     // region Initializion Functions
-    private void initializeDataProjectContainer(Context context)
-    {
-        // Create a New Instance of the Data Project Container
-        dataProjectContainer = new DataProjectContainer(context);
-
-        // Clear Previous
-        adapter.clear();
-
-        // Load All Projects from Device Memory
-        adapter.addAll(dataProjectContainer.loadProjects());
-    }
-
     private void initializeAddButton()
     {
         // Create the Floating Action Button
@@ -120,10 +106,28 @@ public class ProjectEditorFragment extends Fragment
     private void initializeToolbar()
     {
         // Fetch the Action Bar
-        ActionBar actionBar = ((AppCompatActivity)fragmentActivity).getSupportActionBar();
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
 
         // Set the Action Bar Title
         if (actionBar != null) actionBar.setTitle(R.string.toolbar_project_title);
+    }
+
+    private void initializeBackStackListener()
+    {
+        getActivity().getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener()
+        {
+            public void onBackStackChanged()
+            {
+                // If the Back Stack is Empty, We arrived here from the ProjectBreakdownFragment
+                // Repopulate the Project List (For the Entries)
+                if (getActivity().getSupportFragmentManager().getBackStackEntryCount() == 0)
+                    fetchProjectsFromInternalStorage();
+
+                // Restore the Toolbar
+                ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+                if (actionBar != null) actionBar.setTitle(R.string.toolbar_project_title);
+            }
+        });
     }
     // endregions
 
@@ -134,10 +138,10 @@ public class ProjectEditorFragment extends Fragment
         projectListView = rootView.findViewById(R.id.project_list_view);
 
         // Create the List Adapter
-        adapter = new DataProjectListAdapter(applicationContext);
+        adapter = new DataProjectListAdapter(getActivity().getApplicationContext());
 
         // Initalize the Data Project Container and Load the Projects
-        initializeDataProjectContainer(applicationContext);
+        fetchProjectsFromInternalStorage();
 
         // Set the Adapter for the List View
         projectListView.setAdapter(adapter);
@@ -149,10 +153,25 @@ public class ProjectEditorFragment extends Fragment
         projectListView.setOnItemClickListener(dataProjectItemClickedListener);
     }
 
+    private void fetchProjectsFromInternalStorage()
+    {
+        // Create a New Instance of the Data Project Container
+        dataProjectContainer = new DataProjectContainer(getActivity().getApplicationContext());
+
+        // Clear Previous
+        adapter.clear();
+
+        // Load All Projects from Device Memory
+        adapter.addAll(dataProjectContainer.loadProjects());
+
+        // Notify the Data Set Changed
+        adapter.notifyDataSetChanged();
+    }
+
     private void showDeleteAlertDialog()
     {
         // Create the Alert Dialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(fragmentActivity);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         // Get the Message that will be Displayed
         String message = "";
@@ -184,24 +203,12 @@ public class ProjectEditorFragment extends Fragment
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id)
         {
-            // Fetch the Data Project
-            DataProject dataProject = (DataProject) projectListView.getItemAtPosition(position);
-
-            // Create the Fragment
-            ProjectBreakdownFragment projectBreakdownFragment = new ProjectBreakdownFragment();
-
-            // Create the Bundle for the Data Project Selected
-            Bundle bundle = new Bundle();
-
-            // Add the Data Project
-            bundle.putSerializable("DATA_PROJECT", dataProject);
-
-            // Add the Bundle to the Fragment
-            projectBreakdownFragment.setArguments(bundle);
+            // Set the Current Data Project
+            ((MainActivity) getActivity()).setCurrentProject((DataProject) projectListView.getItemAtPosition(position));
 
             // Transition to the Project Breakdown Fragment
-            fragmentActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out).
-                    add(R.id.content_main, projectBreakdownFragment).
+            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out).
+                    add(R.id.content_main, new ProjectBreakdownFragment()).
                     addToBackStack("ProjectEditorFragment").
                     commit();
         }
@@ -213,7 +220,7 @@ public class ProjectEditorFragment extends Fragment
         public void onClick(DialogInterface dialog, int which)
         {
             // Create the Slide out Right Animation
-            Animation anim = AnimationUtils.loadAnimation(applicationContext, android.R.anim.slide_out_right);
+            Animation anim = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), android.R.anim.slide_out_right);
 
             // Loop through the Selected Views and Start the Animation
             for (View view : selectedViews) view.startAnimation(anim);
@@ -296,7 +303,7 @@ public class ProjectEditorFragment extends Fragment
             selectedViews = new ArrayList<>();
 
             // Inflate the Project Editor Edit Menu
-            fragmentActivity.getMenuInflater().inflate(R.menu.project_editor_edit, menu);
+            getActivity().getMenuInflater().inflate(R.menu.project_editor_edit, menu);
             return true;
         }
 
@@ -317,7 +324,6 @@ public class ProjectEditorFragment extends Fragment
                     break;
                 default:
                     return false;
-
             }
 
             // Finish the Action Mode
@@ -334,14 +340,14 @@ public class ProjectEditorFragment extends Fragment
     private void showProjectCreationFragment(DataProject dataProject)
     {
         // Create the Project Creation Activity
-        Intent projectCreationIntent = new Intent(fragmentActivity, ProjectCreationActivity.class);
+        Intent projectCreationIntent = new Intent(getActivity(), ProjectCreationActivity.class);
 
         // Add Extra to the Intent
         if (dataProject != null) projectCreationIntent.putExtra("DATA_PROJECT", dataProject);
 
         // Create the Project Creation Activity with Animation
         startActivity(projectCreationIntent);
-        fragmentActivity.overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+        getActivity().overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
     // endregion
 }

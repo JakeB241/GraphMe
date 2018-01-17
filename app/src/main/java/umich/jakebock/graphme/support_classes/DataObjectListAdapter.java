@@ -4,6 +4,8 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,19 +34,16 @@ public class DataObjectListAdapter extends ArrayAdapter<DataObject> implements V
 {
     private Context context;
     private Context dialogContext;
-    private int currentYear;
-    private int currentMonth;
-    private int currentDay;
-    private int currentHour;
-    private int currentMinute;
+
+    private AdapterListener adapterListener;
 
     private DataObjectViewHolder dataObjectViewHolder;
 
     // Data Object View Holder
     private static class DataObjectViewHolder
     {
-        EditText    dataObjectInformation;
-        TextView    updateDateTime;
+        EditText dataObjectInformation;
+        TextView dataObjectDateTime;
     }
 
     public DataObjectListAdapter(Context context, Context dialogContext)
@@ -57,43 +56,85 @@ public class DataObjectListAdapter extends ArrayAdapter<DataObject> implements V
         this.dialogContext  = dialogContext;
     }
 
+    // define listener
+    public interface AdapterListener
+    {
+        void setSaveNeededFlag();
+    }
+
+    // set the listener. Must be called from the fragment
+    public void setListener(AdapterListener listener)
+    {
+        this.adapterListener = listener;
+    }
+
     @NonNull
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup parent)
     {
         // Get the data object for this position
-        DataObject dataObject = getItem(position);
+        final DataObject dataObject = getItem(position);
 
         if (convertView == null)
         {
             dataObjectViewHolder = new DataObjectViewHolder();
             convertView = LayoutInflater.from(context).inflate(R.layout.data_object_item, parent, false);
             dataObjectViewHolder.dataObjectInformation  = (EditText)  convertView.findViewById(R.id.data_object_information);
-            dataObjectViewHolder.updateDateTime         = (TextView)  convertView.findViewById(R.id.updated_date);
-            convertView.setTag(dataObjectViewHolder);
+            dataObjectViewHolder.dataObjectDateTime     = (TextView)  convertView.findViewById(R.id.updated_date);
 
             // Ensure a Data Object is Found
             if (dataObject != null)
             {
                 // Set the View Parameters
-                dataObjectViewHolder.dataObjectInformation.setText(dataObject.getObjectInformation());
-                dataObjectViewHolder.updateDateTime       .setText(dataObject.getUpdatedTime());
+                dataObjectViewHolder.dataObjectInformation  .setText(dataObject.getObjectInformation());
+                dataObjectViewHolder.dataObjectDateTime     .setText(dataObject.getObjectTime());
 
                 // Set the Listener for the Updated Date Time Text View
-                dataObjectViewHolder.updateDateTime.setOnClickListener(this);
-            }
-        }
+                dataObjectViewHolder.dataObjectDateTime.setOnClickListener(this);
 
-        else
-        {
-            dataObjectViewHolder = (DataObjectViewHolder) convertView.getTag();
+                // Set the On Text Changed Listener for the Data Object Information
+                dataObjectViewHolder.dataObjectInformation.addTextChangedListener(new TextWatcher()
+                {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
-            // Ensure a Data Object is Found
-            if (dataObject != null)
-            {
-                dataObject.setObjectInformation(dataObjectViewHolder.dataObjectInformation.getText().toString());
-                dataObject.setUpdatedTime      (dataObjectViewHolder.updateDateTime       .getText().toString());
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+                    @Override
+                    public void afterTextChanged(Editable textString)
+                    {
+                        // Set the Object Information
+                        dataObject.setObjectInformation(textString.toString());
+
+                        // Set the Save Needed Flag
+                        adapterListener.setSaveNeededFlag();
+                    }
+                });
+
+                // Set the On Text Changed Listener for the Data Object Date Time
+                dataObjectViewHolder.dataObjectDateTime.addTextChangedListener(new TextWatcher()
+                {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+                    @Override
+                    public void afterTextChanged(Editable textString)
+                    {
+                        // Set the Object Time
+                        dataObject.setObjectTime(textString.toString());
+
+                        // Set the Save Needed Flag
+                        adapterListener.setSaveNeededFlag();
+                    }
+                });
             }
+
+            // Set the Tag
+            convertView.setTag(dataObjectViewHolder);
         }
 
         // Return the Completed View

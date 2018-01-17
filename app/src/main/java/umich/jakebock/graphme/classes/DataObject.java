@@ -9,25 +9,25 @@ import java.util.Date;
 
 public class DataObject implements Serializable
 {
-    private String  objectInformation;
-    private String  updatedTime;
+    private String objectInformation;
+    private String objectTime;
 
     public DataObject()
     {
         this.objectInformation = "";
-        this.updatedTime       = returnCurrentTime();
+        this.objectTime        = returnCurrentTime();
     }
 
     public DataObject(String objectInformation)
     {
         this.objectInformation = objectInformation;
-        this.updatedTime       = returnCurrentTime();
+        this.objectTime        = returnCurrentTime();
     }
 
     public DataObject(String objectInformation, String updatedTime)
     {
         this.objectInformation = objectInformation;
-        this.updatedTime       = updatedTime;
+        this.objectTime        = updatedTime;
     }
 
     private String returnCurrentTime()
@@ -36,16 +36,16 @@ public class DataObject implements Serializable
     }
 
     // Begin Getters/Setters
-    public String getUpdatedTime() {
-        return updatedTime;
+    public String getObjectTime() {
+        return objectTime;
     }
 
     public String getObjectInformation() {
         return objectInformation;
     }
 
-    public void setUpdatedTime(String updatedTime) {
-        this.updatedTime = updatedTime;
+    public void setObjectTime(String objectTime) {
+        this.objectTime = objectTime;
     }
 
     public void setObjectInformation(String objectInformation) {

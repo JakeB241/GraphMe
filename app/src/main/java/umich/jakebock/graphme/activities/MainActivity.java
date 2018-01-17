@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import umich.jakebock.graphme.R;
+import umich.jakebock.graphme.classes.DataProject;
 import umich.jakebock.graphme.fragments.ProjectEditorFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
@@ -22,6 +23,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Toolbar         toolbar;
     private TabLayout       tabLayout;
     private ViewPager       viewPager;
+
+    private DataProject     currentDataProject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -47,6 +50,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Start the Project Editor Fragment
             getSupportFragmentManager().beginTransaction().add(R.id.content_main, new ProjectEditorFragment()).commit();
         }
+    }
+
+    public DataProject getCurrentDataProject()
+    {
+        return currentDataProject;
+    }
+
+    public void setCurrentProject(DataProject dataProject)
+    {
+        currentDataProject = dataProject;
     }
 
     private void initializeViews()
