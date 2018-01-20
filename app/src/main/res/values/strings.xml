@@ -33,4 +33,8 @@
     <string name="delete">DELETE</string>
     <string name="title_activity_project_edit">Edit Project</string>
     <string name="save">SAVE</string>
+    <string name="to">to</string>
+
+    <string name="edit_objects_title" >Edit Data</string>
+    <string name="edit_projects_title">Edit Projects</string>
 </resources>

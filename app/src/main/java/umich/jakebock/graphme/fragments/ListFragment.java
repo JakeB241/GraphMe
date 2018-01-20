@@ -3,13 +3,19 @@ package umich.jakebock.graphme.fragments;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -25,7 +31,9 @@ public class ListFragment extends Fragment
     private View                   rootView;
     private DataProject            currentDataProject;
     private DataObjectListAdapter  dataObjectListAdapter;
+    private ListView               dataObjectListView;
     private Boolean                saveNeeded;
+    private Boolean                actionModeEnabled;
 
     public ListFragment() {}
 
@@ -35,8 +43,9 @@ public class ListFragment extends Fragment
         // Create the Root View
         rootView = inflater.inflate(R.layout.fragment_list, container, false);
 
-        // Set the Save Needed Flag
-        saveNeeded = false;
+        // Set the Save Needed and Action Mode Enabled Flags
+        saveNeeded          = false;
+        actionModeEnabled   = false;
 
         // Fetch the Data Project
         currentDataProject = ((MainActivity)getActivity()).getCurrentDataProject();
@@ -57,7 +66,16 @@ public class ListFragment extends Fragment
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
     {
+        // Inflate the Menu
         inflater.inflate(R.menu.list_fragment_menu, menu);
+
+        // Fetch the Action Bar
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+
+        // Set the Action Bar Title to the Current Data Project Title
+        if (actionBar != null) actionBar.setTitle(((MainActivity) getActivity()).getCurrentDataProject().getProjectTitle());
+
+        // Call the Super
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -100,7 +118,7 @@ public class ListFragment extends Fragment
     public void onDestroyView()
     {
         // Collect the Data Objects
-        collectAndSaveDataObjects();
+        //collectAndSaveDataObjects();
 
         // Call the Super
         super.onDestroyView();
@@ -130,13 +148,23 @@ public class ListFragment extends Fragment
             ArrayList<DataObject> dataObjectArrayList = new ArrayList<>();
 
             // Add all of the Data Objects to the Array List
-            for (int i = 0; i < dataObjectListAdapter.getCount(); i++) {
+            for (int i = 0; i < dataObjectListAdapter.getCount(); i++)
+            {
                 // Fetch the Data Object
                 DataObject dataObject = dataObjectListAdapter.getItem(i);
 
                 // Ensure the Data Object has Text and Add to the List
                 if (dataObject != null && dataObject.getObjectInformation().length() > 0)
                     dataObjectArrayList.add(dataObjectListAdapter.getItem(i));
+
+                // Fetch the Edit Text and Text View
+                RelativeLayout parentView = (RelativeLayout) dataObjectListView.getChildAt(i);
+                TextView dataObjectInformationTextView = parentView.findViewById(R.id.data_object_information_text_view);
+                EditText dataObjectInformationEditText = parentView.findViewById(R.id.data_object_information_edit_text);
+
+                // Return the Edit Text Views to Text Views
+                dataObjectInformationTextView.setVisibility(View.VISIBLE);
+                dataObjectInformationEditText.setVisibility(View.GONE);
             }
 
             // Set the Current Data Objects
@@ -161,8 +189,8 @@ public class ListFragment extends Fragment
 
     private void initializeDataObjectListView()
     {
-        // Fetch the List VIew
-        ListView dataObjectListView = (ListView) rootView.findViewById(R.id.data_object_list_view);
+        // Fetch the List View
+        dataObjectListView = (ListView) rootView.findViewById(R.id.data_object_list_view);
 
         // Initialize the List Adapter
         dataObjectListAdapter = new DataObjectListAdapter(getActivity().getApplicationContext(), getActivity());
@@ -174,19 +202,10 @@ public class ListFragment extends Fragment
         dataObjectListView.setAdapter(dataObjectListAdapter);
 
         // Set the Listener for the Save Needed Flag
-        dataObjectListAdapter.setListener(new DataObjectListAdapter.AdapterListener()
-        {
-            public void setSaveNeededFlag()
-            {
-                System.out.println("SAVE NEEDED FLAG SET");
+        dataObjectListAdapter.setListener(dataObjectListAdapterListener);
 
-                // Set the Save Needed Flag to True
-                saveNeeded = true;
-
-                // Redraw the Options Menu
-                getActivity().invalidateOptionsMenu();
-            }
-        });
+        // Set the Action Mode Callback
+        dataObjectListView.setMultiChoiceModeListener(new DataObjectActionModeCallback());
     }
 
     private void initializeAddDataObjectButton()
@@ -207,4 +226,106 @@ public class ListFragment extends Fragment
             }
         });
     }
+
+    // Listener for the Set Save Needed Flag
+    DataObjectListAdapter.DataObjectListAdapterListener dataObjectListAdapterListener = new DataObjectListAdapter.DataObjectListAdapterListener()
+    {
+        @Override
+        public void setSaveNeeded()
+        {
+            // Set the Save Needed Flag to True
+            saveNeeded = true;
+
+            // Redraw the Options Menu
+            getActivity().invalidateOptionsMenu();
+        }
+
+        @Override
+        public boolean getActonModeEnabled()
+        {
+            return actionModeEnabled;
+        }
+    };
+
+    // Listener for the Action Mode Callback for the Action Bar (Long Click on List Items)
+    private class DataObjectActionModeCallback implements ListView.MultiChoiceModeListener
+    {
+        @Override
+        public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked)
+        {
+            // Fetch the Data Project of the Selected Item
+            /*DataProject selectedDataProject = (DataProject) projectListView.getItemAtPosition(position);
+            View selectedView               = (View)        projectListView.getChildAt(position);
+
+            // Add/Remove from the Selected Projects List
+            if (checked)
+            {
+                selectedProjects.add(selectedDataProject);
+                selectedViews   .add(selectedView);
+            }
+
+            else
+            {
+                selectedProjects.remove(selectedDataProject);
+                selectedViews   .remove(selectedView);
+            }
+
+            // Remove the Edit Button there are More Than One Selected Projects
+            if (selectedProjects.size() > 1) mode.getMenu().findItem(R.id.action_menu_edit).setVisible(false);
+            else                             mode.getMenu().findItem(R.id.action_menu_edit).setVisible(true);*/
+        }
+
+        public boolean onCreateActionMode(ActionMode mode, Menu menu)
+        {
+            // Initialize the Selected Projects
+            //selectedProjects = new ArrayList<>();
+
+            // Initialize the Selected Views
+            //selectedViews = new ArrayList<>();
+
+            // Don't allow the User to Go to Action Mode if an Edit Text is Present
+            if (saveNeeded)
+                return false;
+
+            // Set the Flag for Action Mode Enabled
+            actionModeEnabled = true;
+
+            // Inflate the Project Editor Edit Menu
+            getActivity().getMenuInflater().inflate(R.menu.data_object_action_mode_menu, menu);
+
+            // Set the Title
+            mode.setTitle(R.string.edit_objects_title);
+
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) { return false; }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item)
+        {
+            // Switch for the Item ID
+            switch (item.getItemId())
+            {
+                case R.id.action_menu_delete:
+                    //showDeleteAlertDialog();
+                    break;
+                default:
+                    return false;
+            }
+
+            // Finish the Action Mode
+            mode.finish();
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode)
+        {
+            // Action Mode No Longer Enabled
+            actionModeEnabled = false;
+        }
+    }
+    //endregion
 }

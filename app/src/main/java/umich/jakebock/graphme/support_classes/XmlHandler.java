@@ -11,7 +11,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -39,10 +38,7 @@ class XmlHandler
     // XML Tag Constants - Data Object
     private static final String DATA_OBJECT_TAG                 = "dataObject";
     private static final String DATA_OBJECT_UPDATE_TIME_TAG     = "dataObjectUpdateTime";
-    private static final String DATA_OBJECT_INFORMATION_TAG     = "dataObjectInformation";
-
-    // Date Format
-    private DateFormat dateFormat = DataProject.dateFormat;
+    private static final String DATA_OBJECT_INFORMATION_TAG     = "dataObjectInformationTextView";
 
     void createXMLProject(DataProject dataProject, FileOutputStream fileOutputStream)
     {
@@ -60,7 +56,7 @@ class XmlHandler
             writeTag(serializer, DATA_PROJECT_TITLE_TAG, dataProject.getProjectTitle());
 
             // Add the Updated Time for the Project
-            writeTag(serializer, DATA_PROJECT_UPDATE_TIME_TAG, dateFormat.format(new Date()));
+            writeTag(serializer, DATA_PROJECT_UPDATE_TIME_TAG, DataProject.dateFormat.format(new Date()));
 
             // Add the Image for the Project
             String projectImageFilePath = dataProject.getProjectImageFilePath();

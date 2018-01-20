@@ -126,6 +126,8 @@ public class ProjectEditorFragment extends Fragment
                 // Restore the Toolbar
                 ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
                 if (actionBar != null) actionBar.setTitle(R.string.toolbar_project_title);
+
+                getActivity().invalidateOptionsMenu();
             }
         });
     }
@@ -147,7 +149,7 @@ public class ProjectEditorFragment extends Fragment
         projectListView.setAdapter(adapter);
 
         // Set the Action Mode Callback
-        projectListView.setMultiChoiceModeListener(new ActionModeCallback());
+        projectListView.setMultiChoiceModeListener(new DataProjectActionModeCallback());
 
         // Set the On Click for the Project List View
         projectListView.setOnItemClickListener(dataProjectItemClickedListener);
@@ -204,7 +206,7 @@ public class ProjectEditorFragment extends Fragment
         public void onItemClick(AdapterView<?> parent, View view, int position, long id)
         {
             // Set the Current Data Project
-            ((MainActivity) getActivity()).setCurrentProject((DataProject) projectListView.getItemAtPosition(position));
+            ((MainActivity)getActivity()).setCurrentProject((DataProject) projectListView.getItemAtPosition(position));
 
             // Transition to the Project Breakdown Fragment
             getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out).
@@ -267,7 +269,7 @@ public class ProjectEditorFragment extends Fragment
 
 
     // Listener for the Action Mode Callback for the Action Bar (Long Click on List Items)
-    private class ActionModeCallback implements ListView.MultiChoiceModeListener
+    private class DataProjectActionModeCallback implements ListView.MultiChoiceModeListener
     {
         @Override
         public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked)
@@ -303,7 +305,11 @@ public class ProjectEditorFragment extends Fragment
             selectedViews = new ArrayList<>();
 
             // Inflate the Project Editor Edit Menu
-            getActivity().getMenuInflater().inflate(R.menu.project_editor_edit, menu);
+            getActivity().getMenuInflater().inflate(R.menu.data_project_action_mode_menu, menu);
+
+            // Set the Title
+            mode.setTitle(R.string.edit_projects_title);
+
             return true;
         }
 
