@@ -9,6 +9,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -73,6 +74,7 @@ public class DataObjectListAdapter extends ArrayAdapter<DataObject>
     {
         // Get the data object for this position
         final DataObject dataObject = getItem(position);
+        System.out.println("CALLED VIEW ON DATA OBJECT: " + dataObject.getObjectInformation());
 
         if (convertView == null)
         {
@@ -157,14 +159,14 @@ public class DataObjectListAdapter extends ArrayAdapter<DataObject>
             });
 
             // Set the Tag
-            convertView.setTag(dataObjectViewHolder);
+            //convertView.setTag(dataObjectViewHolder);
         }
 
-        else
+        /*else
         {
             // Fetch the Data Object View Holder
             DataObjectViewHolder dataObjectViewHolder = (DataObjectViewHolder) convertView.getTag();
-        }
+        }*/
 
         // Return the Completed View
         return convertView;
@@ -205,6 +207,10 @@ public class DataObjectListAdapter extends ArrayAdapter<DataObject>
 
                 // Request Focus of the Edit View
                 dataObjectInformationEditText.requestFocus();
+
+                // Ensure the Keyboard is Shown
+                InputMethodManager imm = (InputMethodManager) dialogContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(dataObjectInformationEditText, InputMethodManager.SHOW_IMPLICIT);
             }
         }
     };

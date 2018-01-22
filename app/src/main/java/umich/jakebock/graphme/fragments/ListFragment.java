@@ -1,5 +1,9 @@
 package umich.jakebock.graphme.fragments;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -12,6 +16,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -34,6 +42,9 @@ public class ListFragment extends Fragment
     private ListView               dataObjectListView;
     private Boolean                saveNeeded;
     private Boolean                actionModeEnabled;
+
+    private ArrayList<DataObject>  selectedDataObjects;
+    private ArrayList<View>        selectedViews;
 
     public ListFragment() {}
 
@@ -165,6 +176,11 @@ public class ListFragment extends Fragment
                 // Return the Edit Text Views to Text Views
                 dataObjectInformationTextView.setVisibility(View.VISIBLE);
                 dataObjectInformationEditText.setVisibility(View.GONE);
+
+                // Hide the Keyboard
+                View view = getActivity().getCurrentFocus();
+                if (view != null)
+                    ((InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(view.getWindowToken(), 0);
             }
 
             // Set the Current Data Objects
@@ -247,6 +263,94 @@ public class ListFragment extends Fragment
         }
     };
 
+    private void showDeleteAlertDialog()
+    {
+        // Create the Alert Dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+        // Set the Message of the Alert Dialog
+        builder.setMessage(selectedDataObjects.size() + " Data Object(s) will be deleted.");
+
+        // Create the Delete Button
+        builder.setPositiveButton("Delete", deleteButtonListener);
+
+        // Create the Cancel Button
+        builder.setNegativeButton("Cancel", cancelButtonListener);
+
+        // Show the Alert Dialog
+        AlertDialog alert = builder.create();
+        alert.show();
+
+        // Set the Color of the Positive and Negative Button
+        alert.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(Color.BLACK);
+        alert.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
+    }
+
+    private DialogInterface.OnClickListener deleteButtonListener = new DialogInterface.OnClickListener()
+    {
+        @Override
+        public void onClick(DialogInterface dialog, int which)
+        {
+            // Create the Slide out Right Animation
+            Animation anim = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), android.R.anim.slide_out_right);
+
+            // Loop through the Selected Views and Start the Animation
+            for (View view : selectedViews) view.startAnimation(anim);
+
+            // Set the Animation Listener
+            anim.setAnimationListener(new DeleteDataObjectAnimationListener());
+        }
+    };
+
+    private DialogInterface.OnClickListener cancelButtonListener = new DialogInterface.OnClickListener()
+    {
+        @Override
+        public void onClick(DialogInterface dialog, int which)
+        {
+            dialog.dismiss();
+        }
+    };
+
+    private class DeleteDataObjectAnimationListener implements Animation.AnimationListener
+    {
+        @Override
+        public void onAnimationStart(Animation animation) {}
+
+        @Override
+        public void onAnimationEnd(Animation animation)
+        {
+            // Create the Data Project Container
+            DataProjectContainer dataProjectContainer = new DataProjectContainer(getActivity().getApplicationContext());
+
+            // Clear the Adapter
+            dataObjectListAdapter.clear();
+
+            // Fetch all of the Current Data Objects
+            ArrayList<DataObject> dataObjects = currentDataProject.getDataObjectList();
+
+            // Remove the Deleted Data Objects from the Data Object list
+            dataObjects.removeAll(selectedDataObjects);
+
+            // Set the Data Object List
+            currentDataProject.setDataObjectList(dataObjects);
+
+            // Set the Current Project
+            ((MainActivity) getActivity()).setCurrentProject(currentDataProject);
+
+            // Overwrite the Project with the New Data
+            dataProjectContainer.createProject(currentDataProject, true);
+
+            // Delete the Projects
+            dataObjectListAdapter.addAll(currentDataProject.getDataObjectList());
+
+            // Notify the Data Set Changed
+            dataObjectListAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onAnimationRepeat(Animation animation) {}
+    }
+
     // Listener for the Action Mode Callback for the Action Bar (Long Click on List Items)
     private class DataObjectActionModeCallback implements ListView.MultiChoiceModeListener
     {
@@ -254,38 +358,34 @@ public class ListFragment extends Fragment
         public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked)
         {
             // Fetch the Data Project of the Selected Item
-            /*DataProject selectedDataProject = (DataProject) projectListView.getItemAtPosition(position);
-            View selectedView               = (View)        projectListView.getChildAt(position);
+            DataObject selectedDataObject   = (DataObject) dataObjectListView.getItemAtPosition(position);
+            View       selectedView         = (View)       dataObjectListView.getChildAt(position);
 
             // Add/Remove from the Selected Projects List
             if (checked)
             {
-                selectedProjects.add(selectedDataProject);
-                selectedViews   .add(selectedView);
+                selectedDataObjects.add(selectedDataObject);
+                selectedViews      .add(selectedView);
             }
 
             else
             {
-                selectedProjects.remove(selectedDataProject);
-                selectedViews   .remove(selectedView);
+                selectedDataObjects.remove(selectedDataObject);
+                selectedViews      .remove(selectedView);
             }
-
-            // Remove the Edit Button there are More Than One Selected Projects
-            if (selectedProjects.size() > 1) mode.getMenu().findItem(R.id.action_menu_edit).setVisible(false);
-            else                             mode.getMenu().findItem(R.id.action_menu_edit).setVisible(true);*/
         }
 
         public boolean onCreateActionMode(ActionMode mode, Menu menu)
         {
-            // Initialize the Selected Projects
-            //selectedProjects = new ArrayList<>();
-
-            // Initialize the Selected Views
-            //selectedViews = new ArrayList<>();
-
-            // Don't allow the User to Go to Action Mode if an Edit Text is Present
+            // Don't allow the User to Go to Action Mode if they are Editing a Data Object
             if (saveNeeded)
                 return false;
+
+            // Initialize the Selected Data Objects
+            selectedDataObjects = new ArrayList<>();
+
+            // Initialize the Selected Views
+            selectedViews       = new ArrayList<>();
 
             // Set the Flag for Action Mode Enabled
             actionModeEnabled = true;
@@ -309,7 +409,7 @@ public class ListFragment extends Fragment
             switch (item.getItemId())
             {
                 case R.id.action_menu_delete:
-                    //showDeleteAlertDialog();
+                    showDeleteAlertDialog();
                     break;
                 default:
                     return false;
