@@ -74,99 +74,88 @@ public class DataObjectListAdapter extends ArrayAdapter<DataObject>
     {
         // Get the data object for this position
         final DataObject dataObject = getItem(position);
-        System.out.println("CALLED VIEW ON DATA OBJECT: " + dataObject.getObjectInformation());
+
+        final DataObjectViewHolder dataObjectViewHolder;
 
         if (convertView == null)
         {
-            final DataObjectViewHolder dataObjectViewHolder = new DataObjectViewHolder();
+            dataObjectViewHolder = new DataObjectViewHolder();
             convertView = LayoutInflater.from(context).inflate(R.layout.data_object_item, parent, false);
             dataObjectViewHolder.dataObjectInformationTextView = (TextView) convertView.findViewById(R.id.data_object_information_text_view);
             dataObjectViewHolder.dataObjectInformationEditText = (EditText) convertView.findViewById(R.id.data_object_information_edit_text);
-            dataObjectViewHolder.dataObjectDateTime            = (TextView) convertView.findViewById(R.id.updated_date);
+            dataObjectViewHolder.dataObjectDateTime = (TextView) convertView.findViewById(R.id.updated_date);
+            convertView.setTag(dataObjectViewHolder);
+        }
 
-            // Ensure a Data Object is Found and Isn't a Newly Created Data Object
-            if (dataObject != null && dataObject.getObjectInformation().length() > 0)
-            {
-                // Set the Visbility of the Edit Text and Text View
-                dataObjectViewHolder.dataObjectInformationTextView.setVisibility(View.VISIBLE);
-                dataObjectViewHolder.dataObjectInformationEditText.setVisibility(View.GONE);
-            }
+        else
+        {
+            dataObjectViewHolder = (DataObjectViewHolder) convertView.getTag();
+        }
 
-            // Newly Created Data Object
-            else
-            {
-                // Set the Visibility of the Edit Text and Text View
-                dataObjectViewHolder.dataObjectInformationTextView.setVisibility(View.GONE);
-                dataObjectViewHolder.dataObjectInformationEditText.setVisibility(View.VISIBLE);
+        // Ensure a Data Object is Found and Isn't a Newly Created Data Object
+        if (dataObject != null && dataObject.getObjectInformation().length() > 0)
+        {
+            // Set the Visibility of the Edit Text and Text View
+            dataObjectViewHolder.dataObjectInformationTextView.setVisibility(View.VISIBLE);
+            dataObjectViewHolder.dataObjectInformationEditText.setVisibility(View.GONE);
+        }
 
-                // Set the Focus on the Newly Created Edit Text
-                dataObjectViewHolder.dataObjectInformationEditText.requestFocus();
-            }
+        // Newly Created Data Object
+        else
+        {
+            // Set the Visibility of the Edit Text and Text View
+            dataObjectViewHolder.dataObjectInformationTextView.setVisibility(View.GONE);
+            dataObjectViewHolder.dataObjectInformationEditText.setVisibility(View.VISIBLE);
 
-            // Set the View Parameters
+            // Set the Focus on the Newly Created Edit Text
+            dataObjectViewHolder.dataObjectInformationEditText.requestFocus();
+        }
+
+        // Set the View Parameters
+        if (dataObject != null)
+        {
             dataObjectViewHolder.dataObjectInformationTextView.setText(dataObject.getObjectInformation());
-            dataObjectViewHolder.dataObjectDateTime           .setText(dataObject.getObjectTime());
+            dataObjectViewHolder.dataObjectDateTime.setText(dataObject.getObjectTime());
             dataObjectViewHolder.dataObjectInformationEditText.setTag(dataObjectViewHolder.dataObjectInformationTextView);
             dataObjectViewHolder.dataObjectInformationTextView.setTag(dataObjectViewHolder.dataObjectInformationEditText);
-
             // Set the Click Listener for the Data Object Text View
             dataObjectViewHolder.dataObjectInformationTextView.setOnClickListener(dataObjectInformationClicked);
-
             // Set the Click Listener for the Date Time Text View
             dataObjectViewHolder.dataObjectDateTime.setOnClickListener(dataObjectDateTimeClicked);
-
             // Set the On Text Changed Listener for the Data Object Information
             dataObjectViewHolder.dataObjectInformationEditText.addTextChangedListener(new TextWatcher()
             {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
                 @Override
                 public void afterTextChanged(Editable textString)
                 {
                     // Set the Object Information
                     dataObject.setObjectInformation(textString.toString());
-
                     // Transfer the Text to the Text View
                     dataObjectViewHolder.dataObjectInformationTextView.setText(textString);
-
                     // Set the Save Needed Flag
                     dataObjectListAdapterListener.setSaveNeeded();
                 }
             });
-
             // Set the On Text Changed Listener for the Data Object Date Time
             dataObjectViewHolder.dataObjectDateTime.addTextChangedListener(new TextWatcher()
             {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
                 @Override
-                public void afterTextChanged(Editable textString)
-                {
+                public void afterTextChanged(Editable textString) {
                     // Set the Object Time
                     dataObject.setObjectTime(textString.toString());
-
                     // Set the Save Needed Flag
                     dataObjectListAdapterListener.setSaveNeeded();
                 }
             });
-
-            // Set the Tag
-            //convertView.setTag(dataObjectViewHolder);
         }
-
-        /*else
-        {
-            // Fetch the Data Object View Holder
-            DataObjectViewHolder dataObjectViewHolder = (DataObjectViewHolder) convertView.getTag();
-        }*/
 
         // Return the Completed View
         return convertView;

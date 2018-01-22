@@ -40,7 +40,7 @@ public class ProjectEditorFragment extends Fragment
 
     private ArrayList<DataProject>  selectedProjects;
     private ArrayList<View>         selectedViews;
-    private DataProjectListAdapter  adapter;
+    private DataProjectListAdapter dataProjectListAdapter;
     // endregion
 
     // region Constructor
@@ -138,13 +138,13 @@ public class ProjectEditorFragment extends Fragment
         projectListView = rootView.findViewById(R.id.project_list_view);
 
         // Create the List Adapter
-        adapter = new DataProjectListAdapter(getActivity().getApplicationContext());
+        dataProjectListAdapter = new DataProjectListAdapter(getActivity().getApplicationContext());
 
         // Initalize the Data Project Container and Load the Projects
         fetchProjectsFromInternalStorage();
 
         // Set the Adapter for the List View
-        projectListView.setAdapter(adapter);
+        projectListView.setAdapter(dataProjectListAdapter);
 
         // Set the Action Mode Callback
         projectListView.setMultiChoiceModeListener(new DataProjectActionModeCallback());
@@ -159,13 +159,13 @@ public class ProjectEditorFragment extends Fragment
         dataProjectContainer = new DataProjectContainer(getActivity().getApplicationContext());
 
         // Clear Previous
-        adapter.clear();
+        dataProjectListAdapter.clear();
 
         // Load All Projects from Device Memory
-        adapter.addAll(dataProjectContainer.loadProjects());
+        dataProjectListAdapter.addAll(dataProjectContainer.loadProjects());
 
         // Notify the Data Set Changed
-        adapter.notifyDataSetChanged();
+        dataProjectListAdapter.notifyDataSetChanged();
     }
 
     private void showDeleteAlertDialog()
@@ -252,13 +252,13 @@ public class ProjectEditorFragment extends Fragment
         public void onAnimationEnd(Animation animation)
         {
             // Clear the Adapter
-            adapter.clear();
+            dataProjectListAdapter.clear();
 
             // Delete the Projects
-            adapter.addAll(dataProjectContainer.deleteProjects(selectedProjects));
+            dataProjectListAdapter.addAll(dataProjectContainer.deleteProjects(selectedProjects));
 
             // Notify the Data Set Changed
-            adapter.notifyDataSetChanged();
+            dataProjectListAdapter.notifyDataSetChanged();
         }
 
         @Override

@@ -19,7 +19,6 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -91,7 +90,7 @@ public class ListFragment extends Fragment
     }
 
     @Override
-    public void onPrepareOptionsMenu (Menu menu)
+    public void onPrepareOptionsMenu(Menu menu)
     {
         // Fetch the MenuItem
         MenuItem saveItem = menu.findItem(R.id.action_menu_save);
@@ -235,8 +234,9 @@ public class ListFragment extends Fragment
         // Create the Listener for the Add Button
         addButton.setOnClickListener(new View.OnClickListener()
         {
-            public void onClick(View v)
+            public void onClick(View view)
             {
+                // Create the New Data Object
                 dataObjectListAdapter.add(new DataObject());
                 dataObjectListAdapter.notifyDataSetChanged();
             }

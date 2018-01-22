@@ -50,39 +50,43 @@ public class GraphFragment extends Fragment
 
     private void createGraphDateRange()
     {
-        // Fetch the Graph Date Range Text View
-        TextView startDateTextView = rootView.findViewById(R.id.start_date_text_view);
-        TextView endDateTextView   = rootView.findViewById(R.id.end_date_text_view);
-
-        // Convert the List of Strings to List of Dates
-        ArrayList<Date> dateList = new ArrayList<>();
-        for (int i=0; i < currentDataProject.getDataObjectList().size(); i++)
+        // Ensure there is Data in the Object List
+        if (currentDataProject.getDataObjectList().size() >= 1)
         {
-            try
+            // Fetch the Graph Date Range Text View
+            TextView startDateTextView = rootView.findViewById(R.id.start_date_text_view);
+            TextView endDateTextView   = rootView.findViewById(R.id.end_date_text_view);
+
+            // Convert the List of Strings to List of Dates
+            ArrayList<Date> dateList = new ArrayList<>();
+            for (int i = 0; i < currentDataProject.getDataObjectList().size(); i++)
             {
-                dateList.add(DataProject.dateFormat.parse(currentDataProject.getDataObjectList().get(i).getObjectTime()));
+                try
+                {
+                    dateList.add(DataProject.dateFormat.parse(currentDataProject.getDataObjectList().get(i).getObjectTime()));
+                }
+
+                catch (ParseException e)
+                {
+                    e.printStackTrace();
+                }
             }
 
-            catch (ParseException e)
-            {
-                e.printStackTrace();
-            }
+            // Create the Date Format
+            DateFormat dateFormat = new SimpleDateFormat("M/d/yy", Locale.US);
+
+            // Fetch the Minimum and Maximum Dates by Default
+            Date minDate = Collections.min(dateList);
+            Date maxDate = Collections.max(dateList);
+
+            // Set the Minimum and Maximum to the Start Date and End Date
+            startDateTextView.setText(DataProject.dateFormat.format(minDate));
+            endDateTextView  .setText(DataProject.dateFormat.format(maxDate));
+
+            // Set the On Click Listener for the Start Date and End Date
+            startDateTextView.setOnClickListener(dateClickListener);
+            endDateTextView  .setOnClickListener(dateClickListener);
         }
-
-        // Create the Date Format
-        DateFormat dateFormat = new SimpleDateFormat("M/d/yy", Locale.US);
-
-        // Fetch the Minimum and Maximum Dates by Default
-        Date minDate = Collections.min(dateList);
-        Date maxDate = Collections.max(dateList);
-
-        // Set the Minimum and Maximum to the Start Date and End Date
-        startDateTextView.setText(DataProject.dateFormat.format(minDate));
-        endDateTextView  .setText(DataProject.dateFormat.format(maxDate));
-
-        // Set the On Click Listener for the Start Date and End Date
-        startDateTextView.setOnClickListener(dateClickListener);
-        endDateTextView  .setOnClickListener(dateClickListener);
     }
 
     // Create the Date Click Listener
