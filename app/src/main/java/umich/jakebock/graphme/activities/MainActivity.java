@@ -12,6 +12,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+
 import umich.jakebock.graphme.R;
 import umich.jakebock.graphme.classes.DataProject;
 import umich.jakebock.graphme.fragments.ProjectEditorFragment;
@@ -22,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Toolbar         toolbar;
     private TabLayout       tabLayout;
     private ViewPager       viewPager;
+    private AdView          adView;
 
     private DataProject     currentDataProject;
 
@@ -33,6 +38,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Set the Content View
         setContentView(R.layout.activity_main);
+
+        // Initialize the Ads
+        initializeAds();
 
         // Create the Navigation Drawer
         initializeNavigationDrawer();
@@ -90,6 +98,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
+    }
+
+    private void initializeAds()
+    {
+        MobileAds.initialize(this, "ca-app-pub-9526664903701522/3045069586");
+        adView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
     }
 
     @Override
