@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,18 +17,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import pub.devrel.easypermissions.EasyPermissions;
 import umich.jakebock.graphme.R;
-import umich.jakebock.graphme.classes.DataObject;
 import umich.jakebock.graphme.classes.DataProject;
+import umich.jakebock.graphme.classes.Setting;
 import umich.jakebock.graphme.support_classes.DataObjectListAdapter;
 import umich.jakebock.graphme.support_classes.DataProjectContainer;
 
@@ -40,11 +42,11 @@ public class ProjectCreationActivity extends AppCompatActivity
     private String projectTitle;
     private String projectImageFilePath = "";
 
-    private EditText    projectName;
-    private Button      importImageButton;
-    private ImageButton importImageImageButton;
+    private EditText                 projectName;
+    private Button                   importImageButton;
+    private ImageButton              importImageImageButton;
+    private HashMap<String, Setting> settingHashMap;
 
-    private ListView                dataObjectListView;
     private DataObjectListAdapter   dataObjectListAdapter;
 
     private int GALLERY_REQUEST_CODE = 3;
@@ -110,11 +112,13 @@ public class ProjectCreationActivity extends AppCompatActivity
                     return false;
                 }
 
+                // TODO - Collect the Settings
+
                 // Delete the Previous Project from Internal Storage (If this is an Edit)
                 Boolean removePreviousProject = currentDataProject != null;
 
                 // Create the New Data Project
-                currentDataProject = new DataProject(projectTitle, projectImageFilePath, returnDataObjects());
+                currentDataProject = new DataProject(projectTitle, projectImageFilePath);
 
                 // Create the New Project
                 container.createProject(currentDataProject, removePreviousProject);
@@ -200,35 +204,6 @@ public class ProjectCreationActivity extends AppCompatActivity
         }
     }
 
-    private void initializeAddButton()
-    {
-        // Create the Floating Action Button
-        FloatingActionButton addButton = (FloatingActionButton) findViewById(R.id.add_button);
-
-        // Create the Listener for the Add Button
-        addButton.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                dataObjectListAdapter.add(new DataObject());
-                dataObjectListAdapter.notifyDataSetChanged();
-            }
-        });
-    }
-
-    private ArrayList<DataObject> returnDataObjects()
-    {
-        ArrayList<DataObject> dataObjects = new ArrayList<>();
-
-        for (int i=0 ; i < dataObjectListAdapter.getCount(); i++)
-        {
-            dataObjects.add(dataObjectListAdapter.getItem(i));
-        }
-
-        return dataObjects;
-    }
-
-
     private void startGalleryRequest()
     {
         String[] galleryPermissions = new String[0];
@@ -252,15 +227,48 @@ public class ProjectCreationActivity extends AppCompatActivity
         }
     }
 
-    private void initializeDataObjectListView()
+    private void initializeSettings()
     {
-        // Create the List Adapter
-        dataObjectListAdapter = new DataObjectListAdapter(getApplicationContext(), ProjectCreationActivity.this);
+        // Fetch the Setting Linear Layout
+        LinearLayout settingsLinearLayout  = findViewById(R.id.settings_linear_layout);
 
-       if (currentDataProject != null && currentDataProject.getDataObjectList().size() > 0) dataObjectListAdapter.addAll(currentDataProject.getDataObjectList());
+        // Initialize the Setting HashMap
+        settingHashMap = new HashMap<String, Setting>();
 
-        // Set the Adapter for the List View
-        dataObjectListView.setAdapter(dataObjectListAdapter);
+        // Create the Settings for the Project and Append to the Hashmap
+        settingHashMap.put("INCLUDE_TIME", new Setting("Include Time in Date", Setting.SettingType.CHECKBOX, true));
+
+        // Append the Settings to the Linear Layout
+        for (String settingKey : settingHashMap.keySet())
+        {
+            // Fetch the Current Setting
+            Setting setting = settingHashMap.get(settingKey);
+
+            // Inflate the View
+            View parentView = View.inflate(this, R.layout.setting_item, settingsLinearLayout);
+
+            // Fetch the Text View
+            TextView settingLabel = parentView.findViewById(R.id.setting_label);
+            settingLabel.setText(setting.getLabelText());
+
+            // Find the Setting Type
+            if (setting.getSettingType().equals(Setting.SettingType.CHECKBOX))
+            {
+                // Create the Checkbox
+                CheckBox checkBox = parentView.findViewById(R.id.setting_checkbox);
+                checkBox.setVisibility(View.VISIBLE);
+
+                // Set the Checkbox
+                if (currentDataProject != null) checkBox.setChecked((Boolean)currentDataProject.getDataProjectSettings().get(settingKey).getChosenValue());
+                else                            checkBox.setChecked((Boolean)setting.getDefaultValue());
+            }
+
+            else if ((setting.getSettingType().equals(Setting.SettingType.CHECKBOX)))
+            {
+                Spinner spinner = parentView.findViewById(R.id.setting_spinner);
+                spinner.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     private void initializeViews()
@@ -269,7 +277,6 @@ public class ProjectCreationActivity extends AppCompatActivity
         projectName             = findViewById(R.id.project_name);
         importImageButton       = findViewById(R.id.import_image_button);
         importImageImageButton  = findViewById(R.id.import_image_image_button);
-        dataObjectListView      = findViewById(R.id.data_object_list_view);
 
         // Set the Existing Data Project Parameters (If the Data Project was Passed In)
         if (currentDataProject != null)
@@ -299,6 +306,9 @@ public class ProjectCreationActivity extends AppCompatActivity
             initializeToolbar(getResources().getString(R.string.title_activity_project_creation));
         }
 
+        // Initialize the Settings
+        initializeSettings();
+
         // Add Listener for Import Image Button
         importImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -315,15 +325,5 @@ public class ProjectCreationActivity extends AppCompatActivity
                 startGalleryRequest();
             }
         });
-
-
-        // Initialize the Add Button
-        initializeAddButton();
-
-        // Initialize the Data Object List View
-        initializeDataObjectListView();
-
-        // Request Focus on the Edit Text
-        //projectName.requestFocus();
     }
 }

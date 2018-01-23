@@ -8,6 +8,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 /**
@@ -16,10 +17,11 @@ import java.util.Locale;
 
 public class DataProject implements Serializable
 {
-    private ArrayList<DataObject> dataObjectList;
-    private String                projectTitle;
-    private String                updatedTime;
-    private String                projectImageFilePath;
+    private String                   projectTitle;
+    private String                   updatedTime;
+    private String                   projectImageFilePath;
+    private ArrayList<DataObject>    dataObjectList;
+    private HashMap<String, Setting> dataProjectSettings;
 
     // Date Formatting
     public static DateFormat dateFormat = new SimpleDateFormat("M/d/yy h:mm a", Locale.US);
@@ -28,6 +30,15 @@ public class DataProject implements Serializable
     {
         this.projectTitle           = projectTitle;
         this.projectImageFilePath   = projectImageFilePath;
+        this.updatedTime            = prependUpdatedLabel(returnCurrentTime());
+        this.dataObjectList         = new ArrayList<>();
+    }
+
+    public DataProject(String projectTitle, String projectImageFilePath, HashMap<String, Setting> dataProjectSettings)
+    {
+        this.projectTitle           = projectTitle;
+        this.projectImageFilePath   = projectImageFilePath;
+        this.dataProjectSettings    = dataProjectSettings;
         this.updatedTime            = prependUpdatedLabel(returnCurrentTime());
         this.dataObjectList         = new ArrayList<>();
     }
@@ -99,5 +110,9 @@ public class DataProject implements Serializable
 
     public void setProjectImageFilePath(String projectImage) {
         this.projectImageFilePath = projectImage;
+    }
+
+    public HashMap<String, Setting> getDataProjectSettings() {
+        return dataProjectSettings;
     }
 }
