@@ -11,6 +11,11 @@ import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,6 +36,9 @@ public class GraphFragment extends Fragment
     private View        rootView;
     private DataProject currentDataProject;
 
+    private Date startDate;
+    private Date endDate;
+
     public GraphFragment() {}
 
     @Override
@@ -44,8 +52,46 @@ public class GraphFragment extends Fragment
         // Set the Graph Range
         createGraphDateRange();
 
+        // Create the Graph View
+        initializeGraphView();
+
         // Return Root View
         return rootView;
+    }
+
+    private void initializeGraphView()
+    {
+        // Fetch the Graph
+        GraphView graphView = (GraphView) rootView.findViewById(R.id.graph_view);
+
+        // Create the Data Points
+        DataPoint[] dataPoints = new DataPoint[currentDataProject.getDataObjectList().size()];
+        for (int i=0; i < currentDataProject.getDataObjectList().size(); i++)
+        {
+            try
+            {
+                dataPoints[i] = new DataPoint(DataProject.dateFormat.parse(currentDataProject.getDataObjectList().get(i).getObjectTime()), Double.parseDouble(currentDataProject.getDataObjectList().get(i).getObjectInformation()));
+            }
+
+            catch (ParseException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        // Add the Series
+        graphView.addSeries(new LineGraphSeries<DataPoint>(dataPoints));
+
+        graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity()));
+        graphView.getGridLabelRenderer().setNumHorizontalLabels(currentDataProject.getDataObjectList().size());
+
+        // set manual x bounds to have nice steps
+        graphView.getViewport().setMinX(startDate.getTime());
+        graphView.getViewport().setMaxX(endDate.getTime());
+        graphView.getViewport().setXAxisBoundsManual(true);
+
+        // Disable Human Rounding with Dates
+        graphView.getGridLabelRenderer().setHumanRounding(false);
     }
 
     private void createGraphDateRange()
@@ -76,12 +122,12 @@ public class GraphFragment extends Fragment
             DateFormat dateFormat = new SimpleDateFormat("M/d/yy", Locale.US);
 
             // Fetch the Minimum and Maximum Dates by Default
-            Date minDate = Collections.min(dateList);
-            Date maxDate = Collections.max(dateList);
+            startDate = Collections.min(dateList);
+            endDate   = Collections.max(dateList);
 
             // Set the Minimum and Maximum to the Start Date and End Date
-            startDateTextView.setText(DataProject.dateFormat.format(minDate));
-            endDateTextView  .setText(DataProject.dateFormat.format(maxDate));
+            startDateTextView.setText(DataProject.dateFormat.format(startDate));
+            endDateTextView  .setText(DataProject.dateFormat.format(endDate));
 
             // Set the On Click Listener for the Start Date and End Date
             startDateTextView.setOnClickListener(dateClickListener);
