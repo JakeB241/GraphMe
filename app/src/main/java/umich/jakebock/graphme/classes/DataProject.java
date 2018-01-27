@@ -4,12 +4,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
+
+import umich.jakebock.graphme.activities.MainActivity;
 
 /**
  * Created by Jake on 12/10/2017.
@@ -21,25 +19,15 @@ public class DataProject implements Serializable
     private String                   updatedTime;
     private String                   projectImageFilePath;
     private ArrayList<DataObject>    dataObjectList;
-    private HashMap<String, Setting> dataProjectSettings;
+    //private HashMap<String, Setting> dataProjectSettings;
 
-    // Date Formatting
-    public static DateFormat dateFormat = new SimpleDateFormat("M/d/yy h:mm a", Locale.US);
+    public DataProject() {}
 
     public DataProject(String projectTitle, String projectImageFilePath)
     {
         this.projectTitle           = projectTitle;
         this.projectImageFilePath   = projectImageFilePath;
-        this.updatedTime            = prependUpdatedLabel(returnCurrentTime());
-        this.dataObjectList         = new ArrayList<>();
-    }
-
-    public DataProject(String projectTitle, String projectImageFilePath, HashMap<String, Setting> dataProjectSettings)
-    {
-        this.projectTitle           = projectTitle;
-        this.projectImageFilePath   = projectImageFilePath;
-        this.dataProjectSettings    = dataProjectSettings;
-        this.updatedTime            = prependUpdatedLabel(returnCurrentTime());
+        this.updatedTime            = returnCurrentTime();
         this.dataObjectList         = new ArrayList<>();
     }
 
@@ -47,7 +35,7 @@ public class DataProject implements Serializable
     {
         this.projectTitle           = projectTitle;
         this.projectImageFilePath   = projectImageFilePath;
-        this.updatedTime            = prependUpdatedLabel(returnCurrentTime());
+        this.updatedTime            = returnCurrentTime();
         this.dataObjectList         = dataObjectList;
     }
 
@@ -55,13 +43,13 @@ public class DataProject implements Serializable
     {
         this.projectTitle           = projectTitle;
         this.projectImageFilePath   = projectImageFilePath;
-        this.updatedTime            = prependUpdatedLabel(updatedTime);
+        this.updatedTime            = updatedTime;
         this.dataObjectList         = dataObjectList;
     }
 
     private String returnCurrentTime()
     {
-        return dateFormat.format(new Date());
+        return MainActivity.dateFormat.format(new Date());
     }
 
     private String prependUpdatedLabel(String updatedTime)
@@ -74,8 +62,7 @@ public class DataProject implements Serializable
         return BitmapFactory.decodeFile(projectImageFilePath);
     }
 
-    public String returnNumberOfDataObjectsWithLabel()
-    {
+    public String returnNumberOfDataObjectsWithLabel() {
         return "Entries: " + dataObjectList.size();
     }
 
@@ -112,7 +99,7 @@ public class DataProject implements Serializable
         this.projectImageFilePath = projectImage;
     }
 
-    public HashMap<String, Setting> getDataProjectSettings() {
+    /*public HashMap<String, Setting> getDataProjectSettings() {
         return dataProjectSettings;
-    }
+    }*/
 }

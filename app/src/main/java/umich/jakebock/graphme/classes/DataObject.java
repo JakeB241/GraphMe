@@ -3,6 +3,8 @@ package umich.jakebock.graphme.classes;
 import java.io.Serializable;
 import java.util.Date;
 
+import umich.jakebock.graphme.activities.MainActivity;
+
 /**
  * Created by Jake on 12/10/2017.
  */
@@ -32,7 +34,7 @@ public class DataObject implements Serializable
 
     private String returnCurrentTime()
     {
-        return DataProject.dateFormat.format(new Date());
+        return MainActivity.dateFormat.format(new Date());
     }
 
     // Begin Getters/Setters

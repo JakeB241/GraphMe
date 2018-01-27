@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
+import umich.jakebock.graphme.activities.MainActivity;
 import umich.jakebock.graphme.classes.DataObject;
 import umich.jakebock.graphme.classes.DataProject;
 
@@ -56,7 +57,7 @@ class XmlHandler
             writeTag(serializer, DATA_PROJECT_TITLE_TAG, dataProject.getProjectTitle());
 
             // Add the Updated Time for the Project
-            writeTag(serializer, DATA_PROJECT_UPDATE_TIME_TAG, DataProject.dateFormat.format(new Date()));
+            writeTag(serializer, DATA_PROJECT_UPDATE_TIME_TAG, MainActivity.dateFormat.format(new Date()));
 
             // Add the Image for the Project
             String projectImageFilePath = dataProject.getProjectImageFilePath();

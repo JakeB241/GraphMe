@@ -24,8 +24,8 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 
 import umich.jakebock.graphme.R;
+import umich.jakebock.graphme.activities.MainActivity;
 import umich.jakebock.graphme.classes.DataObject;
-import umich.jakebock.graphme.classes.DataProject;
 
 /**
  * Created by Jake on 1/10/2018.
@@ -33,9 +33,9 @@ import umich.jakebock.graphme.classes.DataProject;
 
 public class DataObjectListAdapter extends ArrayAdapter<DataObject>
 {
-    private Context                 context;
-    private Context                 dialogContext;
-    private DataObjectListAdapterListener dataObjectListAdapterListener;
+    private Context                         context;
+    private Context                         dialogContext;
+    private DataObjectListAdapterListener   dataObjectListAdapterListener;
 
     // Data Object View Holder
     private static class DataObjectViewHolder
@@ -212,7 +212,7 @@ public class DataObjectListAdapter extends ArrayAdapter<DataObject>
         try
         {
             // Parse the Displayed Date and Set the Time
-            Date displayedDate = DataProject.dateFormat.parse(updateTimeLabel.getText().toString());
+            Date displayedDate = MainActivity.dateFormat.parse(updateTimeLabel.getText().toString());
             calendar.setTime(displayedDate);
         }
 
@@ -245,7 +245,7 @@ public class DataObjectListAdapter extends ArrayAdapter<DataObject>
                             SimpleDateFormat dateParser = new SimpleDateFormat("MM dd yyyy HH mm", Locale.US);
 
                             // Populate the Text View
-                            updateTimeLabel.setText(DataProject.dateFormat.format(dateParser.parse(chosenDate + " " + chosenTime)));
+                            updateTimeLabel.setText(MainActivity.dateFormat.format(dateParser.parse(chosenDate + " " + chosenTime)));
                         }
                         catch (ParseException e)
                         {

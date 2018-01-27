@@ -39,6 +39,8 @@ public class GraphFragment extends Fragment
     private Date startDate;
     private Date endDate;
 
+    private int MAX_NUMBER_OF_LABELS;
+
     public GraphFragment() {}
 
     @Override
@@ -70,7 +72,7 @@ public class GraphFragment extends Fragment
         {
             try
             {
-                dataPoints[i] = new DataPoint(DataProject.dateFormat.parse(currentDataProject.getDataObjectList().get(i).getObjectTime()), Double.parseDouble(currentDataProject.getDataObjectList().get(i).getObjectInformation()));
+                dataPoints[i] = new DataPoint(MainActivity.dateFormat.parse(currentDataProject.getDataObjectList().get(i).getObjectTime()), Double.parseDouble(currentDataProject.getDataObjectList().get(i).getObjectInformation()));
             }
 
             catch (ParseException e)
@@ -83,11 +85,19 @@ public class GraphFragment extends Fragment
         graphView.addSeries(new LineGraphSeries<DataPoint>(dataPoints));
 
         graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity()));
-        graphView.getGridLabelRenderer().setNumHorizontalLabels(currentDataProject.getDataObjectList().size());
+        graphView.getGridLabelRenderer().setNumHorizontalLabels(4);
 
-        // set manual x bounds to have nice steps
+        System.out.println(graphView.getGraphContentHeight());
+        System.out.println(graphView.getGraphContentWidth());
+
+        // Set the X Bounds Manually
         graphView.getViewport().setMinX(startDate.getTime());
-        graphView.getViewport().setMaxX(endDate.getTime());
+        graphView.getViewport().setMaxX(endDate  .getTime());
+        graphView.getViewport().setXAxisBoundsManual(true);
+
+        // Set the Y Bounds Manually
+        graphView.getViewport().setMinX(startDate.getTime());
+        graphView.getViewport().setMaxX(endDate  .getTime());
         graphView.getViewport().setXAxisBoundsManual(true);
 
         // Disable Human Rounding with Dates
@@ -109,7 +119,7 @@ public class GraphFragment extends Fragment
             {
                 try
                 {
-                    dateList.add(DataProject.dateFormat.parse(currentDataProject.getDataObjectList().get(i).getObjectTime()));
+                    dateList.add(MainActivity.dateFormat.parse(currentDataProject.getDataObjectList().get(i).getObjectTime()));
                 }
 
                 catch (ParseException e)
@@ -126,8 +136,8 @@ public class GraphFragment extends Fragment
             endDate   = Collections.max(dateList);
 
             // Set the Minimum and Maximum to the Start Date and End Date
-            startDateTextView.setText(DataProject.dateFormat.format(startDate));
-            endDateTextView  .setText(DataProject.dateFormat.format(endDate));
+            startDateTextView.setText(MainActivity.dateFormat.format(startDate));
+            endDateTextView  .setText(MainActivity.dateFormat.format(endDate));
 
             // Set the On Click Listener for the Start Date and End Date
             startDateTextView.setOnClickListener(dateClickListener);
@@ -147,7 +157,7 @@ public class GraphFragment extends Fragment
             try
             {
                 // Parse the Displayed Date and Set the Time
-                Date displayedDate = DataProject.dateFormat.parse(dateLabel.getText().toString());
+                Date displayedDate = MainActivity.dateFormat.parse(dateLabel.getText().toString());
                 calendar.setTime(displayedDate);
             }
 
@@ -180,7 +190,7 @@ public class GraphFragment extends Fragment
                                 SimpleDateFormat dateParser = new SimpleDateFormat("MM dd yyyy HH mm", Locale.US);
 
                                 // Populate the Text View
-                                dateLabel.setText(DataProject.dateFormat.format(dateParser.parse(chosenDate + " " + chosenTime)));
+                                dateLabel.setText(MainActivity.dateFormat.format(dateParser.parse(chosenDate + " " + chosenTime)));
                             }
                             catch (ParseException e)
                             {

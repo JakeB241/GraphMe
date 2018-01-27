@@ -63,4 +63,8 @@
         </LinearLayout>
 
     </ScrollView>
+
+    <include
+        layout="@layout/loading_layout"
+        android:visibility="gone"/>
 </RelativeLayout>

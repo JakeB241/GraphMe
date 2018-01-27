@@ -17,27 +17,26 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.Spinner;
-import android.widget.TextView;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import pub.devrel.easypermissions.EasyPermissions;
 import umich.jakebock.graphme.R;
 import umich.jakebock.graphme.classes.DataProject;
 import umich.jakebock.graphme.classes.Setting;
+import umich.jakebock.graphme.firebase.FirebaseHandler;
 import umich.jakebock.graphme.support_classes.DataObjectListAdapter;
-import umich.jakebock.graphme.support_classes.DataProjectContainer;
 
 public class ProjectCreationActivity extends AppCompatActivity
 {
     private DataProject currentDataProject;
+    private DataProject previousDataProject;
 
     private String projectTitle;
     private String projectImageFilePath = "";
@@ -45,6 +44,7 @@ public class ProjectCreationActivity extends AppCompatActivity
     private EditText                 projectName;
     private Button                   importImageButton;
     private ImageButton              importImageImageButton;
+    private FirebaseHandler          firebaseHandler;
     private HashMap<String, Setting> settingHashMap;
 
     private DataObjectListAdapter   dataObjectListAdapter;
@@ -61,7 +61,13 @@ public class ProjectCreationActivity extends AppCompatActivity
         setContentView(R.layout.activity_project_creation);
 
         // Check to see if a Data Project was Passed to be Edited
-        currentDataProject = (DataProject) getIntent().getSerializableExtra("DATA_PROJECT");
+        previousDataProject = (DataProject) getIntent().getSerializableExtra("DATA_PROJECT");
+
+        // Create the FireBase Handler
+        firebaseHandler = new FirebaseHandler(this);
+
+        // Set the Listener for the FireBase Handler
+        firebaseHandler.setListener(dataLoadCompletedListener);
 
         // Initalize the Views
         initializeViews();
@@ -95,9 +101,6 @@ public class ProjectCreationActivity extends AppCompatActivity
                 // Fetch the Project Title
                 projectTitle = projectName.getText().toString();
 
-                // Create the Data Project Container
-                DataProjectContainer container = new DataProjectContainer(getApplicationContext());
-
                 // Ensure the Project Title is Populated
                 if (projectTitle.length() < 1 || projectTitle.length() > 15)
                 {
@@ -105,26 +108,24 @@ public class ProjectCreationActivity extends AppCompatActivity
                     return false;
                 }
 
-                // Ensure this is Not an Edit and the Project Exist
-                else if (currentDataProject == null && container.projectExists(projectTitle))
-                {
-                    projectName.setError("Project Exists");
-                    return false;
-                }
-
                 // TODO - Collect the Settings
-
-                // Delete the Previous Project from Internal Storage (If this is an Edit)
-                Boolean removePreviousProject = currentDataProject != null;
 
                 // Create the New Data Project
                 currentDataProject = new DataProject(projectTitle, projectImageFilePath);
 
-                // Create the New Project
-                container.createProject(currentDataProject, removePreviousProject);
+                // Creating a New Project
+                if (previousDataProject == null)
+                {
+                    // Check if the Project Exists and Create the Project in the Callback
+                    firebaseHandler.projectExists(projectTitle);
+                }
 
-                // Return to the Main Activity
-                finish();
+                // Editing Existing Project
+                else
+                {
+                    // Delete the Current Project and Create the new Project in the Callback
+                    firebaseHandler.deleteProjects(new ArrayList<DataProject>(Collections.singletonList(previousDataProject)));
+                }
 
                 return true;
 
@@ -227,10 +228,46 @@ public class ProjectCreationActivity extends AppCompatActivity
         }
     }
 
+    // Listener for the Data Object List Adapter
+    FirebaseHandler.DataLoadCompletedListener dataLoadCompletedListener = new FirebaseHandler.DataLoadCompletedListener()
+    {
+        @Override
+        public void dataProjectExistsCompleted(Boolean projectExists)
+        {
+            // If the Project Exists, Show an Error Message
+            if (projectExists)
+            {
+                projectName.setError("Project Exists");
+                return;
+            }
+
+            // Create the Project
+            firebaseHandler.createProject(currentDataProject);
+        }
+
+        @Override
+        public void dataProjectCreatedCompleted()
+        {
+            // Finish the Activity when the Data Project has been Created
+            finish();
+        }
+
+        @Override
+        public void dataProjectsDeletedCompleted(ArrayList<DataProject> deletedDataProjects)
+        {
+            // Check if the Project Exists and Create the Project in the Callback
+            firebaseHandler.projectExists(projectTitle);
+        }
+
+        @Override
+        public void dataProjectLoadCompleted(ArrayList<DataProject> loadedDataProjects) {}
+
+    };
+
     private void initializeSettings()
     {
         // Fetch the Setting Linear Layout
-        LinearLayout settingsLinearLayout  = findViewById(R.id.settings_linear_layout);
+        /*LinearLayout settingsLinearLayout  = findViewById(R.id.settings_linear_layout);
 
         // Initialize the Setting HashMap
         settingHashMap = new HashMap<String, Setting>();
@@ -268,7 +305,7 @@ public class ProjectCreationActivity extends AppCompatActivity
                 Spinner spinner = parentView.findViewById(R.id.setting_spinner);
                 spinner.setVisibility(View.VISIBLE);
             }
-        }
+        }*/
     }
 
     private void initializeViews()
@@ -279,10 +316,10 @@ public class ProjectCreationActivity extends AppCompatActivity
         importImageImageButton  = findViewById(R.id.import_image_image_button);
 
         // Set the Existing Data Project Parameters (If the Data Project was Passed In)
-        if (currentDataProject != null)
+        if (previousDataProject != null)
         {
             // Set the Text of the Project Name
-            projectName.setText(currentDataProject.getProjectTitle());
+            projectName.setText(previousDataProject.getProjectTitle());
 
             // Set the Image Button to Visible
             importImageImageButton.setVisibility(View.VISIBLE);
@@ -291,10 +328,10 @@ public class ProjectCreationActivity extends AppCompatActivity
             importImageButton.setVisibility(View.GONE);
 
             // Set the Image of the Image Button
-            importImageImageButton.setImageBitmap(currentDataProject.returnBitmapImage());
+            importImageImageButton.setImageBitmap(previousDataProject.returnBitmapImage());
 
             // Get the Image Path
-            projectImageFilePath = currentDataProject.getProjectImageFilePath();
+            projectImageFilePath = previousDataProject.getProjectImageFilePath();
 
             // Set the Toolbar to Edit Project
             initializeToolbar(getResources().getString(R.string.title_activity_project_edit));

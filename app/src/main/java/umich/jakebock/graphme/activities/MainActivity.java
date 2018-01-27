@@ -1,10 +1,10 @@
 package umich.jakebock.graphme.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -15,6 +15,15 @@ import android.view.MenuItem;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import umich.jakebock.graphme.R;
 import umich.jakebock.graphme.classes.DataProject;
@@ -23,12 +32,9 @@ import umich.jakebock.graphme.fragments.ProjectEditorFragment;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
     private DrawerLayout    drawerLayout;
-    private Toolbar         toolbar;
-    private TabLayout       tabLayout;
-    private ViewPager       viewPager;
-    private AdView          adView;
-
     private DataProject     currentDataProject;
+
+    public static DateFormat dateFormat = new SimpleDateFormat("M/d/yy h:mm a", Locale.US);
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -76,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         // Initialize the Views
         drawerLayout    = findViewById(R.id.drawer_layout);
-        toolbar         = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
 
         // Set the Support Action Bar
         setSupportActionBar(toolbar);
@@ -103,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void initializeAds()
     {
         MobileAds.initialize(this, "ca-app-pub-9526664903701522/3045069586");
-        adView = findViewById(R.id.adView);
+        AdView adView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         adView.loadAd(adRequest);
     }
@@ -123,12 +129,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public boolean onNavigationItemSelected(MenuItem item)
+    public boolean onNavigationItemSelected(@NonNull MenuItem item)
     {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        switch (id)
+        {
+            // Log the User Out
+            case R.id.log_out:
+                logOut();
+                break;
+        }
+
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void logOut()
+    {
+        // Log the User Out from FireBase
+        FirebaseAuth.getInstance().signOut();
+
+        // Configure Google Sign In
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken(getString(R.string.default_web_client_id)).requestEmail().build();
+
+        // Sign out User from Google
+        GoogleSignIn.getClient(this, gso).signOut().addOnCompleteListener(this, new OnCompleteListener<Void>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<Void> task)
+            {
+                // Show the Login Activity
+                startActivity(new Intent(MainActivity.this, LoginActivity.class));
+
+                // Remove History
+                finish();
+            }
+        });
     }
 }

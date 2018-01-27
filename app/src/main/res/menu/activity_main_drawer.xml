@@ -3,19 +3,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="none">
+    <group android:id="@+id/project_menu" android:checkableBehavior="none">
         <item
             android:id="@+id/manage_projects"
             android:icon="@drawable/ic_timeline_black_24dp"
             android:title="@string/manage_projects" />
         <item
-            android:id="@+id/backup_projects"
-            android:icon="@drawable/ic_cloud_black_24dp"
-            android:title="@string/backup_projects" />
-        <item
             android:id="@+id/share_projects"
             android:icon="@drawable/ic_share_black_24dp"
             android:title="@string/share_projects" />
+    </group>
+
+    <group android:id="@+id/settings_menu" android:checkableBehavior="none">
+        <item
+            android:id="@+id/settings"
+            android:icon="@drawable/ic_settings_black_24dp"
+            android:title="@string/settings" />
+    </group>
+
+    <group android:id="@+id/user_menu" android:checkableBehavior="none">
+        <item
+            android:id="@+id/log_out"
+            android:icon="@drawable/ic_exit_to_app_black_24dp"
+            android:title="@string/log_out" />
     </group>
 
 </menu>

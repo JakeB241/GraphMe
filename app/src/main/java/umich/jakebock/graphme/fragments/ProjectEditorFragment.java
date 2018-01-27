@@ -28,19 +28,19 @@ import umich.jakebock.graphme.R;
 import umich.jakebock.graphme.activities.MainActivity;
 import umich.jakebock.graphme.activities.ProjectCreationActivity;
 import umich.jakebock.graphme.classes.DataProject;
-import umich.jakebock.graphme.support_classes.DataProjectContainer;
+import umich.jakebock.graphme.firebase.FirebaseHandler;
 import umich.jakebock.graphme.support_classes.DataProjectListAdapter;
 
 public class ProjectEditorFragment extends Fragment
 {
     // region Class Data
     private View                    rootView;
-    private DataProjectContainer    dataProjectContainer;
+    private FirebaseHandler         firebaseHandler;
     private ListView                projectListView;
 
     private ArrayList<DataProject>  selectedProjects;
     private ArrayList<View>         selectedViews;
-    private DataProjectListAdapter dataProjectListAdapter;
+    private DataProjectListAdapter  dataProjectListAdapter;
     // endregion
 
     // region Constructor
@@ -74,7 +74,7 @@ public class ProjectEditorFragment extends Fragment
     public void onResume()
     {
         // Re Populate the Project List
-        fetchProjectsFromInternalStorage();
+        loadDataProjects();
 
         // Re Initialize Toolbar
         initializeToolbar();
@@ -119,7 +119,7 @@ public class ProjectEditorFragment extends Fragment
                 // If the Back Stack is Empty, We arrived here from the ProjectBreakdownFragment
                 // Repopulate the Project List (For the Entries)
                 if (getActivity().getSupportFragmentManager().getBackStackEntryCount() == 0)
-                    fetchProjectsFromInternalStorage();
+                    loadDataProjects();
 
                 // Restore the Toolbar
                 ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
@@ -140,9 +140,6 @@ public class ProjectEditorFragment extends Fragment
         // Create the List Adapter
         dataProjectListAdapter = new DataProjectListAdapter(getActivity().getApplicationContext());
 
-        // Initalize the Data Project Container and Load the Projects
-        fetchProjectsFromInternalStorage();
-
         // Set the Adapter for the List View
         projectListView.setAdapter(dataProjectListAdapter);
 
@@ -153,19 +150,19 @@ public class ProjectEditorFragment extends Fragment
         projectListView.setOnItemClickListener(dataProjectItemClickedListener);
     }
 
-    private void fetchProjectsFromInternalStorage()
+    private void loadDataProjects()
     {
-        // Create a New Instance of the Data Project Container
-        dataProjectContainer = new DataProjectContainer(getActivity().getApplicationContext());
+        // Create the FireBase Handler
+        firebaseHandler = new FirebaseHandler(getActivity());
+
+        // Set the Listener for the FireBase Handler
+        firebaseHandler.setListener(dataLoadCompletedListener);
 
         // Clear Previous
         dataProjectListAdapter.clear();
 
-        // Load All Projects from Device Memory
-        dataProjectListAdapter.addAll(dataProjectContainer.loadProjects());
-
-        // Notify the Data Set Changed
-        dataProjectListAdapter.notifyDataSetChanged();
+        // Load All Projects from Device Memory (Async Call to Load the Projects)
+        firebaseHandler.loadProjects();
     }
 
     private void showDeleteAlertDialog()
@@ -196,6 +193,37 @@ public class ProjectEditorFragment extends Fragment
         alert.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
     }
     // endregion
+
+    // Listener for the Data Object List Adapter
+    FirebaseHandler.DataLoadCompletedListener dataLoadCompletedListener = new FirebaseHandler.DataLoadCompletedListener()
+    {
+        @Override
+        public void dataProjectLoadCompleted(ArrayList<DataProject> loadedDataProjects)
+        {
+            // Add all of the Projects
+            dataProjectListAdapter.addAll(loadedDataProjects);
+
+            // Notify the Data Set Changed
+            dataProjectListAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void dataProjectsDeletedCompleted(ArrayList<DataProject> deletedDataProjects)
+        {
+            // Remove all of the Projects from the List
+            for (DataProject dataProject : deletedDataProjects)
+                dataProjectListAdapter.remove(dataProject);
+
+            // Notify the Data Set Changed
+            dataProjectListAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void dataProjectExistsCompleted(Boolean projectExists) {}
+
+        @Override
+        public void dataProjectCreatedCompleted() {}
+    };
 
     // region Click Listeners
     private AdapterView.OnItemClickListener dataProjectItemClickedListener = new AdapterView.OnItemClickListener()
@@ -246,25 +274,18 @@ public class ProjectEditorFragment extends Fragment
     private class DeleteDataProjectAnimationListener implements Animation.AnimationListener
     {
         @Override
-        public void onAnimationStart(Animation animation) {}
+        public void onAnimationStart(Animation animation)
+        {
+            // Delete the Projects (Async Call to Delete the Projects)
+            firebaseHandler.deleteProjects(selectedProjects);
+        }
 
         @Override
-        public void onAnimationEnd(Animation animation)
-        {
-            // Clear the Adapter
-            dataProjectListAdapter.clear();
-
-            // Delete the Projects
-            dataProjectListAdapter.addAll(dataProjectContainer.deleteProjects(selectedProjects));
-
-            // Notify the Data Set Changed
-            dataProjectListAdapter.notifyDataSetChanged();
-        }
+        public void onAnimationEnd(Animation animation) {}
 
         @Override
         public void onAnimationRepeat(Animation animation) {}
     }
-
 
     // Listener for the Action Mode Callback for the Action Bar (Long Click on List Items)
     private class DataProjectActionModeCallback implements ListView.MultiChoiceModeListener

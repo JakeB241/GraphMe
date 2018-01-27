@@ -243,7 +243,7 @@ public class ListFragment extends Fragment
         });
     }
 
-    // Listener for the Set Save Needed Flag
+    // Listener for the Data Object List Adapter
     DataObjectListAdapter.DataObjectListAdapterListener dataObjectListAdapterListener = new DataObjectListAdapter.DataObjectListAdapterListener()
     {
         @Override
