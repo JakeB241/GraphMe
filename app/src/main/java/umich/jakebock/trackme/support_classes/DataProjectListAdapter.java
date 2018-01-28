@@ -1,4 +1,4 @@
-package umich.jakebock.graphme.support_classes;
+package umich.jakebock.trackme.support_classes;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,8 +10,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import umich.jakebock.graphme.R;
-import umich.jakebock.graphme.classes.DataProject;
+import umich.jakebock.trackme.R;
+import umich.jakebock.trackme.classes.DataProject;
 
 /**
  * Created by Jake on 12/19/2017.

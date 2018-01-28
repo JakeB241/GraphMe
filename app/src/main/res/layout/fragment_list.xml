@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="umich.jakebock.graphme.fragments.ListFragment">
+    tools:context="umich.jakebock.trackme.fragments.ListFragment">
 
     <ListView
         android:id="@+id/data_object_list_view"

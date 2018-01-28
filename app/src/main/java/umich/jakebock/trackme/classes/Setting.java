@@ -1,4 +1,4 @@
-package umich.jakebock.graphme.classes;
+package umich.jakebock.trackme.classes;
 
 /**
  * Created by Jake on 1/22/2018.

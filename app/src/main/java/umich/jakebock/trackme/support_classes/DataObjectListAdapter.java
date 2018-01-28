@@ -1,4 +1,4 @@
-package umich.jakebock.graphme.support_classes;
+package umich.jakebock.trackme.support_classes;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -8,8 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import umich.jakebock.graphme.R;
-import umich.jakebock.graphme.classes.DataObject;
+import umich.jakebock.trackme.R;
+import umich.jakebock.trackme.classes.DataObject;
 
 /**
  * Created by Jake on 1/10/2018.

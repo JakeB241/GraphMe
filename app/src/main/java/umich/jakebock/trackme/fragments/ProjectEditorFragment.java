@@ -1,4 +1,4 @@
-package umich.jakebock.graphme.fragments;
+package umich.jakebock.trackme.fragments;
 
 
 import android.app.AlertDialog;
@@ -24,12 +24,12 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-import umich.jakebock.graphme.R;
-import umich.jakebock.graphme.activities.MainActivity;
-import umich.jakebock.graphme.activities.ProjectCreationActivity;
-import umich.jakebock.graphme.classes.DataProject;
-import umich.jakebock.graphme.firebase.FirebaseHandler;
-import umich.jakebock.graphme.support_classes.DataProjectListAdapter;
+import umich.jakebock.trackme.R;
+import umich.jakebock.trackme.activities.MainActivity;
+import umich.jakebock.trackme.activities.ProjectCreationActivity;
+import umich.jakebock.trackme.classes.DataProject;
+import umich.jakebock.trackme.firebase.FirebaseHandler;
+import umich.jakebock.trackme.support_classes.DataProjectListAdapter;
 
 public class ProjectEditorFragment extends Fragment
 {

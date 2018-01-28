@@ -6,7 +6,7 @@
     android:layout_width="0dp"
     android:layout_height="0dp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="umich.jakebock.graphme.activities.MainActivity"
+    tools:context="umich.jakebock.trackme.activities.MainActivity"
     android:background="@color/lightGray"
     tools:showIn="@layout/app_bar_main">
 </RelativeLayout>

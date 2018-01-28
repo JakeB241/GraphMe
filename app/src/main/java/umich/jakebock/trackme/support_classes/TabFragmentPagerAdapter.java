@@ -1,12 +1,12 @@
-package umich.jakebock.graphme.support_classes;
+package umich.jakebock.trackme.support_classes;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import umich.jakebock.graphme.fragments.GraphFragment;
-import umich.jakebock.graphme.fragments.ListFragment;
-import umich.jakebock.graphme.fragments.StatisticsFragment;
+import umich.jakebock.trackme.fragments.GraphFragment;
+import umich.jakebock.trackme.fragments.ListFragment;
+import umich.jakebock.trackme.fragments.StatisticsFragment;
 
 /**
  * Created by Jake on 12/9/2017.

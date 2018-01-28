@@ -1,4 +1,4 @@
-package umich.jakebock.graphme.activities;
+package umich.jakebock.trackme.activities;
 
 import android.Manifest;
 import android.app.Activity;
@@ -27,11 +27,11 @@ import java.util.Collections;
 import java.util.HashMap;
 
 import pub.devrel.easypermissions.EasyPermissions;
-import umich.jakebock.graphme.R;
-import umich.jakebock.graphme.classes.DataProject;
-import umich.jakebock.graphme.classes.Setting;
-import umich.jakebock.graphme.firebase.FirebaseHandler;
-import umich.jakebock.graphme.support_classes.DataObjectListAdapter;
+import umich.jakebock.trackme.R;
+import umich.jakebock.trackme.classes.DataProject;
+import umich.jakebock.trackme.classes.Setting;
+import umich.jakebock.trackme.firebase.FirebaseHandler;
+import umich.jakebock.trackme.support_classes.DataObjectListAdapter;
 
 public class ProjectCreationActivity extends AppCompatActivity
 {

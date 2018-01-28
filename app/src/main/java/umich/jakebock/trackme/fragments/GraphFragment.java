@@ -1,4 +1,4 @@
-package umich.jakebock.graphme.fragments;
+package umich.jakebock.trackme.fragments;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -26,9 +26,9 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
-import umich.jakebock.graphme.R;
-import umich.jakebock.graphme.activities.MainActivity;
-import umich.jakebock.graphme.classes.DataProject;
+import umich.jakebock.trackme.R;
+import umich.jakebock.trackme.activities.MainActivity;
+import umich.jakebock.trackme.classes.DataProject;
 
 
 public class GraphFragment extends Fragment

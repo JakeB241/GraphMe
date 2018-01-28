@@ -1,4 +1,4 @@
-package umich.jakebock.graphme.activities;
+package umich.jakebock.trackme.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,9 +25,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-import umich.jakebock.graphme.R;
-import umich.jakebock.graphme.classes.DataProject;
-import umich.jakebock.graphme.fragments.ProjectEditorFragment;
+import umich.jakebock.trackme.R;
+import umich.jakebock.trackme.classes.DataProject;
+import umich.jakebock.trackme.fragments.ProjectEditorFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
@@ -131,10 +131,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item)
     {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        switch (id)
+        // Handle navigation view item clicks here
+        switch (item.getItemId())
         {
             // Log the User Out
             case R.id.log_out:

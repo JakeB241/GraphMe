@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="umich.jakebock.graphme">
+    package="umich.jakebock.trackme">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -14,16 +14,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".activities.MainActivity"
+            android:name="umich.jakebock.trackme.activities.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/app_name"
             android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
-            android:name=".activities.ProjectCreationActivity"
+            android:name="umich.jakebock.trackme.activities.ProjectCreationActivity"
             android:label="@string/title_activity_project_creation" />
         <activity
-            android:name=".activities.LoginActivity"
+            android:name="umich.jakebock.trackme.activities.LoginActivity"
             android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

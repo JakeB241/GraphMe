@@ -1,4 +1,4 @@
-package umich.jakebock.graphme;
+package umich.jakebock.trackme;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("umich.jakebock.graphme", appContext.getPackageName());
+        assertEquals("umich.jakebock.trackme", appContext.getPackageName());
     }
 }

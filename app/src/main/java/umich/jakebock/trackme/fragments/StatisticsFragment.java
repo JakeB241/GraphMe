@@ -1,4 +1,4 @@
-package umich.jakebock.graphme.fragments;
+package umich.jakebock.trackme.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -6,9 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import umich.jakebock.graphme.R;
-import umich.jakebock.graphme.activities.MainActivity;
-import umich.jakebock.graphme.classes.DataProject;
+import umich.jakebock.trackme.R;
+import umich.jakebock.trackme.activities.MainActivity;
+import umich.jakebock.trackme.classes.DataProject;
 
 
 public class StatisticsFragment extends Fragment

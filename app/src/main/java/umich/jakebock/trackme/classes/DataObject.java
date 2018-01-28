@@ -1,9 +1,9 @@
-package umich.jakebock.graphme.classes;
+package umich.jakebock.trackme.classes;
 
 import java.io.Serializable;
 import java.util.Date;
 
-import umich.jakebock.graphme.activities.MainActivity;
+import umich.jakebock.trackme.activities.MainActivity;
 
 /**
  * Created by Jake on 12/10/2017.

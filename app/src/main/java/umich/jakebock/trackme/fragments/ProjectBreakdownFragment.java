@@ -1,4 +1,4 @@
-package umich.jakebock.graphme.fragments;
+package umich.jakebock.trackme.fragments;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -10,9 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import umich.jakebock.graphme.R;
-import umich.jakebock.graphme.activities.MainActivity;
-import umich.jakebock.graphme.support_classes.TabFragmentPagerAdapter;
+import umich.jakebock.trackme.R;
+import umich.jakebock.trackme.activities.MainActivity;
+import umich.jakebock.trackme.support_classes.TabFragmentPagerAdapter;
 
 
 public class ProjectBreakdownFragment extends Fragment

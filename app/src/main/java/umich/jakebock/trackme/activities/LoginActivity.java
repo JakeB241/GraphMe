@@ -1,4 +1,4 @@
-package umich.jakebock.graphme.activities;
+package umich.jakebock.trackme.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,13 +19,17 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
-import umich.jakebock.graphme.R;
+import umich.jakebock.trackme.R;
 
 public class LoginActivity extends AppCompatActivity
 {
     private FirebaseAuth firebaseAuth;
     private FirebaseUser currentUser;
+
+    public static String currentUserId;
 
     private static final int RC_SIGN_IN = 123;
 
@@ -43,6 +47,10 @@ public class LoginActivity extends AppCompatActivity
 
         // Get the FireBase Auth Instance
         firebaseAuth = FirebaseAuth.getInstance();
+
+        // Set the Offline Data to True
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(true).build();
+        FirebaseFirestore.getInstance().setFirestoreSettings(settings);
     }
 
     @Override
@@ -54,10 +62,22 @@ public class LoginActivity extends AppCompatActivity
         // Fetch the Current User
         currentUser = firebaseAuth.getCurrentUser();
 
-        // Launch Main Activity
-        if (currentUser != null)
-            startMainActivity();
+        // Fetch the User ID Token and Launch Main Activity
+        fetchCurrentUserId(currentUser);
     }
+
+    private void fetchCurrentUserId(FirebaseUser currentUser)
+    {
+        if (currentUser != null)
+        {
+            // Fetch Current User ID
+            currentUserId = currentUser.getUid();
+
+            // Start the Main Activity
+            startMainActivity();
+        }
+    }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data)
@@ -80,6 +100,7 @@ public class LoginActivity extends AppCompatActivity
             {
                 // The ApiException status code indicates the detailed failure reason.
                 // Please refer to the GoogleSignInStatusCodes class reference for more information.
+                System.out.println("FAILED RESULT " + e.getStatusCode());
             }
         }
     }
@@ -96,7 +117,7 @@ public class LoginActivity extends AppCompatActivity
                 {
                     // Sign In Success
                     currentUser = firebaseAuth.getCurrentUser();
-                    startMainActivity();
+                    fetchCurrentUserId(currentUser);
                 }
 
                 else

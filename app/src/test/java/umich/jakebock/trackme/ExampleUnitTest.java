@@ -1,4 +1,4 @@
-package umich.jakebock.graphme;
+package umich.jakebock.trackme;
 
 import org.junit.Test;
 

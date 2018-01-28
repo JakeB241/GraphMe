@@ -1,4 +1,4 @@
-package umich.jakebock.graphme.fragments;
+package umich.jakebock.trackme.fragments;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -34,13 +34,12 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
-import umich.jakebock.graphme.R;
-import umich.jakebock.graphme.activities.MainActivity;
-import umich.jakebock.graphme.classes.DataObject;
-import umich.jakebock.graphme.classes.DataProject;
-import umich.jakebock.graphme.firebase.FirebaseHandler;
-import umich.jakebock.graphme.support_classes.DataObjectListAdapter;
-import umich.jakebock.graphme.support_classes.DataProjectContainer;
+import umich.jakebock.trackme.R;
+import umich.jakebock.trackme.activities.MainActivity;
+import umich.jakebock.trackme.classes.DataObject;
+import umich.jakebock.trackme.classes.DataProject;
+import umich.jakebock.trackme.firebase.FirebaseHandler;
+import umich.jakebock.trackme.support_classes.DataObjectListAdapter;
 
 public class ListFragment extends Fragment
 {
@@ -273,8 +272,6 @@ public class ListFragment extends Fragment
         @Override
         public void onAnimationEnd(Animation animation)
         {
-            // Create the Data Project Container
-            DataProjectContainer dataProjectContainer = new DataProjectContainer(getActivity().getApplicationContext());
 
             // Clear the Adapter
             dataObjectListAdapter.clear();
@@ -291,14 +288,11 @@ public class ListFragment extends Fragment
             // Set the Current Project
             ((MainActivity) getActivity()).setCurrentProject(currentDataProject);
 
-            // Overwrite the Project with the New Data
-            dataProjectContainer.createProject(currentDataProject, true);
-
             // Delete the Projects
             dataObjectListAdapter.addAll(currentDataProject.getDataObjectList());
 
-            // Notify the Data Set Changed
-            dataObjectListAdapter.notifyDataSetChanged();
+            // Overwrite the Project with the New Data
+            firebaseHandler.createProject(currentDataProject);
         }
 
         @Override
@@ -362,10 +356,19 @@ public class ListFragment extends Fragment
                     dataObjectListAdapter.add(new DataObject(dataObjectInformation.getText().toString(), dataObjectTime.getText().toString()));
                 }
 
-                // TODO - Save the Data Objects to the Database
+                // Fetch all of the Data Objects
+                ArrayList<DataObject> dataObjects = new ArrayList<>();
+                for (int i = 0; i < dataObjectListAdapter.getCount(); i++)
+                    dataObjects.add(dataObjectListAdapter.getItem(i));
 
-                // Notify the Data Set Changed
-                dataObjectListAdapter.notifyDataSetChanged();
+                // Set the Data Object List
+                currentDataProject.setDataObjectList(dataObjects);
+
+                // Set the Current Project
+                ((MainActivity) getActivity()).setCurrentProject(currentDataProject);
+
+                // Update the Current Project
+                firebaseHandler.createProject(currentDataProject);
             }
         }).setNegativeButton("Cancel", new DialogInterface.OnClickListener()
         {
@@ -408,7 +411,8 @@ public class ListFragment extends Fragment
         @Override
         public void dataProjectCreatedCompleted()
         {
-            
+            // Notify the Data Set Changed
+            dataObjectListAdapter.notifyDataSetChanged();
         }
 
         @Override
