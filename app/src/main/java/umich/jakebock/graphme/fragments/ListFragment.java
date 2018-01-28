@@ -1,7 +1,8 @@
 package umich.jakebock.graphme.fragments;
 
 import android.app.AlertDialog;
-import android.content.Context;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -18,18 +19,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
 
 import umich.jakebock.graphme.R;
 import umich.jakebock.graphme.activities.MainActivity;
 import umich.jakebock.graphme.classes.DataObject;
 import umich.jakebock.graphme.classes.DataProject;
+import umich.jakebock.graphme.firebase.FirebaseHandler;
 import umich.jakebock.graphme.support_classes.DataObjectListAdapter;
 import umich.jakebock.graphme.support_classes.DataProjectContainer;
 
@@ -39,8 +48,7 @@ public class ListFragment extends Fragment
     private DataProject            currentDataProject;
     private DataObjectListAdapter  dataObjectListAdapter;
     private ListView               dataObjectListView;
-    private Boolean                saveNeeded;
-    private Boolean                actionModeEnabled;
+    private FirebaseHandler        firebaseHandler;
 
     private ArrayList<DataObject>  selectedDataObjects;
     private ArrayList<View>        selectedViews;
@@ -52,10 +60,6 @@ public class ListFragment extends Fragment
     {
         // Create the Root View
         rootView = inflater.inflate(R.layout.fragment_list, container, false);
-
-        // Set the Save Needed and Action Mode Enabled Flags
-        saveNeeded          = false;
-        actionModeEnabled   = false;
 
         // Fetch the Data Project
         currentDataProject = ((MainActivity)getActivity()).getCurrentDataProject();
@@ -69,6 +73,12 @@ public class ListFragment extends Fragment
         // Allow the Fragment to Have a Custom Options Menu
         setHasOptionsMenu(true);
 
+        // Create the FireBase Handler
+        firebaseHandler = new FirebaseHandler(getActivity());
+
+        // Set the Listener for the FireBase Handler
+        firebaseHandler.setListener(dataLoadCompletedListener);
+
         // Return the Root View
         return rootView;
     }
@@ -76,52 +86,11 @@ public class ListFragment extends Fragment
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
     {
-        // Inflate the Menu
-        inflater.inflate(R.menu.list_fragment_menu, menu);
-
         // Fetch the Action Bar
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
 
         // Set the Action Bar Title to the Current Data Project Title
         if (actionBar != null) actionBar.setTitle(((MainActivity) getActivity()).getCurrentDataProject().getProjectTitle());
-
-        // Call the Super
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu)
-    {
-        // Fetch the MenuItem
-        MenuItem saveItem = menu.findItem(R.id.action_menu_save);
-
-        // Enable or Disable the Menu Option for Saving
-        if (saveNeeded)
-        {
-            saveItem.setEnabled(true);
-            saveItem.getIcon().setAlpha(255);
-        }
-
-        else
-        {
-            saveItem.setEnabled(false);
-            saveItem.getIcon().setAlpha(100);
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        // Item Selection
-        switch (item.getItemId())
-        {
-            // Save the Data Objects
-            case R.id.action_menu_save:
-                collectAndSaveDataObjects();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     @Override
@@ -145,60 +114,7 @@ public class ListFragment extends Fragment
         if (rootView != null && !isVisibleToUser)
         {
             // Collect the Data Objects and Set the Current Data Project
-            collectAndSaveDataObjects();
-        }
-    }
-
-    private void collectAndSaveDataObjects()
-    {
-        // Check the Save Needed Flag to Ensure that a Save is Required
-        if (saveNeeded)
-        {
-            // Create the ArrayList to Collect the Data Objects
-            ArrayList<DataObject> dataObjectArrayList = new ArrayList<>();
-
-            // Add all of the Data Objects to the Array List
-            for (int i = 0; i < dataObjectListAdapter.getCount(); i++)
-            {
-                // Fetch the Data Object
-                DataObject dataObject = dataObjectListAdapter.getItem(i);
-
-                // Ensure the Data Object has Text and Add to the List
-                if (dataObject != null && dataObject.getObjectInformation().length() > 0)
-                    dataObjectArrayList.add(dataObjectListAdapter.getItem(i));
-
-                // Fetch the Edit Text and Text View
-                RelativeLayout parentView = (RelativeLayout) dataObjectListView.getChildAt(i);
-                TextView dataObjectInformationTextView = parentView.findViewById(R.id.data_object_information_text_view);
-                EditText dataObjectInformationEditText = parentView.findViewById(R.id.data_object_information_edit_text);
-
-                // Return the Edit Text Views to Text Views
-                dataObjectInformationTextView.setVisibility(View.VISIBLE);
-                dataObjectInformationEditText.setVisibility(View.GONE);
-
-                // Hide the Keyboard
-                View view = getActivity().getCurrentFocus();
-                if (view != null)
-                    ((InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(view.getWindowToken(), 0);
-            }
-
-            // Set the Current Data Objects
-            currentDataProject.setDataObjectList(dataObjectArrayList);
-
-            // Set the Current Project
-            ((MainActivity) getActivity()).setCurrentProject(currentDataProject);
-
-            // Create the Data Project Container
-            DataProjectContainer dataProjectContainer = new DataProjectContainer(getActivity().getApplicationContext());
-
-            // Create the New Version of the Project
-            dataProjectContainer.createProject(currentDataProject, true);
-
-            // Invalidate the Options Menu so the Save is Disabled
-            getActivity().invalidateOptionsMenu();
-
-            // Set the Save Needed Flag to False
-            saveNeeded = false;
+            //collectAndSaveDataObjects();
         }
     }
 
@@ -208,7 +124,7 @@ public class ListFragment extends Fragment
         dataObjectListView = (ListView) rootView.findViewById(R.id.data_object_list_view);
 
         // Initialize the List Adapter
-        dataObjectListAdapter = new DataObjectListAdapter(getActivity().getApplicationContext(), getActivity());
+        dataObjectListAdapter = new DataObjectListAdapter(getActivity().getApplicationContext());
 
         // Set the Data Objects for the List Adapter
         dataObjectListAdapter.addAll(currentDataProject.getDataObjectList());
@@ -216,17 +132,17 @@ public class ListFragment extends Fragment
         // Set the Adapter for the List View
         dataObjectListView.setAdapter(dataObjectListAdapter);
 
-        // Set the Listener for the Save Needed Flag
-        dataObjectListAdapter.setListener(dataObjectListAdapterListener);
-
         // Set the Action Mode Callback
         dataObjectListView.setMultiChoiceModeListener(new DataObjectActionModeCallback());
+
+        // Set the On Click for the Project List View
+        dataObjectListView.setOnItemClickListener(dataObjectItemClickedListener);
     }
 
     private void initializeAddDataObjectButton()
     {
         // Fetch the Floating Action Button
-        FloatingActionButton addButton = (FloatingActionButton) rootView.findViewById(R.id.add_button);
+        FloatingActionButton addButton = rootView.findViewById(R.id.add_button);
 
         // Set the Add Button
         addButton.setImageResource(android.R.drawable.ic_input_add);
@@ -236,32 +152,70 @@ public class ListFragment extends Fragment
         {
             public void onClick(View view)
             {
-                // Create the New Data Object
-                dataObjectListAdapter.add(new DataObject());
-                dataObjectListAdapter.notifyDataSetChanged();
+                // Show the Data Object Creation Prompt
+                showDataObjectCreationPrompt(null);
             }
         });
     }
 
-    // Listener for the Data Object List Adapter
-    DataObjectListAdapter.DataObjectListAdapterListener dataObjectListAdapterListener = new DataObjectListAdapter.DataObjectListAdapterListener()
+    private void showDateAndTimePicker(final View chosenView)
     {
-        @Override
-        public void setSaveNeeded()
-        {
-            // Set the Save Needed Flag to True
-            saveNeeded = true;
+        // Parse the Current Time from the View
+        final TextView updateTimeLabel = (TextView) chosenView;
+        final Calendar calendar        = new GregorianCalendar();
 
-            // Redraw the Options Menu
-            getActivity().invalidateOptionsMenu();
+        try
+        {
+            // Parse the Displayed Date and Set the Time
+            Date displayedDate = MainActivity.dateFormat.parse(updateTimeLabel.getText().toString());
+            calendar.setTime(displayedDate);
         }
 
-        @Override
-        public boolean getActonModeEnabled()
+        catch (ParseException e)
         {
-            return actionModeEnabled;
+            e.printStackTrace();
         }
-    };
+
+        // Launch the Date Picker
+        DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(), R.style.DialogTheme, new DatePickerDialog.OnDateSetListener()
+        {
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth)
+            {
+                // Fetch the Chosen Dates
+                final String chosenDate = (monthOfYear + 1) + " " + (dayOfMonth) + " " + (year);
+
+                // Launch Time Picker Dialog
+                TimePickerDialog timePickerDialog = new TimePickerDialog(getActivity(), R.style.DialogTheme, new TimePickerDialog.OnTimeSetListener()
+                {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute)
+                    {
+                        // Fetch the Chosen Time
+                        final String chosenTime = hourOfDay + " " + minute;
+
+                        try
+                        {
+                            // Create the Date Parser
+                            SimpleDateFormat dateParser = new SimpleDateFormat("MM dd yyyy HH mm", Locale.US);
+
+                            // Populate the Text View
+                            updateTimeLabel.setText(MainActivity.dateFormat.format(dateParser.parse(chosenDate + " " + chosenTime)));
+                        }
+                        catch (ParseException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false);
+
+                timePickerDialog.show();
+            }
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+
+        // Show the Data Picker
+        datePickerDialog.show();
+    }
 
     private void showDeleteAlertDialog()
     {
@@ -351,6 +305,120 @@ public class ListFragment extends Fragment
         public void onAnimationRepeat(Animation animation) {}
     }
 
+    private void showDataObjectCreationPrompt(final DataObject dataObject)
+    {
+        // Create the Data Object Prompt View
+        final View dataObjectPromptView = LayoutInflater.from(getActivity()).inflate(R.layout.data_object_prompt, null);
+
+        // Create the Alert Dialog
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+
+        // Fetch the Data Object Components
+        final EditText dataObjectInformation = dataObjectPromptView.findViewById(R.id.data_object_information);
+        final TextView dataObjectTime        = dataObjectPromptView.findViewById(R.id.data_object_time       );
+
+        if (dataObject != null)
+        {
+            // Set the Text of the Data Object
+            dataObjectInformation.setText(dataObject.getObjectInformation());
+            dataObjectTime       .setText(dataObject.getObjectTime());
+        }
+
+        else
+        {
+            // Set the Current Date
+            dataObjectTime.setText(MainActivity.dateFormat.format(new Date()));
+        }
+
+        // Create the Listener for the Data Object Time
+        dataObjectTime.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                showDateAndTimePicker(view);
+            }
+        });
+
+        // Set the View of the Alert Dialog
+        alertDialogBuilder.setView(dataObjectPromptView);
+
+        // Set Alert Dialog Information
+        alertDialogBuilder.setCancelable(false).setPositiveButton("Save", new DialogInterface.OnClickListener()
+        {
+            public void onClick(DialogInterface dialog, int id)
+            {
+                if (dataObject != null)
+                {
+                    // Edit a Current Data Object
+                    dataObject.setObjectInformation(dataObjectInformation.getText().toString());
+                    dataObject.setObjectTime       (dataObjectTime       .getText().toString());
+                }
+
+                // Create a New Data Object
+                else
+                {
+                    // Create a New Data Object
+                    dataObjectListAdapter.add(new DataObject(dataObjectInformation.getText().toString(), dataObjectTime.getText().toString()));
+                }
+
+                // TODO - Save the Data Objects to the Database
+
+                // Notify the Data Set Changed
+                dataObjectListAdapter.notifyDataSetChanged();
+            }
+        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+        {
+            public void onClick(DialogInterface dialog,int id)
+            {
+                dialog.cancel();
+            }
+        });
+
+        // Create the Alert Dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // Show the Alert Dialog
+        alertDialog.show();
+
+        // Set the Color of the Positive and Negative Button
+        alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(Color.BLACK);
+        alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
+    }
+
+    private AdapterView.OnItemClickListener dataObjectItemClickedListener = new AdapterView.OnItemClickListener()
+    {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+        {
+            // Set the Current Data Project
+            final DataObject dataObject = (DataObject) dataObjectListView.getItemAtPosition(position);
+
+            // Create the Data Object Prompt View
+            showDataObjectCreationPrompt(dataObject);
+        }
+    };
+
+    // Listener for the Data Object List Adapter
+    FirebaseHandler.DataLoadCompletedListener dataLoadCompletedListener = new FirebaseHandler.DataLoadCompletedListener()
+    {
+        @Override
+        public void dataProjectExistsCompleted(Boolean projectExists) {}
+
+        @Override
+        public void dataProjectCreatedCompleted()
+        {
+            
+        }
+
+        @Override
+        public void dataProjectsDeletedCompleted(ArrayList<DataProject> deletedDataProjects) {}
+
+        @Override
+        public void dataProjectLoadCompleted(ArrayList<DataProject> loadedDataProjects) {}
+
+    };
+
     // Listener for the Action Mode Callback for the Action Bar (Long Click on List Items)
     private class DataObjectActionModeCallback implements ListView.MultiChoiceModeListener
     {
@@ -377,18 +445,11 @@ public class ListFragment extends Fragment
 
         public boolean onCreateActionMode(ActionMode mode, Menu menu)
         {
-            // Don't allow the User to Go to Action Mode if they are Editing a Data Object
-            if (saveNeeded)
-                return false;
-
             // Initialize the Selected Data Objects
             selectedDataObjects = new ArrayList<>();
 
             // Initialize the Selected Views
             selectedViews       = new ArrayList<>();
-
-            // Set the Flag for Action Mode Enabled
-            actionModeEnabled = true;
 
             // Inflate the Project Editor Edit Menu
             getActivity().getMenuInflater().inflate(R.menu.data_object_action_mode_menu, menu);
@@ -421,11 +482,7 @@ public class ListFragment extends Fragment
         }
 
         @Override
-        public void onDestroyActionMode(ActionMode mode)
-        {
-            // Action Mode No Longer Enabled
-            actionModeEnabled = false;
-        }
+        public void onDestroyActionMode(ActionMode mode) {}
     }
     //endregion
 }
