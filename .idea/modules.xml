@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/GraphMe.iml" filepath="$PROJECT_DIR$/GraphMe.iml" />
-      <module fileurl="file://$PROJECT_DIR$/TrackMe/app.iml" filepath="$PROJECT_DIR$/TrackMe/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TrackMe.iml" filepath="$PROJECT_DIR$/TrackMe.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TrackMe/TrackMe-TrackMe.iml" filepath="$PROJECT_DIR$/TrackMe/TrackMe-TrackMe.iml" />
     </modules>
   </component>
 </project>
