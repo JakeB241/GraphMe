@@ -30,6 +30,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -127,6 +128,9 @@ public class ListFragment extends Fragment
 
         // Set the Data Objects for the List Adapter
         dataObjectListAdapter.addAll(currentDataProject.getDataObjectList());
+
+        // Sort the Data Objects
+        notifyDataSetChangedAndSort();
 
         // Set the Adapter for the List View
         dataObjectListView.setAdapter(dataObjectListAdapter);
@@ -272,7 +276,6 @@ public class ListFragment extends Fragment
         @Override
         public void onAnimationEnd(Animation animation)
         {
-
             // Clear the Adapter
             dataObjectListAdapter.clear();
 
@@ -411,8 +414,8 @@ public class ListFragment extends Fragment
         @Override
         public void dataProjectCreatedCompleted()
         {
-            // Notify the Data Set Changed
-            dataObjectListAdapter.notifyDataSetChanged();
+            // Sort and Notify the Data Set Changed
+            notifyDataSetChangedAndSort();
         }
 
         @Override
@@ -422,6 +425,23 @@ public class ListFragment extends Fragment
         public void dataProjectLoadCompleted(ArrayList<DataProject> loadedDataProjects) {}
 
     };
+
+    private void notifyDataSetChangedAndSort()
+    {
+        // Sort the Adapter Data
+        dataObjectListAdapter.sort(new Comparator<DataObject>()
+        {
+            @Override
+            public int compare(DataObject dataObject1, DataObject dataObject2)
+            {
+                return dataObject2.getObjectTime().compareTo(dataObject1.getObjectTime());
+            }
+        });
+
+        // Notify the Data Set Changed
+        dataObjectListAdapter.notifyDataSetChanged();
+    }
+
 
     // Listener for the Action Mode Callback for the Action Bar (Long Click on List Items)
     private class DataObjectActionModeCallback implements ListView.MultiChoiceModeListener

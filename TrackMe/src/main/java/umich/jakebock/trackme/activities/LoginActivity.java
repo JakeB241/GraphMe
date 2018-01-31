@@ -59,23 +59,8 @@ public class LoginActivity extends AppCompatActivity
         // Call the Super
         super.onStart();
 
-        // Fetch the Current User
-        currentUser = firebaseAuth.getCurrentUser();
-
         // Fetch the User ID Token and Launch Main Activity
-        fetchCurrentUserId(currentUser);
-    }
-
-    private void fetchCurrentUserId(FirebaseUser currentUser)
-    {
-        if (currentUser != null)
-        {
-            // Fetch Current User ID
-            currentUserId = currentUser.getUid();
-
-            // Start the Main Activity
-            startMainActivity();
-        }
+        startMainActivity(firebaseAuth.getCurrentUser());
     }
 
 
@@ -92,8 +77,7 @@ public class LoginActivity extends AppCompatActivity
 
             try
             {
-                GoogleSignInAccount googleSignInAccount = task.getResult(ApiException.class);
-                firebaseAuthWithGoogle(googleSignInAccount);
+                firebaseAuthWithGoogle(task.getResult(ApiException.class));
             }
 
             catch (ApiException e)
@@ -116,8 +100,7 @@ public class LoginActivity extends AppCompatActivity
                 if (task.isSuccessful())
                 {
                     // Sign In Success
-                    currentUser = firebaseAuth.getCurrentUser();
-                    fetchCurrentUserId(currentUser);
+                    startMainActivity(firebaseAuth.getCurrentUser());
                 }
 
                 else
@@ -142,9 +125,16 @@ public class LoginActivity extends AppCompatActivity
         signInButton.setOnClickListener(googleSignInClickListener);
     }
 
-    private void startMainActivity()
+    private void startMainActivity(FirebaseUser currentUser)
     {
-        startActivity(new Intent(this, MainActivity.class));
+        if (currentUser != null)
+        {
+            // Fetch Current User ID
+            currentUserId = currentUser.getUid();
+
+            // Start the Main Activity
+            startActivity(new Intent(this, MainActivity.class));
+        }
     }
 
     // Create the Listener for the Google Sign In Button

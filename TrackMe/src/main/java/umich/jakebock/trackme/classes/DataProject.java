@@ -31,30 +31,9 @@ public class DataProject implements Serializable
         this.dataObjectList         = new ArrayList<>();
     }
 
-    public DataProject(String projectTitle, String projectImageFilePath, ArrayList<DataObject> dataObjectList)
-    {
-        this.projectTitle           = projectTitle;
-        this.projectImageFilePath   = projectImageFilePath;
-        this.updatedTime            = returnCurrentTime();
-        this.dataObjectList         = dataObjectList;
-    }
-
-    public DataProject(String projectTitle, String projectImageFilePath, String updatedTime, ArrayList<DataObject> dataObjectList)
-    {
-        this.projectTitle           = projectTitle;
-        this.projectImageFilePath   = projectImageFilePath;
-        this.updatedTime            = updatedTime;
-        this.dataObjectList         = dataObjectList;
-    }
-
     private String returnCurrentTime()
     {
         return MainActivity.dateFormat.format(new Date());
-    }
-
-    private String prependUpdatedLabel(String updatedTime)
-    {
-        return "Updated: " + updatedTime;
     }
 
     public Bitmap returnBitmapImage()

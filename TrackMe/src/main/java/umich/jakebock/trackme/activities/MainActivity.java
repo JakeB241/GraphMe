@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (savedInstanceState == null)
         {
             // Start the Project Editor Fragment
-            getSupportFragmentManager().beginTransaction().add(R.id.content_main, new ProjectEditorFragment()).commit();
+            startProjectEditorFragment();
         }
     }
 
@@ -134,6 +134,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here
         switch (item.getItemId())
         {
+            // Send the User to the Project Editor Fragment
+            case R.id.manage_projects:
+                startProjectEditorFragment();
+                break;
+
             // Log the User Out
             case R.id.log_out:
                 logOut();
@@ -143,6 +148,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    private void startProjectEditorFragment()
+    {
+        // Clear the Backstack
+        while (getSupportFragmentManager().getBackStackEntryCount() > 0)
+            getSupportFragmentManager().popBackStackImmediate();
+
+        // Start the Project Editor Fragment (If not Already on the Project Editor Fragment)
+        if (!(getSupportFragmentManager().findFragmentById(R.id.content_main) instanceof ProjectEditorFragment))
+            getSupportFragmentManager().beginTransaction().add(R.id.content_main, new ProjectEditorFragment()).commit();
+    }
+
 
     private void logOut()
     {
