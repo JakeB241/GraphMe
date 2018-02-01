@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">TrackMe</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="list_tab_title">List Tab</string>
+    <string name="statistics_tab_title">Statistics Tab</string>
+    <string name="graph_tab_title">Graph Tab</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="title_activity_data_project">DataProjectActivity</string>
+    <string name="toolbar_project_title">Projects</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="backup_projects">Backup Projects</string>
+    <string name="manage_projects">Manage Projects</string>
+    <string name="share_projects">Share Projects</string>
+    <string name="settings">Settings</string>
+    <string name="project_name_hint">Project Name</string>
+    <string name="import_image">Import Image</string>
+    <string name="ok_label">OK</string>
+    <string name="cancel_label">Cancel</string>
+    <string name="data_object_string">Data</string>
+    <string name="create_project_string">Create Project</string>
+    <string name="done">DONE</string>
+    <string name="title_activity_project_creation">Create Project</string>
+    <string name="edit">EDIT</string>
+    <string name="delete">DELETE</string>
+    <string name="title_activity_project_edit">Edit Project</string>
+    <string name="save">SAVE</string>
+    <string name="to">to</string>
+
+    <string name="edit_objects_title">Edit Data</string>
+    <string name="edit_projects_title">Edit Projects</string>
+    <string name="log_out">Log Out</string>
+    <string name="loading">Loading...</string>
+    <string name="input_data">Input Data</string>
+</resources>
