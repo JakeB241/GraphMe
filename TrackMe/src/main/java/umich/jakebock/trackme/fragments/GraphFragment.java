@@ -3,6 +3,7 @@ package umich.jakebock.trackme.fragments;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +38,8 @@ public class GraphFragment extends Fragment
     private View        rootView;
     private DataProject currentDataProject;
 
+    private final Handler mHandler = new Handler();
+
     private Date startDate;
     private Date endDate;
 
@@ -51,9 +54,6 @@ public class GraphFragment extends Fragment
 
         // Fetch the Data Project
         currentDataProject = ((MainActivity)getActivity()).getCurrentDataProject();
-
-        for (DataObject do1 : currentDataProject.getDataObjectList())
-            System.out.println(do1.getObjectInformation() + " " + do1.getObjectTime());
 
         // Only Create the Graph if there is more than one Data Object
         if (currentDataProject.getDataObjectList().size() > 1)
@@ -75,8 +75,8 @@ public class GraphFragment extends Fragment
         GraphView graphView = (GraphView) rootView.findViewById(R.id.graph_view);
 
         // Remove all Previous Series
-        graphView.removeAllSeries();
-        graphView.invalidate();
+        //graphView.removeAllSeries();
+        //graphView.invalidate();
 
         // Create the Data Points
         DataPoint[] dataPoints = new DataPoint[currentDataProject.getDataObjectList().size()];
@@ -93,8 +93,8 @@ public class GraphFragment extends Fragment
                 dataObjectInformationList.add(dataObjectInformation);
 
                 // Add the Information to the Data Point If Its in the Specified Range
-                //if ((dataObjectDate.after(startDate) || dataObjectDate.equals(startDate)) && (dataObjectDate.before(endDate) || dataObjectDate.equals(endDate)))
-                dataPoints[i] = new DataPoint(dataObjectDate, dataObjectInformation);
+                if ((dataObjectDate.after(startDate) || dataObjectDate.equals(startDate)) && (dataObjectDate.before(endDate) || dataObjectDate.equals(endDate)))
+                    dataPoints[i] = new DataPoint(dataObjectDate, dataObjectInformation);
             }
 
             catch (ParseException e)
@@ -109,7 +109,7 @@ public class GraphFragment extends Fragment
             // Set the Number of Horizontal Labels
             graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity()));
             graphView.getGridLabelRenderer().setNumHorizontalLabels(dataPoints.length);
-            //graphView.getGridLabelRenderer().setNumVerticalLabels  (dataPoints.length);
+            graphView.getGridLabelRenderer().setNumVerticalLabels  (dataPoints.length);
 
             // Set the X Bounds Manually
             graphView.getViewport().setMinX(startDate.getTime());
@@ -117,9 +117,9 @@ public class GraphFragment extends Fragment
             graphView.getViewport().setXAxisBoundsManual(true);
 
             // Set the Y Bounds Manually
-            //graphView.getViewport().setMinY(Collections.min(dataObjectInformationList).intValue());
-            //graphView.getViewport().setMaxY(Collections.max(dataObjectInformationList).intValue());
-            //graphView.getViewport().setYAxisBoundsManual(true);
+            graphView.getViewport().setMinY(Collections.min(dataObjectInformationList).intValue());
+            graphView.getViewport().setMaxY(Collections.max(dataObjectInformationList).intValue());
+            graphView.getViewport().setYAxisBoundsManual(true);
 
             // Disable Human Rounding with Dates
             graphView.getGridLabelRenderer().setHumanRounding(false);
