@@ -2,10 +2,13 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/GraphMe.iml" filepath="$PROJECT_DIR$/GraphMe.iml" />
-      <module fileurl="file://$PROJECT_DIR$/TrackMe/TrackMe.iml" filepath="$PROJECT_DIR$/TrackMe/TrackMe.iml" />
+      <module fileurl="file://C:\Users\Jake\AndroidStudioProjects\TrackMe\GraphMe.iml" filepath="C:\Users\Jake\AndroidStudioProjects\TrackMe\GraphMe.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/TrackMe.iml" filepath="$PROJECT_DIR$/.idea/modules/TrackMe.iml" />
       <module fileurl="file://C:\Users\Jake Bock\StudioProjects\GraphMe\TrackMe.iml" filepath="C:\Users\Jake Bock\StudioProjects\GraphMe\TrackMe.iml" />
+      <module fileurl="file://C:\Users\Jake\AndroidStudioProjects\TrackMe\TrackMe\TrackMe.iml" filepath="C:\Users\Jake\AndroidStudioProjects\TrackMe\TrackMe\TrackMe.iml" />
+      <module fileurl="file://C:\Users\Jake\AndroidStudioProjects\TrackMe\TrackMe\TrackMe-TrackMe.iml" filepath="C:\Users\Jake\AndroidStudioProjects\TrackMe\TrackMe\TrackMe-TrackMe.iml" />
       <module fileurl="file://C:\Users\Jake Bock\StudioProjects\GraphMe\TrackMe\TrackMe-TrackMe.iml" filepath="C:\Users\Jake Bock\StudioProjects\GraphMe\TrackMe\TrackMe-TrackMe.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
 </project>
