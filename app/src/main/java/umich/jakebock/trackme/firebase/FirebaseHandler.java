@@ -15,6 +15,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import umich.jakebock.trackme.R;
 import umich.jakebock.trackme.activities.LoginActivity;
@@ -52,6 +53,9 @@ public class FirebaseHandler
     {
         // Set the Loading Visibility
         loadingView.setVisibility(View.VISIBLE);
+
+        // Set the Data Project Update Time to the Current Time
+        dataProject.setUpdatedTime(new Date());
 
         // Add the Data Project
         userDocumentReference.collection(DATA_PROJECTS).document(dataProject.getProjectTitle()).set(dataProject).addOnCompleteListener(new OnCompleteListener<Void>()

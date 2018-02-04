@@ -1,5 +1,7 @@
 package umich.jakebock.trackme.classes;
 
+import com.google.firebase.firestore.ServerTimestamp;
+
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Date;
@@ -12,8 +14,10 @@ import umich.jakebock.trackme.activities.MainActivity;
 
 public class DataObject implements Serializable
 {
-    private String objectInformation;
-    private Date   objectTime;
+    private                  String objectInformation;
+    private @ServerTimestamp Date   objectTime;
+
+    public DataObject() {}
 
     public DataObject(String objectInformation, Date updatedTime)
     {

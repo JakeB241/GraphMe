@@ -2,6 +2,7 @@ package umich.jakebock.trackme.fragments;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -14,8 +15,8 @@ import android.widget.TimePicker;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
+import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -29,6 +30,7 @@ import java.util.Locale;
 
 import umich.jakebock.trackme.R;
 import umich.jakebock.trackme.activities.MainActivity;
+import umich.jakebock.trackme.classes.DataObject;
 import umich.jakebock.trackme.classes.DataProject;
 
 
@@ -43,6 +45,7 @@ public class GraphFragment extends Fragment
     private Date endDate;
 
     private int MAX_NUMBER_OF_LABELS;
+    private int PERCENTAGE_Y_BUFFER = 5;
 
     public GraphFragment() {}
 
@@ -74,53 +77,56 @@ public class GraphFragment extends Fragment
         GraphView graphView = (GraphView) rootView.findViewById(R.id.graph_view);
 
         // Remove all Previous Series
-        //graphView.removeAllSeries();
-        //graphView.invalidate();
+        graphView.removeAllSeries();
 
         // Create the Data Points
-        DataPoint[] dataPoints = new DataPoint[currentDataProject.getDataObjectList().size()];
-        ArrayList<Double> dataObjectInformationList = new ArrayList<>();
-        for (int i=0; i < currentDataProject.getDataObjectList().size(); i++)
+        ArrayList<DataPoint> dataObjectList = new ArrayList<>();
+        for (DataObject dataObject : currentDataProject.getDataObjectList())
         {
             // Fetch the Data of the Data Object
-            Date   dataObjectDate           = currentDataProject.getDataObjectList().get(i).getObjectTime();
-            Double dataObjectInformation    = Double.parseDouble(currentDataProject.getDataObjectList().get(i).getObjectInformation());
+            Date   dataObjectDate           = dataObject.getObjectTime();
+            Double dataObjectInformation    = Double.parseDouble(dataObject.getObjectInformation());
 
             // Add the Data Object Information to the List
-            dataObjectInformationList.add(dataObjectInformation);
-
-            // Add the Information to the Data Point If Its in the Specified Range
             if ((dataObjectDate.after(startDate) || dataObjectDate.equals(startDate)) && (dataObjectDate.before(endDate) || dataObjectDate.equals(endDate)))
-                dataPoints[i] = new DataPoint(dataObjectDate, dataObjectInformation);
-
+                dataObjectList.add(new DataPoint(dataObjectDate, dataObjectInformation));
         }
 
         // Ensure there are Enough Data Points
-        if (dataPoints.length > 1)
+        if (dataObjectList.size() > 1)
         {
             // Set the Number of Horizontal Labels
             graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity()));
-            graphView.getGridLabelRenderer().setNumHorizontalLabels(dataPoints.length);
-            graphView.getGridLabelRenderer().setNumVerticalLabels  (dataPoints.length);
+            graphView.getGridLabelRenderer().setNumHorizontalLabels(dataObjectList.size());
+            graphView.getGridLabelRenderer().setNumVerticalLabels  (dataObjectList.size());
 
             // Set the X Bounds Manually
             graphView.getViewport().setMinX(startDate.getTime());
             graphView.getViewport().setMaxX(endDate  .getTime());
             graphView.getViewport().setXAxisBoundsManual(true);
 
-            // Set the Y Bounds Manually
-            graphView.getViewport().setMinY(Collections.min(dataObjectInformationList).intValue());
-            graphView.getViewport().setMaxY(Collections.max(dataObjectInformationList).intValue());
-            graphView.getViewport().setYAxisBoundsManual(true);
+            // Fetch the Max/Min Values
+            //int minValue = Collections.min(dataObjectList).intValue();
+            //int maxValue = Collections.max(dataObjectList).intValue();
+
+            //// Calculate the Min/Max for the Viewport
+            //minValue -= minValue * PERCENTAGE_Y_BUFFER/100;
+            //maxValue += maxValue * PERCENTAGE_Y_BUFFER/100;
+
+            //// Set the Y Bounds Manually
+            //graphView.getViewport().setMinY(minValue);
+            //graphView.getViewport().setMaxY(maxValue);
+            //graphView.getViewport().setYAxisBoundsManual(true);
 
             // Disable Human Rounding with Dates
             graphView.getGridLabelRenderer().setHumanRounding(false);
 
             // Create the Series
-            LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataPoints);
-            series.setDrawDataPoints(true);
-            series.setAnimated      (true);
-            series.setDrawAsPath    (true);
+            BarGraphSeries<DataPoint> series = new BarGraphSeries<>(dataObjectList.toArray(new DataPoint[dataObjectList.size()]));
+            series.setAnimated       (true);
+            series.setDrawValuesOnTop(true);
+            series.setValuesOnTopColor(Color.RED);
+            series.setSpacing(15);
 
             // Add the Series
             graphView.addSeries(series);
