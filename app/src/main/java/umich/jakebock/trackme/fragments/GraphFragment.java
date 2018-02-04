@@ -17,6 +17,7 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -24,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -38,6 +40,7 @@ public class GraphFragment extends Fragment
 {
     private View        rootView;
     private DataProject currentDataProject;
+    private GraphView   graphView;
 
     private final Handler mHandler = new Handler();
 
@@ -71,13 +74,18 @@ public class GraphFragment extends Fragment
         return rootView;
     }
 
+    private class DataPointCompare implements Comparator<DataPoint> {
+
+        @Override
+        public int compare(DataPoint dataPoint1, DataPoint dataPoint2) {
+            return Double.compare(dataPoint1.getY(), dataPoint2.getY());
+        }
+    }
+
     private void drawGraphView()
     {
         // Fetch the Graph
-        GraphView graphView = (GraphView) rootView.findViewById(R.id.graph_view);
-
-        // Remove all Previous Series
-        graphView.removeAllSeries();
+        graphView = (GraphView) rootView.findViewById(R.id.graph_view);
 
         // Create the Data Points
         ArrayList<DataPoint> dataObjectList = new ArrayList<>();
@@ -106,31 +114,55 @@ public class GraphFragment extends Fragment
             graphView.getViewport().setXAxisBoundsManual(true);
 
             // Fetch the Max/Min Values
-            //int minValue = Collections.min(dataObjectList).intValue();
-            //int maxValue = Collections.max(dataObjectList).intValue();
+            int minValue = (int) Collections.min(dataObjectList, new DataPointCompare()).getY();
+            int maxValue = (int) Collections.max(dataObjectList, new DataPointCompare()).getY();
 
             //// Calculate the Min/Max for the Viewport
-            //minValue -= minValue * PERCENTAGE_Y_BUFFER/100;
-            //maxValue += maxValue * PERCENTAGE_Y_BUFFER/100;
+            minValue -= minValue * PERCENTAGE_Y_BUFFER/100;
+            maxValue += maxValue * PERCENTAGE_Y_BUFFER/100;
 
             //// Set the Y Bounds Manually
-            //graphView.getViewport().setMinY(minValue);
-            //graphView.getViewport().setMaxY(maxValue);
-            //graphView.getViewport().setYAxisBoundsManual(true);
+            graphView.getViewport().setMinY(minValue);
+            graphView.getViewport().setMaxY(maxValue);
+            graphView.getViewport().setYAxisBoundsManual(true);
 
             // Disable Human Rounding with Dates
             graphView.getGridLabelRenderer().setHumanRounding(false);
 
             // Create the Series
-            BarGraphSeries<DataPoint> series = new BarGraphSeries<>(dataObjectList.toArray(new DataPoint[dataObjectList.size()]));
-            series.setAnimated       (true);
-            series.setDrawValuesOnTop(true);
-            series.setValuesOnTopColor(Color.RED);
-            series.setSpacing(15);
-
-            // Add the Series
-            graphView.addSeries(series);
+            createBarGraph(dataObjectList);
         }
+    }
+
+    private void createLineGraph(ArrayList<DataPoint> dataObjectList)
+    {
+        // Remove all Previous Series
+        graphView.removeAllSeries();
+
+        // Create the Series
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataObjectList.toArray(new DataPoint[dataObjectList.size()]));
+        series.setAnimated       (true);
+        series.setDrawAsPath     (true);
+        series.setDrawDataPoints (true);
+
+        // Add the Series
+        graphView.addSeries(series);
+    }
+
+    private void createBarGraph(ArrayList<DataPoint> dataObjectList)
+    {
+        // Remove all Previous Series
+        graphView.removeAllSeries();
+
+        // Create the Series
+        BarGraphSeries<DataPoint> series = new BarGraphSeries<>(dataObjectList.toArray(new DataPoint[dataObjectList.size()]));
+        series.setAnimated       (true);
+        series.setDrawValuesOnTop(true);
+        series.setValuesOnTopColor(Color.RED);
+        series.setSpacing(15);
+
+        // Add the Series
+        graphView.addSeries(series);
     }
 
     private void initializeGraphDateRange()

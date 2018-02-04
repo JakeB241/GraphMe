@@ -17,7 +17,7 @@ import umich.jakebock.trackme.classes.DataObject;
 
 public class DataObjectListAdapter extends ArrayAdapter<DataObject>
 {
-    private Context                         context;
+    private Context context;
 
     // Data Object View Holder
     private static class DataObjectViewHolder
@@ -49,7 +49,7 @@ public class DataObjectListAdapter extends ArrayAdapter<DataObject>
             dataObjectViewHolder = new DataObjectViewHolder();
             convertView = LayoutInflater.from(context).inflate(R.layout.data_object_item, parent, false);
             dataObjectViewHolder.dataObjectInformationTextView = (TextView) convertView.findViewById(R.id.data_object_information_text_view);
-            dataObjectViewHolder.dataObjectDateTime = (TextView) convertView.findViewById(R.id.updated_date);
+            dataObjectViewHolder.dataObjectDateTime            = (TextView) convertView.findViewById(R.id.updated_date);
             convertView.setTag(dataObjectViewHolder);
         }
 

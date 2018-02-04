@@ -4,6 +4,7 @@ import com.google.firebase.firestore.ServerTimestamp;
 
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.Comparator;
 import java.util.Date;
 
 import umich.jakebock.trackme.activities.MainActivity;
@@ -31,6 +32,7 @@ public class DataObject implements Serializable
         setDateAsString(updatedTime);
     }
 
+    // Helper Functions
     public String returnDateString()
     {
         return MainActivity.dateFormat.format(objectTime);

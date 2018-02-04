@@ -2,6 +2,7 @@ package umich.jakebock.trackme.support_classes;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.io.IOException;
 
 import umich.jakebock.trackme.R;
 import umich.jakebock.trackme.classes.DataProject;
@@ -72,12 +75,12 @@ public class DataProjectListAdapter extends ArrayAdapter<DataProject>
             String updatedTimeString = "Updated: " + dataProject.returnDateString();
 
             // Set the View Parameters
-            dataProjectViewHolder.projectName       .setText(dataProject.getProjectTitle());
-            dataProjectViewHolder.lastUpdatedTime   .setText(updatedTimeString);
-            dataProjectViewHolder.dataObjectNumber  .setText(dataProject.returnNumberOfDataObjectsWithLabel());
+            dataProjectViewHolder.projectName     .setText(dataProject.getProjectTitle());
+            dataProjectViewHolder.lastUpdatedTime .setText(updatedTimeString);
+            dataProjectViewHolder.dataObjectNumber.setText(dataProject.returnNumberOfDataObjectsWithLabel());
 
             // Fetch the Image
-            Bitmap projectImage = dataProject.returnBitmapImage();
+            Bitmap projectImage = DataProject.returnCorrectlyOrientedImage(context, dataProject.returnImageURI());
             if (projectImage != null) dataProjectViewHolder.projectImage.setImageBitmap(projectImage);
         }
 
