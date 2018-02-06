@@ -47,13 +47,11 @@ public class ProjectCreationActivity extends AppCompatActivity
     private String projectImageFilePath = "";
 
     private EditText                 projectName;
-    private Button                   importImageButton;
     private ImageButton              importImageImageButton;
     private FirebaseHandler          firebaseHandler;
     private HashMap<String, Setting> settingHashMap;
 
     private DataObjectListAdapter   dataObjectListAdapter;
-    private int MAX_IMAGE_DIMENSION = 512;
 
     private int GALLERY_REQUEST_CODE = 3;
 
@@ -149,12 +147,6 @@ public class ProjectCreationActivity extends AppCompatActivity
         // Detect Request Codes
         if (requestCode == GALLERY_REQUEST_CODE && resultCode == Activity.RESULT_OK)
         {
-            // Set the Image Button to Visible
-            importImageImageButton.setVisibility(View.VISIBLE);
-
-            // Set the Button to GONE
-            importImageButton.setVisibility(View.GONE);
-
             // Fetch the Data
             Uri selectedImageURI = data.getData();
 
@@ -294,7 +286,6 @@ public class ProjectCreationActivity extends AppCompatActivity
     {
         // Fetch the Views
         projectName             = findViewById(R.id.project_name);
-        importImageButton       = findViewById(R.id.import_image_button);
         importImageImageButton  = findViewById(R.id.import_image_image_button);
 
         // Set the Existing Data Project Parameters (If the Data Project was Passed In)
@@ -303,14 +294,8 @@ public class ProjectCreationActivity extends AppCompatActivity
             // Set the Text of the Project Name
             projectName.setText(previousDataProject.getProjectTitle());
 
-            // Set the Image Button to Visible
-            importImageImageButton.setVisibility(View.VISIBLE);
-
-            // Set the Button to GONE
-            importImageButton.setVisibility(View.GONE);
-
             // Set the Image of the Image Button
-            importImageImageButton.setImageBitmap(previousDataProject.returnBitmapImage());
+            importImageImageButton.setImageBitmap(DataProject.returnCorrectlyOrientedImage(this, previousDataProject.returnImageURI()));
 
             // Get the Image Path
             projectImageFilePath = previousDataProject.getProjectImageFilePath();
@@ -329,15 +314,6 @@ public class ProjectCreationActivity extends AppCompatActivity
         initializeSettings();
 
         // Add Listener for Import Image Button
-        importImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startGalleryRequest();
-            }
-        });
-
-        // Add Listener for Import Image Button
-        // NOTE - This is after the first image has been selected
         importImageImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

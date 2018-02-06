@@ -19,20 +19,15 @@
         android:gravity="center"
         android:layout_below="@+id/toolbar">
 
-        <Button
-            android:id="@+id/import_image_button"
-            android:layout_width="@dimen/project_creation_image_size"
-            android:layout_height="@dimen/project_creation_image_size"
-            android:text="@string/import_image"
-            android:visibility="visible"/>
-
         <ImageButton
             android:id="@+id/import_image_image_button"
             android:layout_width="@dimen/project_creation_image_size"
             android:layout_height="@dimen/project_creation_image_size"
             android:background="@android:color/transparent"
             android:scaleType="centerInside"
-            android:visibility="gone"/>
+            android:visibility="visible"
+            app:srcCompat="@drawable/ic_image_black_80dp"
+            android:contentDescription="@string/import_image" />
 
         <EditText
             android:id="@+id/project_name"

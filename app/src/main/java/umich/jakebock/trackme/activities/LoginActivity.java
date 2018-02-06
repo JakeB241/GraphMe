@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -27,7 +28,6 @@ import umich.jakebock.trackme.R;
 public class LoginActivity extends AppCompatActivity
 {
     private FirebaseAuth firebaseAuth;
-    private FirebaseUser currentUser;
 
     public static String currentUserId;
 
@@ -84,7 +84,7 @@ public class LoginActivity extends AppCompatActivity
             {
                 // The ApiException status code indicates the detailed failure reason.
                 // Please refer to the GoogleSignInStatusCodes class reference for more information.
-                System.out.println("FAILED RESULT " + e.getStatusCode());
+                Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -107,6 +107,7 @@ public class LoginActivity extends AppCompatActivity
                 {
                     // If sign in fails, display a message to the user.
                     //Snackbar.make(findViewById(R.id.lo), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
+                    //Toast.makeText(this, "Authentican Failed", Toast.LENGTH_LONG).show();
                     //updateUI(null);
                 }
             }
