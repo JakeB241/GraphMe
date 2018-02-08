@@ -1,23 +1,38 @@
 package umich.jakebock.trackme.fragments;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
+import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.jjoe64.graphview.series.OnDataPointTapListener;
+import com.jjoe64.graphview.series.PointsGraphSeries;
+import com.jjoe64.graphview.series.Series;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -38,17 +53,12 @@ import umich.jakebock.trackme.classes.DataProject;
 
 public class GraphFragment extends Fragment
 {
-    private View        rootView;
-    private DataProject currentDataProject;
-    private GraphView   graphView;
+    private View                 rootView;
+    private DataProject          currentDataProject;
+    private GraphView            graphView;
+    private ArrayList<DataPoint> dataObjectList;
 
-    private final Handler mHandler = new Handler();
-
-    private Date startDate;
-    private Date endDate;
-
-    private int MAX_NUMBER_OF_LABELS;
-    private int PERCENTAGE_Y_BUFFER = 5;
+    private int PERCENTAGE_Y_BUFFER = 10;
 
     public GraphFragment() {}
 
@@ -57,15 +67,15 @@ public class GraphFragment extends Fragment
     {
         rootView = inflater.inflate(R.layout.fragment_graph, container, false);
 
+        // Allow the Fragment to Have a Custom Options Menu
+        setHasOptionsMenu(true);
+
         // Fetch the Data Project
-        currentDataProject = ((MainActivity)getActivity()).getCurrentDataProject();
+        currentDataProject = ((MainActivity) getActivity()).getCurrentDataProject();
 
         // Only Create the Graph if there is more than one Data Object
         if (currentDataProject.getDataObjectList().size() > 1)
         {
-            // Set the Graph Range
-            initializeGraphDateRange();
-
             // Create the Graph View
             drawGraphView();
         }
@@ -74,11 +84,77 @@ public class GraphFragment extends Fragment
         return rootView;
     }
 
-    private class DataPointCompare implements Comparator<DataPoint> {
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+    {
+        // Fetch the Action Bar
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
 
+        // Set the Action Bar Title to the Current Data Project Title
+        if (actionBar != null) actionBar.setTitle(((MainActivity) getActivity()).getCurrentDataProject().getProjectTitle());
+
+        // Create the Custom Graph Fragment Menu
+        inflater.inflate(R.menu.graph_fragment_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
+            case R.id.action_menu_graph_choice:
+                showGraphTypeSelection();
+                break;
+            default:
+                break;
+        }
+
+        return false;
+    }
+
+    private void showGraphTypeSelection()
+    {
+        final CharSequence graphTypes[] = new CharSequence[] {"Line", "Bar", "Point"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Select Graph Type");
+        builder.setItems(graphTypes, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                switch (which)
+                {
+                    case 0:
+                        createLineGraph();
+                        break;
+                    case 1:
+                        createBarGraph();
+                        break;
+                    case 2:
+                        createPointGraph();
+                        break;
+                }
+            }
+        });
+        builder.show();
+    }
+
+    private class DataObjectInformationCompare implements Comparator<DataPoint>
+    {
         @Override
-        public int compare(DataPoint dataPoint1, DataPoint dataPoint2) {
+        public int compare(DataPoint dataPoint1, DataPoint dataPoint2)
+        {
             return Double.compare(dataPoint1.getY(), dataPoint2.getY());
+        }
+    }
+
+    private class DataObjectDateCompare implements Comparator<DataPoint>
+    {
+        @Override
+        public int compare(DataPoint dataPoint1, DataPoint dataPoint2)
+        {
+            return Double.compare(dataPoint1.getX(), dataPoint2.getX());
         }
     }
 
@@ -88,183 +164,119 @@ public class GraphFragment extends Fragment
         graphView = (GraphView) rootView.findViewById(R.id.graph_view);
 
         // Create the Data Points
-        ArrayList<DataPoint> dataObjectList = new ArrayList<>();
+        dataObjectList = new ArrayList<>();
         for (DataObject dataObject : currentDataProject.getDataObjectList())
         {
             // Fetch the Data of the Data Object
-            Date   dataObjectDate           = dataObject.getObjectTime();
-            Double dataObjectInformation    = Double.parseDouble(dataObject.getObjectInformation());
+            Date dataObjectDate = dataObject.getObjectTime();
+            Double dataObjectInformation = Double.parseDouble(dataObject.getObjectInformation());
+
+            System.out.println("Data Object Time:        " + dataObjectDate);
+            System.out.println("Data Object Information: " + dataObjectInformation);
 
             // Add the Data Object Information to the List
-            if ((dataObjectDate.after(startDate) || dataObjectDate.equals(startDate)) && (dataObjectDate.before(endDate) || dataObjectDate.equals(endDate)))
-                dataObjectList.add(new DataPoint(dataObjectDate, dataObjectInformation));
+            dataObjectList.add(new DataPoint(dataObjectDate, dataObjectInformation));
         }
 
         // Ensure there are Enough Data Points
         if (dataObjectList.size() > 1)
         {
             // Set the Number of Horizontal Labels
-            graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity()));
+            graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(graphView.getContext()));
             graphView.getGridLabelRenderer().setNumHorizontalLabels(dataObjectList.size());
-            graphView.getGridLabelRenderer().setNumVerticalLabels  (dataObjectList.size());
+            graphView.getGridLabelRenderer().setNumVerticalLabels(dataObjectList.size() + 20);
+
+            // Fetch the Max/Min Values for the Default Graph
+            int minValue = (int) Collections.min(dataObjectList, new DataObjectInformationCompare()).getY();
+            int maxValue = (int) Collections.max(dataObjectList, new DataObjectInformationCompare()).getY();
+
+            // Fetch the Max/Min Dates for the Default Graph
+            double startDate = Collections.min(dataObjectList, new DataObjectDateCompare()).getX();
+            double endDate   = Collections.max(dataObjectList, new DataObjectDateCompare()).getX();
+
+            // Calculate the Min/Max for the Viewport
+            minValue -= minValue * PERCENTAGE_Y_BUFFER / 100;
+            maxValue += maxValue * PERCENTAGE_Y_BUFFER / 100;
 
             // Set the X Bounds Manually
-            graphView.getViewport().setMinX(startDate.getTime());
-            graphView.getViewport().setMaxX(endDate  .getTime());
+            graphView.getViewport().setMinX(startDate);
+            graphView.getViewport().setMaxX(endDate);
             graphView.getViewport().setXAxisBoundsManual(true);
 
-            // Fetch the Max/Min Values
-            int minValue = (int) Collections.min(dataObjectList, new DataPointCompare()).getY();
-            int maxValue = (int) Collections.max(dataObjectList, new DataPointCompare()).getY();
-
-            //// Calculate the Min/Max for the Viewport
-            minValue -= minValue * PERCENTAGE_Y_BUFFER/100;
-            maxValue += maxValue * PERCENTAGE_Y_BUFFER/100;
-
-            //// Set the Y Bounds Manually
+            // Set the Y Bounds Manually
             graphView.getViewport().setMinY(minValue);
             graphView.getViewport().setMaxY(maxValue);
             graphView.getViewport().setYAxisBoundsManual(true);
+
+            // Set the Scrollable
+            graphView.getViewport().setScalable(true);
 
             // Disable Human Rounding with Dates
             graphView.getGridLabelRenderer().setHumanRounding(false);
 
             // Create the Series
-            createBarGraph(dataObjectList);
+            createBarGraph();
         }
     }
 
-    private void createLineGraph(ArrayList<DataPoint> dataObjectList)
+    private void createLineGraph()
     {
         // Remove all Previous Series
         graphView.removeAllSeries();
 
         // Create the Series
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataObjectList.toArray(new DataPoint[dataObjectList.size()]));
-        series.setAnimated       (true);
-        series.setDrawAsPath     (true);
-        series.setDrawDataPoints (true);
+
+        series.setOnDataPointTapListener(new OnDataPointTapListener()
+        {
+            @Override
+            public void onTap(Series series, DataPointInterface dataPoint) {
+                Toast.makeText(getActivity(), "" + dataPoint.getY(), Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // Add the Series
         graphView.addSeries(series);
     }
 
-    private void createBarGraph(ArrayList<DataPoint> dataObjectList)
+    private void createBarGraph()
     {
         // Remove all Previous Series
         graphView.removeAllSeries();
 
         // Create the Series
         BarGraphSeries<DataPoint> series = new BarGraphSeries<>(dataObjectList.toArray(new DataPoint[dataObjectList.size()]));
-        series.setAnimated       (true);
         series.setDrawValuesOnTop(true);
         series.setValuesOnTopColor(Color.RED);
         series.setSpacing(15);
+
+        series.setOnDataPointTapListener(new OnDataPointTapListener() {
+            @Override
+            public void onTap(Series series, DataPointInterface dataPoint) {
+                Toast.makeText(getActivity(), "Series1: On Data Point clicked: " + dataPoint, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // Add the Series
         graphView.addSeries(series);
     }
 
-    private void initializeGraphDateRange()
+    private void createPointGraph()
     {
-        // Fetch the Graph Date Range Text View
-        TextView startDateTextView = rootView.findViewById(R.id.start_date_text_view);
-        TextView endDateTextView   = rootView.findViewById(R.id.end_date_text_view);
+        // Remove all Previous Series
+        graphView.removeAllSeries();
 
-        // Convert the List of Strings to List of Dates
-        ArrayList<Date> dateList = new ArrayList<>();
-        for (int i = 0; i < currentDataProject.getDataObjectList().size(); i++)
-        {
-            dateList.add(currentDataProject.getDataObjectList().get(i).getObjectTime());
-        }
+        // Create the Series
+        PointsGraphSeries<DataPoint> series = new PointsGraphSeries<>(dataObjectList.toArray(new DataPoint[dataObjectList.size()]));
 
-        // Create the Date Format
-        DateFormat dateFormat = new SimpleDateFormat("M/d/yy", Locale.US);
+        series.setOnDataPointTapListener(new OnDataPointTapListener() {
+            @Override
+            public void onTap(Series series, DataPointInterface dataPoint) {
+                Toast.makeText(getActivity(), "Series1: On Data Point clicked: " + dataPoint, Toast.LENGTH_SHORT).show();
+            }
+        });
 
-        // Fetch the Minimum and Maximum Dates by Default
-        startDate = Collections.min(dateList);
-        endDate   = Collections.max(dateList);
-
-        // Set the Minimum and Maximum to the Start Date and End Date
-        startDateTextView.setText(MainActivity.dateFormat.format(startDate));
-        endDateTextView  .setText(MainActivity.dateFormat.format(endDate));
-
-        // Set the On Click Listener for the Start Date and End Date
-        startDateTextView.setOnClickListener(dateClickListener);
-        endDateTextView  .setOnClickListener(dateClickListener);
+        // Add the Series
+        graphView.addSeries(series);
     }
-
-    // Create the Date Click Listener
-    private View.OnClickListener dateClickListener = new View.OnClickListener()
-    {
-        @Override
-        public void onClick(View view)
-        {
-            // Parse the Current Time from the View
-            final TextView dateLabel = (TextView) view;
-            final Calendar calendar  = new GregorianCalendar();
-            try
-            {
-                // Parse the Displayed Date and Set the Time
-                Date displayedDate = MainActivity.dateFormat.parse(dateLabel.getText().toString());
-                calendar.setTime(displayedDate);
-            }
-
-            catch (ParseException e)
-            {
-                e.printStackTrace();
-            }
-
-            // Launch the Date Picker
-            DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), R.style.DialogTheme, new DatePickerDialog.OnDateSetListener()
-            {
-                @Override
-                public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth)
-                {
-                    // Fetch the Chosen Dates
-                    final String chosenDate = (monthOfYear + 1) + " " + (dayOfMonth) + " " + (year);
-
-                    // Launch Time Picker Dialog
-                    TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), R.style.DialogTheme, new TimePickerDialog.OnTimeSetListener()
-                    {
-                        @Override
-                        public void onTimeSet(TimePicker view, int hourOfDay, int minute)
-                        {
-                            // Fetch the Chosen Time
-                            final String chosenTime = hourOfDay + " " + minute;
-
-                            try
-                            {
-                                // Create the Date Parser
-                                SimpleDateFormat dateParser = new SimpleDateFormat("MM dd yyyy HH mm", Locale.US);
-
-                                // Populate the Text View
-                                dateLabel.setText(MainActivity.dateFormat.format(dateParser.parse(chosenDate + " " + chosenTime)));
-
-                                // Fetch the Graph Date Range Text View
-                                TextView startDateTextView = rootView.findViewById(R.id.start_date_text_view);
-                                TextView endDateTextView   = rootView.findViewById(R.id.end_date_text_view);
-
-                                // Populate the End Date and Start Date
-                                startDate = MainActivity.dateFormat.parse(startDateTextView.getText().toString());
-                                endDate   = MainActivity.dateFormat.parse(endDateTextView  .getText().toString());
-
-                                // Redraw the Graph View
-                                drawGraphView();
-                            }
-
-                            catch (ParseException e)
-                            {
-                                e.printStackTrace();
-                            }
-                        }
-                    }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false);
-
-                    timePickerDialog.show();
-                }
-            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-
-            datePickerDialog.show();
-        }
-    };
 }

@@ -93,31 +93,6 @@ public class ListFragment extends Fragment
         if (actionBar != null) actionBar.setTitle(((MainActivity) getActivity()).getCurrentDataProject().getProjectTitle());
     }
 
-    @Override
-    public void onDestroyView()
-    {
-        // Collect the Data Objects
-        //collectAndSaveDataObjects();
-
-        // Call the Super
-        super.onDestroyView();
-    }
-
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser)
-    {
-        // Call the Super
-        super.setUserVisibleHint(isVisibleToUser);
-
-        // Collect the Data when the View Has been Created and the
-        // Fragment is no longer visible to the User
-        if (rootView != null && !isVisibleToUser)
-        {
-            // Collect the Data Objects and Set the Current Data Project
-            //collectAndSaveDataObjects();
-        }
-    }
-
     private void initializeDataObjectListView()
     {
         // Fetch the List View

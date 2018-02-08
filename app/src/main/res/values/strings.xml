@@ -40,4 +40,5 @@
     <string name="log_out">Log Out</string>
     <string name="loading">Loading...</string>
     <string name="input_data">Input Data</string>
+    <string name="graph_choice">Graph Choice</string>
 </resources>

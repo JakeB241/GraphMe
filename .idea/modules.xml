@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/GraphMe.iml" filepath="$PROJECT_DIR$/GraphMe.iml" />
       <module fileurl="file://C:\Users\Jake\AndroidStudioProjects\TrackMe\GraphMe.iml" filepath="C:\Users\Jake\AndroidStudioProjects\TrackMe\GraphMe.iml" />
-      <module fileurl="file://$PROJECT_DIR$/TrackMe.iml" filepath="$PROJECT_DIR$/TrackMe.iml" />
+      <module fileurl="file://C:\Users\Jake Bock\StudioProjects\GraphMe\TrackMe.iml" filepath="C:\Users\Jake Bock\StudioProjects\GraphMe\TrackMe.iml" />
       <module fileurl="file://C:\Users\Jake Bock\StudioProjects\GraphMe\.idea\modules\TrackMe.iml" filepath="C:\Users\Jake Bock\StudioProjects\GraphMe\.idea\modules\TrackMe.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
