@@ -21,20 +21,20 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
+import java.util.ArrayList;
 
 import umich.jakebock.trackme.R;
 import umich.jakebock.trackme.classes.DataProject;
+import umich.jakebock.trackme.classes.Setting;
+import umich.jakebock.trackme.fragments.GraphFragment;
 import umich.jakebock.trackme.fragments.ProjectEditorFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
-    private DrawerLayout    drawerLayout;
-    private DataProject     currentDataProject;
+    private       DrawerLayout             drawerLayout;
+    private       DataProject              currentDataProject;
 
-    public static DateFormat dateFormat = new SimpleDateFormat("M/d/yy h:mm a", Locale.US);
+    public static ArrayList<Setting>       settingsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -54,12 +54,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Initialize the ToolBar
         initializeToolbar();
 
-        // If there isn't any saved data, start on the Project Editor Page
-        if (savedInstanceState == null)
-        {
-            // Start the Project Editor Fragment
-            startProjectEditorFragment();
-        }
+        // Initalize the Settings for this Version of the Application
+        initializeAppSettings();
+
+        // Start the Project Editor Fragment
+        startProjectEditorFragment();
     }
 
     public DataProject getCurrentDataProject()
@@ -113,6 +112,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AdRequest adRequest = new AdRequest.Builder().build();
         adView.loadAd(adRequest);
     }
+
+    private void initializeAppSettings()
+    {
+        // Initalize the Settings List
+        settingsList = new ArrayList<>();
+
+        // Setting for Time Enabled Data Project
+        settingsList.add(new Setting("INCLUDE_TIME" , "Include Time in Date"   , Setting.SettingType.SWITCH, false, null));
+
+        // Setting for Default Graph for Data Project
+        // TODO Change to Line Graph when Line Graph Bug if Fixed
+        settingsList.add(new Setting("DEFAULT_GRAPH", "Default Displayed Graph", Setting.SettingType.SPINNER, GraphFragment.GRAPH_TYPES.get(1), GraphFragment.GRAPH_TYPES));
+    }
+
 
     @Override
     public void onBackPressed()

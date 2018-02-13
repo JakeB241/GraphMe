@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -99,7 +100,7 @@ public class ListFragment extends Fragment
         dataObjectListView = (ListView) rootView.findViewById(R.id.data_object_list_view);
 
         // Initialize the List Adapter
-        dataObjectListAdapter = new DataObjectListAdapter(getActivity().getApplicationContext());
+        dataObjectListAdapter = new DataObjectListAdapter(currentDataProject, getActivity().getApplicationContext());
 
         // Set the Data Objects for the List Adapter
         dataObjectListAdapter.addAll(currentDataProject.getDataObjectList());
@@ -145,7 +146,7 @@ public class ListFragment extends Fragment
         try
         {
             // Parse the Displayed Date and Set the Time
-            Date displayedDate = MainActivity.dateFormat.parse(updateTimeLabel.getText().toString());
+            Date displayedDate = currentDataProject.returnDateFormat().parse(updateTimeLabel.getText().toString());
             calendar.setTime(displayedDate);
         }
 
@@ -163,31 +164,53 @@ public class ListFragment extends Fragment
                 // Fetch the Chosen Dates
                 final String chosenDate = (monthOfYear + 1) + " " + (dayOfMonth) + " " + (year);
 
-                // Launch Time Picker Dialog
-                TimePickerDialog timePickerDialog = new TimePickerDialog(getActivity(), R.style.DialogTheme, new TimePickerDialog.OnTimeSetListener()
+                // Only show the Time if the Include Time is Set
+                if ((Boolean)currentDataProject.findSettingById("INCLUDE_TIME").getChosenValue())
                 {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute)
+                    // Launch Time Picker Dialog
+                    TimePickerDialog timePickerDialog = new TimePickerDialog(getActivity(), R.style.DialogTheme, new TimePickerDialog.OnTimeSetListener()
                     {
-                        // Fetch the Chosen Time
-                        final String chosenTime = hourOfDay + " " + minute;
-
-                        try
+                        @Override
+                        public void onTimeSet(TimePicker view, int hourOfDay, int minute)
                         {
-                            // Create the Date Parser
-                            SimpleDateFormat dateParser = new SimpleDateFormat("MM dd yyyy HH mm", Locale.US);
+                            // Fetch the Chosen Time
+                            final String chosenTime = hourOfDay + " " + minute;
 
-                            // Populate the Text View
-                            updateTimeLabel.setText(MainActivity.dateFormat.format(dateParser.parse(chosenDate + " " + chosenTime)));
+                            try
+                            {
+                                // Create the Date Parser
+                                SimpleDateFormat dateParser = new SimpleDateFormat("MM dd yyyy HH mm", Locale.US);
+
+                                // Populate the Text View
+                                updateTimeLabel.setText(currentDataProject.returnDateFormat().format(dateParser.parse(chosenDate + " " + chosenTime)));
+                            }
+
+                            catch (ParseException e)
+                            {
+                                e.printStackTrace();
+                            }
                         }
-                        catch (ParseException e)
-                        {
-                            e.printStackTrace();
-                        }
+                    }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false);
+
+                    timePickerDialog.show();
+                }
+
+                else
+                {
+                    try
+                    {
+                        // Create the Date Parser
+                        SimpleDateFormat dateParser = new SimpleDateFormat("MM dd yyyy", Locale.US);
+
+                        // Populate the Text View
+                        updateTimeLabel.setText(currentDataProject.returnDateFormat().format(dateParser.parse(chosenDate)));
                     }
-                }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false);
 
-                timePickerDialog.show();
+                    catch (ParseException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
             }
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
 
@@ -293,13 +316,13 @@ public class ListFragment extends Fragment
         {
             // Set the Text of the Data Object
             dataObjectInformation.setText(dataObject.getObjectInformation());
-            dataObjectTime       .setText(dataObject.returnDateString());
+            dataObjectTime       .setText(currentDataProject.returnDateFormat().format(dataObject.getObjectTime()));
         }
 
         else
         {
             // Set the Current Date
-            dataObjectTime.setText(MainActivity.dateFormat.format(new Date()));
+            dataObjectTime.setText(currentDataProject.returnDateFormat().format(new Date()));
         }
 
         // Create the Listener for the Data Object Time
@@ -315,49 +338,91 @@ public class ListFragment extends Fragment
         // Set the View of the Alert Dialog
         alertDialogBuilder.setView(dataObjectPromptView);
 
-        // Set Alert Dialog Information
-        alertDialogBuilder.setCancelable(false).setPositiveButton("Save", new DialogInterface.OnClickListener()
-        {
-            public void onClick(DialogInterface dialog, int id)
-            {
-                if (dataObject != null)
-                {
-                    // Edit a Current Data Object
-                    dataObject.setObjectInformation(dataObjectInformation.getText().toString());
-                    dataObject.setDateAsString     (dataObjectTime       .getText().toString());
-                }
-
-                // Create a New Data Object
-                else
-                {
-                    // Create a New Data Object
-                    dataObjectListAdapter.add(new DataObject(dataObjectInformation.getText().toString(), dataObjectTime.getText().toString()));
-                }
-
-                // Fetch all of the Data Objects
-                ArrayList<DataObject> dataObjects = new ArrayList<>();
-                for (int i = 0; i < dataObjectListAdapter.getCount(); i++)
-                    dataObjects.add(dataObjectListAdapter.getItem(i));
-
-                // Set the Data Object List
-                currentDataProject.setDataObjectList(dataObjects);
-
-                // Set the Current Project
-                ((MainActivity) getActivity()).setCurrentProject(currentDataProject);
-
-                // Update the Current Project
-                firebaseHandler.createProject(currentDataProject);
-            }
-        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-        {
-            public void onClick(DialogInterface dialog,int id)
-            {
-                dialog.cancel();
-            }
-        });
+        // Set the Positive and Negative Button
+        alertDialogBuilder.setPositiveButton("Save"  ,null);
+        alertDialogBuilder.setNegativeButton("Cancel",null);
 
         // Create the Alert Dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
+        final AlertDialog alertDialog = alertDialogBuilder.create();
+
+        alertDialog.setOnShowListener(new DialogInterface.OnShowListener()
+        {
+            @Override
+            public void onShow(final DialogInterface dialog)
+            {
+                Button positiveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                positiveButton.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        // Ensure the Length of the String is Greater than 0
+                        if (dataObjectInformation.getText().toString().length() <= 0)
+                        {
+                            dataObjectInformation.setError("Data Cannot Be Blank!");
+                            return;
+                        }
+
+                        if (dataObject != null)
+                        {
+                            try
+                            {
+                                // Edit a Current Data Object
+                                dataObject.setObjectInformation(dataObjectInformation.getText().toString());
+                                dataObject.setObjectTime       (currentDataProject.returnDateFormat().parse(dataObjectTime.getText().toString()));
+                            }
+
+                            catch (ParseException e)
+                            {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        // Create a New Data Object
+                        else
+                        {
+                            try
+                            {
+                                // Create a New Data Object
+                                dataObjectListAdapter.add(new DataObject(dataObjectInformation.getText().toString(), currentDataProject.returnDateFormat().parse(dataObjectTime.getText().toString())));
+                            }
+                            catch (ParseException e)
+                            {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        // Fetch all of the Data Objects
+                        ArrayList<DataObject> dataObjects = new ArrayList<>();
+                        for (int i = 0; i < dataObjectListAdapter.getCount(); i++)
+                            dataObjects.add(dataObjectListAdapter.getItem(i));
+
+                        // Set the Data Object List
+                        currentDataProject.setDataObjectList(dataObjects);
+
+                        // Set the Current Project
+                        ((MainActivity) getActivity()).setCurrentProject(currentDataProject);
+
+                        // Update the Current Project
+                        firebaseHandler.createProject(currentDataProject);
+
+                        // Close Dialog
+                        dialog.dismiss();
+                    }
+                });
+
+                // Create the Negative Button
+                Button negativeButton = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+                negativeButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        // Close the Dialog
+                        dialog.dismiss();
+                    }
+                });
+            }
+        });
 
         // Show the Alert Dialog
         alertDialog.show();

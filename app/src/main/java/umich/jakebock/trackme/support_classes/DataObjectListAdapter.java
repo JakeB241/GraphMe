@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import umich.jakebock.trackme.R;
 import umich.jakebock.trackme.classes.DataObject;
+import umich.jakebock.trackme.classes.DataProject;
 
 /**
  * Created by Jake on 1/10/2018.
@@ -17,7 +18,8 @@ import umich.jakebock.trackme.classes.DataObject;
 
 public class DataObjectListAdapter extends ArrayAdapter<DataObject>
 {
-    private Context context;
+    private DataProject dataProject;
+    private Context     context;
 
     // Data Object View Holder
     private static class DataObjectViewHolder
@@ -26,13 +28,14 @@ public class DataObjectListAdapter extends ArrayAdapter<DataObject>
         TextView dataObjectDateTime;
     }
 
-    public DataObjectListAdapter(Context context)
+    public DataObjectListAdapter(DataProject dataProject, Context context)
     {
         // Call the Super
         super(context, R.layout.data_object_item);
 
         // Initialize Data
-        this.context = context;
+        this.dataProject = dataProject;
+        this.context     = context;
     }
 
     @NonNull
@@ -62,7 +65,7 @@ public class DataObjectListAdapter extends ArrayAdapter<DataObject>
         if (dataObject != null)
         {
             dataObjectViewHolder.dataObjectInformationTextView.setText(dataObject.getObjectInformation());
-            dataObjectViewHolder.dataObjectDateTime           .setText(dataObject.returnDateString());
+            dataObjectViewHolder.dataObjectDateTime           .setText(dataProject.returnDateFormat().format(dataObject.getObjectTime()));
         }
 
         // Return the Completed View

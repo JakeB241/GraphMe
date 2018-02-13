@@ -8,10 +8,6 @@
             android:id="@+id/manage_projects"
             android:icon="@drawable/ic_timeline_black_24dp"
             android:title="@string/manage_projects" />
-        <item
-            android:id="@+id/share_projects"
-            android:icon="@drawable/ic_share_black_24dp"
-            android:title="@string/share_projects" />
     </group>
 
     <group android:id="@+id/settings_menu" android:checkableBehavior="none">

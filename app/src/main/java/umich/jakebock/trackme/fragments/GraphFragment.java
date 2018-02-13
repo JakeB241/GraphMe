@@ -1,14 +1,9 @@
 package umich.jakebock.trackme.fragments;
 
 import android.app.AlertDialog;
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
-import android.graphics.Paint;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -18,14 +13,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.DatePicker;
-import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
-import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.DataPointInterface;
@@ -34,16 +25,12 @@ import com.jjoe64.graphview.series.OnDataPointTapListener;
 import com.jjoe64.graphview.series.PointsGraphSeries;
 import com.jjoe64.graphview.series.Series;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
+import java.util.List;
 
 import umich.jakebock.trackme.R;
 import umich.jakebock.trackme.activities.MainActivity;
@@ -58,7 +45,9 @@ public class GraphFragment extends Fragment
     private GraphView            graphView;
     private ArrayList<DataPoint> dataObjectList;
 
-    private int PERCENTAGE_Y_BUFFER = 10;
+    private int PERCENTAGE_Y_BUFFER = 5;
+
+    public static final List<String> GRAPH_TYPES = Arrays.asList("Line", "Bar", "Point");
 
     public GraphFragment() {}
 
@@ -73,11 +62,10 @@ public class GraphFragment extends Fragment
         // Fetch the Data Project
         currentDataProject = ((MainActivity) getActivity()).getCurrentDataProject();
 
-        // Only Create the Graph if there is more than one Data Object
-        if (currentDataProject.getDataObjectList().size() > 1)
+        if (currentDataProject.getDataObjectList().size() > 0)
         {
-            // Create the Graph View
-            drawGraphView();
+            // Initialize the Graph View
+            initializeGraphView();
         }
 
         // Return Root View
@@ -104,8 +92,6 @@ public class GraphFragment extends Fragment
         {
             case R.id.action_menu_graph_choice:
                 showGraphTypeSelection();
-                break;
-            default:
                 break;
         }
 
@@ -140,6 +126,7 @@ public class GraphFragment extends Fragment
         builder.show();
     }
 
+    // Compare Class for the Dates
     private class DataObjectInformationCompare implements Comparator<DataPoint>
     {
         @Override
@@ -149,6 +136,7 @@ public class GraphFragment extends Fragment
         }
     }
 
+    // Compare Class for the Objects
     private class DataObjectDateCompare implements Comparator<DataPoint>
     {
         @Override
@@ -158,7 +146,7 @@ public class GraphFragment extends Fragment
         }
     }
 
-    private void drawGraphView()
+    private void initializeGraphView()
     {
         // Fetch the Graph
         graphView = (GraphView) rootView.findViewById(R.id.graph_view);
@@ -171,52 +159,52 @@ public class GraphFragment extends Fragment
             Date dataObjectDate = dataObject.getObjectTime();
             Double dataObjectInformation = Double.parseDouble(dataObject.getObjectInformation());
 
-            System.out.println("Data Object Time:        " + dataObjectDate);
-            System.out.println("Data Object Information: " + dataObjectInformation);
-
             // Add the Data Object Information to the List
             dataObjectList.add(new DataPoint(dataObjectDate, dataObjectInformation));
         }
 
-        // Ensure there are Enough Data Points
-        if (dataObjectList.size() > 1)
-        {
-            // Set the Number of Horizontal Labels
-            graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(graphView.getContext()));
-            graphView.getGridLabelRenderer().setNumHorizontalLabels(dataObjectList.size());
-            graphView.getGridLabelRenderer().setNumVerticalLabels(dataObjectList.size() + 20);
+        // Set the Number of Horizontal Labels
+        graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(graphView.getContext()));
+        graphView.getGridLabelRenderer().setNumHorizontalLabels(dataObjectList.size());
+        graphView.getGridLabelRenderer().setNumVerticalLabels  (dataObjectList.size());
 
-            // Fetch the Max/Min Values for the Default Graph
-            int minValue = (int) Collections.min(dataObjectList, new DataObjectInformationCompare()).getY();
-            int maxValue = (int) Collections.max(dataObjectList, new DataObjectInformationCompare()).getY();
+        // Fetch the Max/Min Values for the Default Graph
+        int minValue = (int) Collections.min(dataObjectList, new DataObjectInformationCompare()).getY();
+        int maxValue = (int) Collections.max(dataObjectList, new DataObjectInformationCompare()).getY();
 
-            // Fetch the Max/Min Dates for the Default Graph
-            double startDate = Collections.min(dataObjectList, new DataObjectDateCompare()).getX();
-            double endDate   = Collections.max(dataObjectList, new DataObjectDateCompare()).getX();
+        // Fetch the Max/Min Dates for the Default Graph
+        double startDate = Collections.min(dataObjectList, new DataObjectDateCompare()).getX();
+        double endDate   = Collections.max(dataObjectList, new DataObjectDateCompare()).getX();
 
-            // Calculate the Min/Max for the Viewport
-            minValue -= minValue * PERCENTAGE_Y_BUFFER / 100;
-            maxValue += maxValue * PERCENTAGE_Y_BUFFER / 100;
+        // Calculate the Min/Max for the Viewport
+        minValue -= minValue * PERCENTAGE_Y_BUFFER / 100;
+        maxValue += maxValue * PERCENTAGE_Y_BUFFER / 100;
 
-            // Set the X Bounds Manually
-            graphView.getViewport().setMinX(startDate);
-            graphView.getViewport().setMaxX(endDate);
-            graphView.getViewport().setXAxisBoundsManual(true);
+        // Set the X Bounds Manually
+        graphView.getViewport().setMinX(startDate);
+        graphView.getViewport().setMaxX(endDate);
+        graphView.getViewport().setXAxisBoundsManual(true);
 
-            // Set the Y Bounds Manually
-            graphView.getViewport().setMinY(minValue);
-            graphView.getViewport().setMaxY(maxValue);
-            graphView.getViewport().setYAxisBoundsManual(true);
+        // Set the Y Bounds Manually
+        graphView.getViewport().setMinY(minValue);
+        graphView.getViewport().setMaxY(maxValue);
+        graphView.getViewport().setYAxisBoundsManual(true);
 
-            // Set the Scrollable
-            graphView.getViewport().setScalable(true);
+        // Set the Padding
+        graphView.getGridLabelRenderer().setPadding(40);
 
-            // Disable Human Rounding with Dates
-            graphView.getGridLabelRenderer().setHumanRounding(false);
+        // Set the Static Label Formatter
+        //StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(graphView);
+        //staticLabelsFormatter.setHorizontalLabels(new String[] {"old", "middle", "new"});
 
-            // Create the Series
-            createBarGraph();
-        }
+        // Set the Scrollable
+        graphView.getViewport().setScalable(true);
+
+        // Disable Human Rounding with Dates
+        graphView.getGridLabelRenderer().setHumanRounding(false);
+
+        // Create the Series
+        createBarGraph();
     }
 
     private void createLineGraph()
@@ -226,14 +214,10 @@ public class GraphFragment extends Fragment
 
         // Create the Series
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataObjectList.toArray(new DataPoint[dataObjectList.size()]));
+        series.setDrawAsPath(false);
+        series.setDrawDataPoints(false);
 
-        series.setOnDataPointTapListener(new OnDataPointTapListener()
-        {
-            @Override
-            public void onTap(Series series, DataPointInterface dataPoint) {
-                Toast.makeText(getActivity(), "" + dataPoint.getY(), Toast.LENGTH_SHORT).show();
-            }
-        });
+        series.setOnDataPointTapListener(dataPointTapListener);
 
         // Add the Series
         graphView.addSeries(series);
@@ -250,12 +234,7 @@ public class GraphFragment extends Fragment
         series.setValuesOnTopColor(Color.RED);
         series.setSpacing(15);
 
-        series.setOnDataPointTapListener(new OnDataPointTapListener() {
-            @Override
-            public void onTap(Series series, DataPointInterface dataPoint) {
-                Toast.makeText(getActivity(), "Series1: On Data Point clicked: " + dataPoint, Toast.LENGTH_SHORT).show();
-            }
-        });
+        series.setOnDataPointTapListener(dataPointTapListener);
 
         // Add the Series
         graphView.addSeries(series);
@@ -269,14 +248,18 @@ public class GraphFragment extends Fragment
         // Create the Series
         PointsGraphSeries<DataPoint> series = new PointsGraphSeries<>(dataObjectList.toArray(new DataPoint[dataObjectList.size()]));
 
-        series.setOnDataPointTapListener(new OnDataPointTapListener() {
-            @Override
-            public void onTap(Series series, DataPointInterface dataPoint) {
-                Toast.makeText(getActivity(), "Series1: On Data Point clicked: " + dataPoint, Toast.LENGTH_SHORT).show();
-            }
-        });
+        series.setOnDataPointTapListener(dataPointTapListener);
 
         // Add the Series
         graphView.addSeries(series);
     }
+
+    private OnDataPointTapListener dataPointTapListener = new OnDataPointTapListener()
+    {
+        @Override
+        public void onTap(Series series, DataPointInterface dataPoint)
+        {
+            Toast.makeText(getActivity(), Double.toString(dataPoint.getY()), Toast.LENGTH_SHORT).show();
+        }
+    };
 }

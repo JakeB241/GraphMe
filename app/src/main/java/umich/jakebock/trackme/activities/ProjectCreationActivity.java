@@ -2,6 +2,7 @@ package umich.jakebock.trackme.activities;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -10,15 +11,21 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
+import android.widget.Switch;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 
 import pub.devrel.easypermissions.EasyPermissions;
 import umich.jakebock.trackme.R;
@@ -35,10 +42,10 @@ public class ProjectCreationActivity extends AppCompatActivity
     private String projectTitle;
     private String projectImageFilePath = "";
 
-    private EditText                 projectName;
-    private ImageButton              importImageImageButton;
-    private FirebaseHandler          firebaseHandler;
-    private HashMap<String, Setting> settingHashMap;
+    private EditText           projectName;
+    private ImageButton        importImageImageButton;
+    private FirebaseHandler    firebaseHandler;
+    private ArrayList<Setting> dataProjectSettings;
 
     private DataObjectListAdapter   dataObjectListAdapter;
 
@@ -101,10 +108,11 @@ public class ProjectCreationActivity extends AppCompatActivity
                     return false;
                 }
 
-                // TODO - Collect the Settings
+                // Collect the Settings
+                collectSettings();
 
                 // Create the New Data Project
-                currentDataProject = new DataProject(projectTitle, projectImageFilePath);
+                currentDataProject = new DataProject(projectTitle, projectImageFilePath, dataProjectSettings);
 
                 // Creating a New Project
                 if (previousDataProject == null)
@@ -125,6 +133,43 @@ public class ProjectCreationActivity extends AppCompatActivity
             default:
 
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void collectSettings()
+    {
+        // Fetch the Setting Linear Layout
+        LinearLayout settingsLinearLayout  = findViewById(R.id.settings_linear_layout);
+
+        // Loop through all App Settings
+        for (Setting setting : MainActivity.settingsList)
+        {
+            // Fetch the Values
+            switch (setting.getSettingType())
+            {
+                // Switch Case
+                case SWITCH:
+
+                    // Fetch the Switch
+                    Switch switchView = settingsLinearLayout.getChildAt(0).findViewById(R.id.setting_switch);
+
+                    // Set the Chosen Value
+                    setting.setChosenValue(switchView.isChecked());
+                    break;
+
+                // Swich Spinner
+                case SPINNER:
+
+                    // Fetch the Switch
+                    Spinner spinnerView = settingsLinearLayout.getChildAt(0).findViewById(R.id.setting_spinner);
+
+                    // Set the Chosen Value
+                    setting.setChosenValue(spinnerView.getSelectedItem());
+                    break;
+            }
+
+            // Add to the Setting List
+            dataProjectSettings.add(setting);
         }
     }
 
@@ -228,51 +273,79 @@ public class ProjectCreationActivity extends AppCompatActivity
 
         @Override
         public void dataProjectLoadCompleted(ArrayList<DataProject> loadedDataProjects) {}
-
     };
 
     private void initializeSettings()
     {
         // Fetch the Setting Linear Layout
-        /*LinearLayout settingsLinearLayout  = findViewById(R.id.settings_linear_layout);
+        LinearLayout settingsLinearLayout = findViewById(R.id.settings_linear_layout);
+
+        // Fetch the Inflater
+        LayoutInflater inflater = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         // Initialize the Setting HashMap
-        settingHashMap = new HashMap<String, Setting>();
-
-        // Create the Settings for the Project and Append to the Hashmap
-        settingHashMap.put("INCLUDE_TIME", new Setting("Include Time in Date", Setting.SettingType.CHECKBOX, true));
+        dataProjectSettings = new ArrayList<>();
 
         // Append the Settings to the Linear Layout
-        for (String settingKey : settingHashMap.keySet())
+        for (Setting setting : MainActivity.settingsList)
         {
-            // Fetch the Current Setting
-            Setting setting = settingHashMap.get(settingKey);
+            // Ensure Chosen Value is null
+            setting.setChosenValue(null);
+
+            // Swap the Setting with the Data Project Setting if this is an Edit
+            if (previousDataProject != null && previousDataProject.findSettingById(setting.getSettingId()) != null)
+                setting = previousDataProject.findSettingById(setting.getSettingId());
 
             // Inflate the View
-            View parentView = View.inflate(this, R.layout.setting_item, settingsLinearLayout);
+            View parentView = inflater.inflate(R.layout.setting_item, null);
 
             // Fetch the Text View
             TextView settingLabel = parentView.findViewById(R.id.setting_label);
+
+            // Set the Label Text
             settingLabel.setText(setting.getLabelText());
 
             // Find the Setting Type
-            if (setting.getSettingType().equals(Setting.SettingType.CHECKBOX))
+            if (setting.getSettingType().equals(Setting.SettingType.SWITCH))
             {
-                // Create the Checkbox
-                CheckBox checkBox = parentView.findViewById(R.id.setting_checkbox);
-                checkBox.setVisibility(View.VISIBLE);
+                // Create the Switch
+                Switch settingSwitch = parentView.findViewById(R.id.setting_switch);
+                settingSwitch.setVisibility(View.VISIBLE);
 
-                // Set the Checkbox
-                if (currentDataProject != null) checkBox.setChecked((Boolean)currentDataProject.getDataProjectSettings().get(settingKey).getChosenValue());
-                else                            checkBox.setChecked((Boolean)setting.getDefaultValue());
+                // Set the Switch
+                if (setting.getChosenValue() != null) settingSwitch.setChecked((Boolean)setting.getChosenValue());
+                else                                  settingSwitch.setChecked((Boolean)setting.getDefaultValue());
+
+                // Set the Tag
+                settingSwitch.setTag(setting.getSettingId());
             }
 
-            else if ((setting.getSettingType().equals(Setting.SettingType.CHECKBOX)))
+            else if ((setting.getSettingType().equals(Setting.SettingType.SPINNER)))
             {
-                Spinner spinner = parentView.findViewById(R.id.setting_spinner);
-                spinner.setVisibility(View.VISIBLE);
+                // Create the Spinner
+                Spinner settingSpinner = parentView.findViewById(R.id.setting_spinner);
+                settingSpinner.setVisibility(View.VISIBLE);
+
+                // Set the Spinner Adapter
+                ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, setting.getAvailableValues());
+                settingSpinner.setAdapter(spinnerArrayAdapter);
+
+                // Set the Spinner
+                if (setting.getChosenValue() != null) settingSpinner.setSelection(setting.getAvailableValues().indexOf(setting.getChosenValue()));
+                else                                  settingSpinner.setSelection(setting.getAvailableValues().indexOf(setting.getDefaultValue()));
+
+                // Set the Tag
+                settingSpinner.setTag(setting.getSettingId());
             }
-        }*/
+
+            // Adjust the Margin of the Parent View
+            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            layoutParams.setMargins(0, 0,0, 60);
+            parentView.setLayoutParams(layoutParams);
+
+            // Add the View
+            settingsLinearLayout.addView(parentView);
+        }
     }
 
     private void initializeViews()
@@ -288,7 +361,8 @@ public class ProjectCreationActivity extends AppCompatActivity
             projectName.setText(previousDataProject.getProjectTitle());
 
             // Set the Image of the Image Button
-            importImageImageButton.setImageBitmap(DataProject.returnCorrectlyOrientedImage(this, previousDataProject.returnImageURI()));
+            if (!previousDataProject.returnImageURI().toString().equals(""))
+                importImageImageButton.setImageBitmap(DataProject.returnCorrectlyOrientedImage(this, previousDataProject.returnImageURI()));
 
             // Get the Image Path
             projectImageFilePath = previousDataProject.getProjectImageFilePath();

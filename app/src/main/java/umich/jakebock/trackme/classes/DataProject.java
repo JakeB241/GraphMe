@@ -1,6 +1,5 @@
 package umich.jakebock.trackme.classes;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -11,16 +10,15 @@ import android.provider.MediaStore;
 
 import com.google.firebase.firestore.ServerTimestamp;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.text.ParseException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-
-import umich.jakebock.trackme.activities.MainActivity;
+import java.util.Locale;
 
 /**
  * Created by Jake on 12/10/2017.
@@ -32,39 +30,22 @@ public class DataProject implements Serializable
     private @ServerTimestamp Date    updatedTime;
     private String                   projectImageFilePath;
     private ArrayList<DataObject>    dataObjectList;
-    //private HashMap<String, Setting> dataProjectSettings;
+    private ArrayList<Setting>       dataProjectSettings;
 
     public DataProject() {}
 
-    public DataProject(String projectTitle, String projectImageFilePath)
+    public DataProject(String projectTitle, String projectImageFilePath, ArrayList<Setting> dataProjectSettings)
     {
         this.projectTitle           = projectTitle;
         this.projectImageFilePath   = projectImageFilePath;
         this.updatedTime            = new Date();
         this.dataObjectList         = new ArrayList<>();
+        this.dataProjectSettings    = dataProjectSettings;
     }
 
     // Helper Functions
-    public String returnDateString()
-    {
-        return MainActivity.dateFormat.format(updatedTime);
-    }
-
-    public void setDateAsString(String date) {
-        try
-        {
-            updatedTime = MainActivity.dateFormat.parse(date);
-        }
-
-        catch (ParseException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    public Bitmap returnBitmapImage()
-    {
-        return BitmapFactory.decodeFile(projectImageFilePath);
+    public String returnDateString() {
+        return new SimpleDateFormat("M/d/yy h:mm a", Locale.US).format(updatedTime);
     }
 
     public Uri returnImageURI()
@@ -76,8 +57,7 @@ public class DataProject implements Serializable
         return "Entries: " + dataObjectList.size();
     }
 
-    private static int getOrientation(Context context, Uri photoUri)
-    {
+    private static int getOrientation(Context context, Uri photoUri) {
         Cursor cursor = context.getContentResolver().query(photoUri, new String[] { MediaStore.Images.ImageColumns.ORIENTATION }, null, null, null);
 
         if (cursor.getCount() != 1)
@@ -89,8 +69,7 @@ public class DataProject implements Serializable
         return cursor.getInt(0);
     }
 
-    public static Bitmap returnCorrectlyOrientedImage(Context context, Uri photoUri)
-    {
+    public static Bitmap returnCorrectlyOrientedImage(Context context, Uri photoUri) {
         InputStream is = null;
         try
         {
@@ -154,6 +133,23 @@ public class DataProject implements Serializable
         return null;
     }
 
+    public Setting findSettingById(String id) {
+        for (Setting setting : dataProjectSettings)
+        {
+            if (setting.getSettingId().equals(id))
+                return setting;
+        }
+
+        return null;
+    }
+
+    public DateFormat returnDateFormat() {
+        if ((Boolean)findSettingById("INCLUDE_TIME").getChosenValue())
+            return new SimpleDateFormat("M/d/yy h:mm a", Locale.US);
+        else
+            return new SimpleDateFormat("M/d/yy", Locale.US);
+    }
+
     // Begin Getters/Setters
     public ArrayList<DataObject> getDataObjectList() {
         return dataObjectList;
@@ -187,7 +183,7 @@ public class DataProject implements Serializable
         this.projectImageFilePath = projectImage;
     }
 
-    /*public HashMap<String, Setting> getDataProjectSettings() {
+    public ArrayList<Setting> getDataProjectSettings() {
         return dataProjectSettings;
-    }*/
+    }
 }

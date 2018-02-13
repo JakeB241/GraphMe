@@ -3,11 +3,7 @@ package umich.jakebock.trackme.classes;
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.io.Serializable;
-import java.text.ParseException;
-import java.util.Comparator;
 import java.util.Date;
-
-import umich.jakebock.trackme.activities.MainActivity;
 
 /**
  * Created by Jake on 12/10/2017.
@@ -20,34 +16,10 @@ public class DataObject implements Serializable
 
     public DataObject() {}
 
-    public DataObject(String objectInformation, Date updatedTime)
+    public DataObject(String objectInformation, Date objectTime)
     {
         this.objectInformation = objectInformation;
-        this.objectTime        = updatedTime;
-    }
-
-    public DataObject(String objectInformation, String updatedTime)
-    {
-        this.objectInformation = objectInformation;
-        setDateAsString(updatedTime);
-    }
-
-    // Helper Functions
-    public String returnDateString()
-    {
-        return MainActivity.dateFormat.format(objectTime);
-    }
-
-    public void setDateAsString(String date) {
-        try
-        {
-            objectTime = MainActivity.dateFormat.parse(date);
-        }
-
-        catch (ParseException e)
-        {
-            e.printStackTrace();
-        }
+        this.objectTime        = objectTime;
     }
 
     // Begin Getters/Setters
