@@ -45,8 +45,6 @@ public class GraphFragment extends Fragment
     private GraphView            graphView;
     private ArrayList<DataPoint> dataObjectList;
 
-    private int PERCENTAGE_Y_BUFFER = 5;
-
     public static final List<String> GRAPH_TYPES = Arrays.asList("Line", "Bar", "Point");
 
     public GraphFragment() {}
@@ -100,27 +98,16 @@ public class GraphFragment extends Fragment
 
     private void showGraphTypeSelection()
     {
-        final CharSequence graphTypes[] = new CharSequence[] {"Line", "Bar", "Point"};
-
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Select Graph Type");
-        builder.setItems(graphTypes, new DialogInterface.OnClickListener()
+        builder.setItems(GRAPH_TYPES.toArray(new String[GRAPH_TYPES.size()]), new DialogInterface.OnClickListener()
         {
             @Override
-            public void onClick(DialogInterface dialog, int which)
+            public void onClick(DialogInterface dialog, int position)
             {
-                switch (which)
-                {
-                    case 0:
-                        createLineGraph();
-                        break;
-                    case 1:
-                        createBarGraph();
-                        break;
-                    case 2:
-                        createPointGraph();
-                        break;
-                }
+                if      (GRAPH_TYPES.indexOf("Line")  == position) createLineGraph();
+                else if (GRAPH_TYPES.indexOf("Bar")   == position) createBarGraph();
+                else if (GRAPH_TYPES.indexOf("Point") == position) createPointGraph();
             }
         });
         builder.show();
@@ -165,8 +152,8 @@ public class GraphFragment extends Fragment
 
         // Set the Number of Horizontal Labels
         graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(graphView.getContext()));
-        graphView.getGridLabelRenderer().setNumHorizontalLabels(dataObjectList.size());
-        graphView.getGridLabelRenderer().setNumVerticalLabels  (dataObjectList.size());
+        //graphView.getGridLabelRenderer().setNumHorizontalLabels(5);
+        //graphView.getGridLabelRenderer().setNumVerticalLabels  (20);
 
         // Fetch the Max/Min Values for the Default Graph
         int minValue = (int) Collections.min(dataObjectList, new DataObjectInformationCompare()).getY();
@@ -176,35 +163,31 @@ public class GraphFragment extends Fragment
         double startDate = Collections.min(dataObjectList, new DataObjectDateCompare()).getX();
         double endDate   = Collections.max(dataObjectList, new DataObjectDateCompare()).getX();
 
-        // Calculate the Min/Max for the Viewport
-        minValue -= minValue * PERCENTAGE_Y_BUFFER / 100;
-        maxValue += maxValue * PERCENTAGE_Y_BUFFER / 100;
-
         // Set the X Bounds Manually
         graphView.getViewport().setMinX(startDate);
         graphView.getViewport().setMaxX(endDate);
         graphView.getViewport().setXAxisBoundsManual(true);
 
         // Set the Y Bounds Manually
-        graphView.getViewport().setMinY(minValue);
-        graphView.getViewport().setMaxY(maxValue);
+        graphView.getViewport().setMinY(Math.floor(minValue));
+        graphView.getViewport().setMaxY(Math.ceil (maxValue));
         graphView.getViewport().setYAxisBoundsManual(true);
 
         // Set the Padding
         graphView.getGridLabelRenderer().setPadding(40);
 
-        // Set the Static Label Formatter
-        //StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(graphView);
-        //staticLabelsFormatter.setHorizontalLabels(new String[] {"old", "middle", "new"});
-
-        // Set the Scrollable
+        // Set Scalable
         graphView.getViewport().setScalable(true);
 
         // Disable Human Rounding with Dates
         graphView.getGridLabelRenderer().setHumanRounding(false);
 
-        // Create the Series
         createBarGraph();
+
+        // Create the Graph
+        //if      (currentDataProject.findSettingById("DEFAULT_GRAPH").getChosenValue().equals("List"))  createLineGraph();
+        //else if (currentDataProject.findSettingById("DEFAULT_GRAPH").getChosenValue().equals("Bar"))   createBarGraph();
+        //else if (currentDataProject.findSettingById("DEFAULT_GRAPH").getChosenValue().equals("Point")) createPointGraph();
     }
 
     private void createLineGraph()

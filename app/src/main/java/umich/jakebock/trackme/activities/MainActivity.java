@@ -1,6 +1,7 @@
 package umich.jakebock.trackme.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -11,6 +12,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -21,9 +23,19 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 import umich.jakebock.trackme.R;
+import umich.jakebock.trackme.classes.DataObject;
 import umich.jakebock.trackme.classes.DataProject;
 import umich.jakebock.trackme.classes.Setting;
 import umich.jakebock.trackme.fragments.GraphFragment;
@@ -35,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private       DataProject              currentDataProject;
 
     public static ArrayList<Setting>       settingsList;
+
+    private static final int FILE_SELECT_CODE = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -126,6 +140,133 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         settingsList.add(new Setting("DEFAULT_GRAPH", "Default Displayed Graph", Setting.SettingType.SPINNER, GraphFragment.GRAPH_TYPES.get(1), GraphFragment.GRAPH_TYPES));
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        switch (requestCode)
+        {
+            case FILE_SELECT_CODE:
+                if (resultCode == RESULT_OK)
+                {
+                    try
+                    {
+                        // Get the Uri of the selected file
+                        Uri uri = data.getData();
+
+                        // Ensure the URI is not null
+                        if (uri != null)
+                        {
+                            // Create the Input Stream
+                            InputStream inputStream = getContentResolver().openInputStream(uri);
+
+                            // Ensure the Input Stream was not null
+                            if (inputStream != null)
+                            {
+                                // Create the Buffered Reader
+                                BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+
+                                // Create the List of Possible Formats
+                                List<DateFormat> possibleFormats = Arrays.asList(DataProject.dateWithoutTime, DataProject.dateWithTime);
+
+                                // Create the Data Object List
+                                ArrayList<DataObject> dataObjects = new ArrayList<>();
+
+                                // Read the File
+                                String line;
+                                while ((line = br.readLine()) != null)
+                                {
+                                    // Ensure there is Text in the Line
+                                    if (line.trim().length() > 0)
+                                    {
+                                        try
+                                        {
+                                            // Split the Line by One or More Spaces
+                                            String[] stringTokens = line.split(" +");
+
+                                            // Match the First Token
+                                            String dataObjectDateString        = stringTokens[0];
+                                            String dataObjectInformationString = stringTokens[1];
+
+                                            try
+                                            {
+                                                // Loop through the Possible Formats
+                                                Date dataObjectDate;
+                                                for (DateFormat dateFormat : possibleFormats)
+                                                {
+                                                    // Add the Data Object to the List
+                                                    dataObjects.add(new DataObject(dataObjectInformationString, dateFormat.parse(dataObjectDateString)));
+                                                }
+                                            }
+
+                                            catch (Exception ignored) {}
+                                        }
+
+                                        catch (Exception e)
+                                        {
+                                            Toast.makeText(this, "Import Failed", Toast.LENGTH_LONG).show();
+                                        }
+                                    }
+                                }
+
+                                // Close the Buffered Reader
+                                br.close();
+
+                                // Show the Success Message
+                                Toast.makeText(this, "Import Successful", Toast.LENGTH_LONG).show();
+
+                                // Navigate to the Project Creation Activity
+                                showProjectCreationFragment(dataObjects);
+                            }
+                        }
+                    }
+
+                    catch (FileNotFoundException e)
+                    {
+                        e.printStackTrace();
+                    }
+
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+                break;
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void importProject()
+    {
+        // Create the File Select Intent
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("text/plain");
+        startActivityForResult(intent, FILE_SELECT_CODE);
+    }
+
+    private void shareProject()
+    {
+        // Create the Share Intent
+        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Subject Here");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Share Body");
+        startActivity(Intent.createChooser(sharingIntent, "Share Project"));
+    }
+
+    private void showProjectCreationFragment(ArrayList<DataObject> dataObjects)
+    {
+        // Create the Project Creation Activity
+        Intent projectCreationIntent = new Intent(this, ProjectCreationActivity.class);
+
+        // Add Extra to the Intent
+        if (dataObjects != null) projectCreationIntent.putExtra("DATA_OBJECTS", dataObjects);
+
+        // Create the Project Creation Activity with Animation
+        startActivity(projectCreationIntent);
+        overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+    }
+
 
     @Override
     public void onBackPressed()
@@ -150,6 +291,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Send the User to the Project Editor Fragment
             case R.id.manage_projects:
                 startProjectEditorFragment();
+                break;
+
+            // Share Project
+            case R.id.share_project:
+                shareProject();
+                break;
+
+            // Import Project
+            case R.id.import_project:
+                importProject();
+                break;
+
+            // Settings
+            case R.id.settings:
                 break;
 
             // Log the User Out

@@ -29,6 +29,7 @@ import java.util.Collections;
 
 import pub.devrel.easypermissions.EasyPermissions;
 import umich.jakebock.trackme.R;
+import umich.jakebock.trackme.classes.DataObject;
 import umich.jakebock.trackme.classes.DataProject;
 import umich.jakebock.trackme.classes.Setting;
 import umich.jakebock.trackme.firebase.FirebaseHandler;
@@ -36,8 +37,9 @@ import umich.jakebock.trackme.support_classes.DataObjectListAdapter;
 
 public class ProjectCreationActivity extends AppCompatActivity
 {
-    private DataProject currentDataProject;
-    private DataProject previousDataProject;
+    private DataProject           currentDataProject;
+    private DataProject           previousDataProject;
+    private ArrayList<DataObject> importedDataObjects;
 
     private String projectTitle;
     private String projectImageFilePath = "";
@@ -62,6 +64,9 @@ public class ProjectCreationActivity extends AppCompatActivity
 
         // Check to see if a Data Project was Passed to be Edited
         previousDataProject = (DataProject) getIntent().getSerializableExtra("DATA_PROJECT");
+
+        // Check to see if this is an Import
+        importedDataObjects = (ArrayList<DataObject>) getIntent().getSerializableExtra("DATA_OBJECTS");
 
         // Create the FireBase Handler
         firebaseHandler = new FirebaseHandler(this);
@@ -249,9 +254,13 @@ public class ProjectCreationActivity extends AppCompatActivity
                 return;
             }
 
-            // Add the Previous Data Project Data to the New Data Project
+            // Add the Previous Project Data to the New Data Project
             if (previousDataProject != null)
                 currentDataProject.setDataObjectList(previousDataProject.getDataObjectList());
+
+            // Add the Imported Data Objects to the New Data Projects
+            else if (importedDataObjects != null)
+                currentDataProject.setDataObjectList(importedDataObjects);
 
             // Create the Project
             firebaseHandler.createProject(currentDataProject);
@@ -327,7 +336,7 @@ public class ProjectCreationActivity extends AppCompatActivity
                 settingSpinner.setVisibility(View.VISIBLE);
 
                 // Set the Spinner Adapter
-                ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, setting.getAvailableValues());
+                ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, setting.getAvailableValues());
                 settingSpinner.setAdapter(spinnerArrayAdapter);
 
                 // Set the Spinner

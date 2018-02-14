@@ -32,6 +32,9 @@ public class DataProject implements Serializable
     private ArrayList<DataObject>    dataObjectList;
     private ArrayList<Setting>       dataProjectSettings;
 
+    public static DateFormat dateWithoutTime = new SimpleDateFormat("M/d/yy", Locale.US);
+    public static DateFormat dateWithTime    = new SimpleDateFormat("M/d/yy h:mm a", Locale.US);
+
     public DataProject() {}
 
     public DataProject(String projectTitle, String projectImageFilePath, ArrayList<Setting> dataProjectSettings)
@@ -145,9 +148,9 @@ public class DataProject implements Serializable
 
     public DateFormat returnDateFormat() {
         if ((Boolean)findSettingById("INCLUDE_TIME").getChosenValue())
-            return new SimpleDateFormat("M/d/yy h:mm a", Locale.US);
+            return dateWithTime;
         else
-            return new SimpleDateFormat("M/d/yy", Locale.US);
+            return dateWithoutTime;
     }
 
     // Begin Getters/Setters
