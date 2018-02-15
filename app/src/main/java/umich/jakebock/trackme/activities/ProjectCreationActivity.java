@@ -190,7 +190,8 @@ public class ProjectCreationActivity extends AppCompatActivity
             Uri selectedImageURI = data.getData();
 
             // Set the Image to the Bitmap of the Selected Image
-            importImageImageButton.setImageBitmap(DataProject.returnCorrectlyOrientedImage(this, selectedImageURI));
+            // TODO Something about this
+            importImageImageButton.setImageBitmap(new DataProject().returnDataProjectImageBitmap(getApplicationContext(), selectedImageURI));
 
             // Fetch the File for the Image
             projectImageFilePath = selectedImageURI.toString();
@@ -371,7 +372,7 @@ public class ProjectCreationActivity extends AppCompatActivity
 
             // Set the Image of the Image Button
             if (!previousDataProject.returnImageURI().toString().equals(""))
-                importImageImageButton.setImageBitmap(DataProject.returnCorrectlyOrientedImage(this, previousDataProject.returnImageURI()));
+                importImageImageButton.setImageBitmap(previousDataProject.returnDataProjectImageBitmap(getApplicationContext(), previousDataProject.returnImageURI()));
 
             // Get the Image Path
             projectImageFilePath = previousDataProject.getProjectImageFilePath();

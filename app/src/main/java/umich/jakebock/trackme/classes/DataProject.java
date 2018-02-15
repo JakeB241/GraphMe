@@ -72,7 +72,7 @@ public class DataProject implements Serializable
         return cursor.getInt(0);
     }
 
-    public static Bitmap returnCorrectlyOrientedImage(Context context, Uri photoUri) {
+    private Bitmap returnCorrectlyOrientedImage(Context context, Uri photoUri) {
         InputStream is = null;
         try
         {
@@ -151,6 +151,10 @@ public class DataProject implements Serializable
             return dateWithTime;
         else
             return dateWithoutTime;
+    }
+
+    public Bitmap returnDataProjectImageBitmap(Context context, Uri uri) {
+        return returnCorrectlyOrientedImage(context, uri);
     }
 
     // Begin Getters/Setters

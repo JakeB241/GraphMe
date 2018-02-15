@@ -1,6 +1,7 @@
 package umich.jakebock.trackme.support_classes;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -76,8 +77,8 @@ public class DataProjectListAdapter extends ArrayAdapter<DataProject>
             dataProjectViewHolder.dataObjectNumber.setText(dataProject.returnNumberOfDataObjectsWithLabel());
 
             // Fetch the Image
-            //Bitmap projectImage = DataProject.returnCorrectlyOrientedImage(context, dataProject.returnImageURI());
-            //if (projectImage != null) dataProjectViewHolder.projectImage.setImageBitmap(projectImage);
+            Bitmap projectImage = dataProject.returnDataProjectImageBitmap(context, dataProject.returnImageURI());
+            if (projectImage != null) dataProjectViewHolder.projectImage.setImageBitmap(projectImage);
         }
 
         // Return the Completed View
