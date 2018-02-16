@@ -9,10 +9,6 @@
             android:icon="@drawable/ic_timeline_black_24dp"
             android:title="@string/manage_projects" />
         <item
-            android:id="@+id/share_project"
-            android:icon="@drawable/ic_share_black_24dp"
-            android:title="@string/share_project" />
-        <item
             android:id="@+id/import_project"
             android:icon="@drawable/ic_file_download_black_24dp"
             android:title="@string/import_project" />

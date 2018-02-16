@@ -3,6 +3,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:title="@string/date_range_choice"
+        android:id="@+id/action_menu_date_range"
+        android:icon="@drawable/ic_event_note_black_24dp"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:title="@string/graph_choice"
         android:id="@+id/action_menu_graph_choice"
         android:icon="@drawable/ic_view_list_black_24dp"

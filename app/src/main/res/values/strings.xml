@@ -29,8 +29,9 @@
     <string name="create_project_string">Create Project</string>
     <string name="done">DONE</string>
     <string name="title_activity_project_creation">Create Project</string>
-    <string name="edit">EDIT</string>
-    <string name="delete">DELETE</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="share">Share</string>
     <string name="title_activity_project_edit">Edit Project</string>
     <string name="save">SAVE</string>
     <string name="to">to</string>
@@ -42,4 +43,5 @@
     <string name="input_data">Input Data</string>
     <string name="graph_choice">Graph Choice</string>
     <string name="import_project">Import Project</string>
+    <string name="date_range_choice">Date Range</string>
 </resources>

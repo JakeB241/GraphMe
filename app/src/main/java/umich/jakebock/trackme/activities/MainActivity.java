@@ -293,11 +293,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startProjectEditorFragment();
                 break;
 
-            // Share Project
-            case R.id.share_project:
-                shareProject();
-                break;
-
             // Import Project
             case R.id.import_project:
                 importProject();

@@ -192,6 +192,16 @@ public class ProjectEditorFragment extends Fragment
         alert.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(Color.BLACK);
         alert.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
     }
+
+    private void shareProject(DataProject dataProject)
+    {
+        // Create the Share Intent
+        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, dataProject.getProjectTitle());
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Share Body");
+        startActivity(Intent.createChooser(sharingIntent, "Share Project"));
+    }
+
     // endregion
 
     // Listener for the Data Object List Adapter
@@ -310,9 +320,18 @@ public class ProjectEditorFragment extends Fragment
                 selectedViews   .remove(selectedView);
             }
 
-            // Remove the Edit Button there are More Than One Selected Projects
-            if (selectedProjects.size() > 1) mode.getMenu().findItem(R.id.action_menu_edit).setVisible(false);
-            else                             mode.getMenu().findItem(R.id.action_menu_edit).setVisible(true);
+            // Remove the Edit and Share Button there are More Than One Selected Projects
+            if (selectedProjects.size() > 1)
+            {
+                mode.getMenu().findItem(R.id.action_menu_edit).setVisible(false);
+                mode.getMenu().findItem(R.id.action_menu_share).setVisible(false);
+            }
+
+            else
+            {
+                mode.getMenu().findItem(R.id.action_menu_edit).setVisible(true);
+                mode.getMenu().findItem(R.id.action_menu_share).setVisible(true);
+            }
         }
 
         public boolean onCreateActionMode(ActionMode mode, Menu menu)
@@ -346,6 +365,9 @@ public class ProjectEditorFragment extends Fragment
                     break;
                 case R.id.action_menu_delete:
                     showDeleteAlertDialog();
+                    break;
+                case R.id.action_menu_share:
+                    shareProject(selectedProjects.get(0));
                     break;
                 default:
                     return false;

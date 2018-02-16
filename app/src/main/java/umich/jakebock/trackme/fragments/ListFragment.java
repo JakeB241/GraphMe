@@ -1,8 +1,6 @@
 package umich.jakebock.trackme.fragments;
 
 import android.app.AlertDialog;
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -21,20 +19,14 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.TimePicker;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
 
 import umich.jakebock.trackme.R;
 import umich.jakebock.trackme.activities.MainActivity;
@@ -42,6 +34,7 @@ import umich.jakebock.trackme.classes.DataObject;
 import umich.jakebock.trackme.classes.DataProject;
 import umich.jakebock.trackme.firebase.FirebaseHandler;
 import umich.jakebock.trackme.support_classes.DataObjectListAdapter;
+import umich.jakebock.trackme.support_classes.DateTimePicker;
 
 public class ListFragment extends Fragment
 {
@@ -135,87 +128,6 @@ public class ListFragment extends Fragment
                 showDataObjectCreationPrompt(null);
             }
         });
-    }
-
-    private void showDateAndTimePicker(final View chosenView)
-    {
-        // Parse the Current Time from the View
-        final TextView updateTimeLabel = (TextView) chosenView;
-        final Calendar calendar        = new GregorianCalendar();
-
-        try
-        {
-            // Parse the Displayed Date and Set the Time
-            Date displayedDate = currentDataProject.returnDateFormat().parse(updateTimeLabel.getText().toString());
-            calendar.setTime(displayedDate);
-        }
-
-        catch (ParseException e)
-        {
-            e.printStackTrace();
-        }
-
-        // Launch the Date Picker
-        DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(), R.style.DialogTheme, new DatePickerDialog.OnDateSetListener()
-        {
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth)
-            {
-                // Fetch the Chosen Dates
-                final String chosenDate = (monthOfYear + 1) + " " + (dayOfMonth) + " " + (year);
-
-                // Only show the Time if the Include Time is Set
-                if ((Boolean)currentDataProject.findSettingById("INCLUDE_TIME").getChosenValue())
-                {
-                    // Launch Time Picker Dialog
-                    TimePickerDialog timePickerDialog = new TimePickerDialog(getActivity(), R.style.DialogTheme, new TimePickerDialog.OnTimeSetListener()
-                    {
-                        @Override
-                        public void onTimeSet(TimePicker view, int hourOfDay, int minute)
-                        {
-                            // Fetch the Chosen Time
-                            final String chosenTime = hourOfDay + " " + minute;
-
-                            try
-                            {
-                                // Create the Date Parser
-                                SimpleDateFormat dateParser = new SimpleDateFormat("MM dd yyyy HH mm", Locale.US);
-
-                                // Populate the Text View
-                                updateTimeLabel.setText(currentDataProject.returnDateFormat().format(dateParser.parse(chosenDate + " " + chosenTime)));
-                            }
-
-                            catch (ParseException e)
-                            {
-                                e.printStackTrace();
-                            }
-                        }
-                    }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false);
-
-                    timePickerDialog.show();
-                }
-
-                else
-                {
-                    try
-                    {
-                        // Create the Date Parser
-                        SimpleDateFormat dateParser = new SimpleDateFormat("MM dd yyyy", Locale.US);
-
-                        // Populate the Text View
-                        updateTimeLabel.setText(currentDataProject.returnDateFormat().format(dateParser.parse(chosenDate)));
-                    }
-
-                    catch (ParseException e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-
-        // Show the Data Picker
-        datePickerDialog.show();
     }
 
     private void showDeleteAlertDialog()
@@ -331,7 +243,9 @@ public class ListFragment extends Fragment
             @Override
             public void onClick(View view)
             {
-                showDateAndTimePicker(view);
+                // Show the Date Time Picker
+                DateTimePicker dateTimePicker = new DateTimePicker(getActivity(), currentDataProject, view);
+                dateTimePicker.showDateTimePicker();
             }
         });
 
