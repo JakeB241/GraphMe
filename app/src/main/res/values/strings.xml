@@ -44,4 +44,5 @@
     <string name="graph_choice">Graph Choice</string>
     <string name="import_project">Import Project</string>
     <string name="date_range_choice">Date Range</string>
+    <string name="toggle_fullscreen">Toggle FullScreen</string>
 </resources>

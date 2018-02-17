@@ -244,7 +244,7 @@ public class ListFragment extends Fragment
             public void onClick(View view)
             {
                 // Show the Date Time Picker
-                DateTimePicker dateTimePicker = new DateTimePicker(getActivity(), currentDataProject, view);
+                DateTimePicker dateTimePicker = new DateTimePicker(getActivity(), currentDataProject, view, null, null);
                 dateTimePicker.showDateTimePicker();
             }
         });

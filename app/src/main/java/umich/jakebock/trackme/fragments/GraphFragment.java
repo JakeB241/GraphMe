@@ -52,6 +52,9 @@ public class GraphFragment extends Fragment
     private Date startDate;
     private Date endDate;
 
+    private Date minimumDate;
+    private Date maximumDate;
+
     public static final List<String> GRAPH_TYPES = Arrays.asList("Line", "Bar", "Point");
 
     public GraphFragment() {}
@@ -107,6 +110,11 @@ public class GraphFragment extends Fragment
             case R.id.action_menu_date_range:
                 showDateRangeSelection();
                 break;
+
+            // Date Range Choice
+            case R.id.action_menu_toggle_fullscreen:
+                toggleFullScreen();
+                break;
         }
 
         return false;
@@ -158,7 +166,7 @@ public class GraphFragment extends Fragment
             public void onClick(View view)
             {
                 // Show the Date Time Picker
-                DateTimePicker dateTimePicker = new DateTimePicker(getActivity(), currentDataProject, view);
+                DateTimePicker dateTimePicker = new DateTimePicker(getActivity(), currentDataProject, view, minimumDate, maximumDate);
                 dateTimePicker.showDateTimePicker();
             }
         });
@@ -169,7 +177,7 @@ public class GraphFragment extends Fragment
             public void onClick(View view)
             {
                 // Show the Date Time Picker
-                DateTimePicker dateTimePicker = new DateTimePicker(getActivity(), currentDataProject, view);
+                DateTimePicker dateTimePicker = new DateTimePicker(getActivity(), currentDataProject, view, minimumDate, maximumDate);
                 dateTimePicker.showDateTimePicker();
             }
         });
@@ -238,8 +246,28 @@ public class GraphFragment extends Fragment
         }
     }
 
-    private void populateDataPointListInDateRange()
+    private void toggleFullScreen()
     {
+
+    }
+
+    private void drawGraphView()
+    {
+        // Fetch the Graph
+        graphView = (GraphView) rootView.findViewById(R.id.graph_view);
+
+        // Fetch the Start Date and End Date - Default is the Max/Min
+        if (startDate == null && endDate == null)
+        {
+            // Calculate the Minimum and Maximum Date
+            minimumDate = Collections.min(currentDataProject.getDataObjectList(), new DataObjectDateCompare()).getObjectTime();
+            maximumDate = Collections.max(currentDataProject.getDataObjectList(), new DataObjectDateCompare()).getObjectTime();
+
+            // Set the Default Start Date and End Date to the Minimum and the Maximum Dates
+            startDate = minimumDate;
+            endDate   = maximumDate;
+        }
+
         // Create the Data Points
         dataObjectList = new ArrayList<>();
         for (DataObject dataObject : currentDataProject.getDataObjectList())
@@ -252,22 +280,6 @@ public class GraphFragment extends Fragment
             if ((dataObjectDate.after(startDate) || dataObjectDate.equals(startDate)) && (dataObjectDate.before(endDate) || dataObjectDate.equals(endDate)))
                 dataObjectList.add(new DataPoint(dataObjectDate, dataObjectInformation));
         }
-    }
-
-    private void drawGraphView()
-    {
-        // Fetch the Graph
-        graphView = (GraphView) rootView.findViewById(R.id.graph_view);
-
-        // Fetch the Start Date and End Date - Default is the Max/Min
-        if (startDate == null && endDate == null)
-        {
-            startDate = (Collections.min(currentDataProject.getDataObjectList(), new DataObjectDateCompare())).getObjectTime();
-            endDate   = (Collections.max(currentDataProject.getDataObjectList(), new DataObjectDateCompare())).getObjectTime();
-        }
-
-        // Create the Data Points
-        populateDataPointListInDateRange();
 
         // Set the Number of Horizontal Labels
         graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(graphView.getContext()));

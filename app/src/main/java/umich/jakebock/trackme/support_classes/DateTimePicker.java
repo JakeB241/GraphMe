@@ -27,12 +27,16 @@ public class DateTimePicker
     private Context     context;
     private DataProject dataProject;
     private View        view;
+    private Date        startDate;
+    private Date        endDate;
 
-    public DateTimePicker(Context context, DataProject dataProject, View view)
+    public DateTimePicker(Context context, DataProject dataProject, View view, Date startDate, Date endDate)
     {
         this.context     = context;
         this.dataProject = dataProject;
         this.view        = view;
+        this.startDate   = startDate;
+        this.endDate     = endDate;
     }
 
     public void showDateTimePicker()
@@ -111,6 +115,13 @@ public class DateTimePicker
                 }
             }
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+
+        // Set the Minumum and Maximum Dates
+        if (startDate != null && endDate != null)
+        {
+            datePickerDialog.getDatePicker().setMinDate(startDate.getTime());
+            datePickerDialog.getDatePicker().setMaxDate(endDate.getTime());
+        }
 
         // Show the Data Picker
         datePickerDialog.show();
