@@ -1,7 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string-array name="navigation_drawer_list">
-        <item>Manage Projects</item>
-        <item>Backup Projects</item>
-    </string-array>
-</resources>
+<resources></resources>
