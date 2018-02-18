@@ -45,4 +45,8 @@
     <string name="import_project">Import Project</string>
     <string name="date_range_choice">Date Range</string>
     <string name="toggle_fullscreen">Toggle FullScreen</string>
+
+    <string name="title_activity_full_screen_graph">FullScreenGraphActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>

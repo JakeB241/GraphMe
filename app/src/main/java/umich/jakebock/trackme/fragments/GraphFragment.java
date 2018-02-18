@@ -13,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,6 +56,8 @@ public class GraphFragment extends Fragment
     private Date minimumDate;
     private Date maximumDate;
 
+    public static boolean isFullScreen;
+
     public static final List<String> GRAPH_TYPES = Arrays.asList("Line", "Bar", "Point");
 
     public GraphFragment() {}
@@ -71,7 +74,10 @@ public class GraphFragment extends Fragment
         currentDataProject = ((MainActivity) getActivity()).getCurrentDataProject();
 
         // TODO FIX THIS
-        currentGraphType = "Bar";
+        currentGraphType = "Line";
+
+        // Set the FullScreen Flag
+        isFullScreen = false;
 
         if (currentDataProject.getDataObjectList().size() > 0)
         {
@@ -248,7 +254,24 @@ public class GraphFragment extends Fragment
 
     private void toggleFullScreen()
     {
+        // Set the System UI Visibility
+        if (!isFullScreen)
+        {
+            // Fetch the Main App View and the Content View
+            RelativeLayout mainAppView = getActivity().findViewById(R.id.main_app_view);
+            RelativeLayout contentMain = mainAppView.findViewById(R.id.content_main);
 
+            // Hide the Views
+            mainAppView.findViewById(R.id.app_bar_layout).setVisibility(View.GONE);
+            mainAppView.findViewById(R.id.adView)        .setVisibility(View.GONE);
+            contentMain.findViewById(R.id.tab_layout)    .setVisibility(View.GONE);
+
+            // Set the View to FullScreen
+            mainAppView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+
+            // Set the FullScreen Flag
+            isFullScreen = true;
+        }
     }
 
     private void drawGraphView()
@@ -270,7 +293,15 @@ public class GraphFragment extends Fragment
 
         // Create the Data Points
         dataObjectList = new ArrayList<>();
-        for (DataObject dataObject : currentDataProject.getDataObjectList())
+
+        // Store the Data Object List
+        ArrayList<DataObject> dataObjects = currentDataProject.getDataObjectList();
+
+        // Sort the Data
+        Collections.sort(dataObjects, new DataObjectDateCompare());
+
+        // Loop through the List
+        for (DataObject dataObject : dataObjects)
         {
             // Fetch the Data of the Data Object
             Date   dataObjectDate        = dataObject.getObjectTime();
@@ -303,9 +334,6 @@ public class GraphFragment extends Fragment
         // Set the Padding
         graphView.getGridLabelRenderer().setPadding(40);
 
-        // Set Scalable
-        graphView.getViewport().setScalable(true);
-
         // Disable Human Rounding with Dates
         graphView.getGridLabelRenderer().setHumanRounding(false);
 
@@ -331,8 +359,6 @@ public class GraphFragment extends Fragment
 
         // Create the Series
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataObjectList.toArray(new DataPoint[dataObjectList.size()]));
-        series.setDrawAsPath(false);
-        series.setDrawDataPoints(false);
 
         series.setOnDataPointTapListener(dataPointTapListener);
 
@@ -347,9 +373,6 @@ public class GraphFragment extends Fragment
 
         // Create the Series
         BarGraphSeries<DataPoint> series = new BarGraphSeries<>(dataObjectList.toArray(new DataPoint[dataObjectList.size()]));
-        series.setDrawValuesOnTop(true);
-        series.setValuesOnTopColor(Color.RED);
-        series.setSpacing(15);
 
         series.setOnDataPointTapListener(dataPointTapListener);
 

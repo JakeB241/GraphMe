@@ -12,6 +12,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
@@ -274,6 +276,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (drawerLayout.isDrawerOpen(GravityCompat.START))
         {
             drawerLayout.closeDrawer(GravityCompat.START);
+        }
+
+        else if (GraphFragment.isFullScreen)
+        {
+            // Fetch the Main App View and Content View
+            RelativeLayout mainAppView = findViewById(R.id.main_app_view);
+            RelativeLayout contentMain = mainAppView.findViewById(R.id.content_main);
+
+            // Show the Views
+            mainAppView.findViewById(R.id.app_bar_layout).setVisibility(View.VISIBLE);
+            mainAppView.findViewById(R.id.adView)        .setVisibility(View.VISIBLE);
+            contentMain.findViewById(R.id.tab_layout)    .setVisibility(View.VISIBLE);
+
+            // Return the System UI Visibility
+            mainAppView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+
+            // Set the FullScreen Flag
+            GraphFragment.isFullScreen = false;
         }
 
         else
