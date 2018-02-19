@@ -200,6 +200,18 @@ public class GraphFragment extends Fragment
                     startDate = currentDataProject.returnDateFormat().parse(startDateTextView.getText().toString());
                     endDate   = currentDataProject.returnDateFormat().parse(endDateTextView  .getText().toString());
 
+                    // Swap the Dates
+                    if (endDate.before(startDate) || startDate.after(endDate))
+                    {
+                        // Show that the Dates were Swapped
+                        Toast.makeText(getActivity(), "Swapped Start Date and End Date", Toast.LENGTH_SHORT).show();
+
+                        // Swap the Dates
+                        Date tempDate = startDate;
+                        startDate     = endDate;
+                        endDate       = tempDate;
+                    }
+
                     // Repopulate the Data Point List
                     drawGraphView();
                 }
@@ -278,6 +290,7 @@ public class GraphFragment extends Fragment
     {
         // Fetch the Graph
         graphView = (GraphView) rootView.findViewById(R.id.graph_view);
+        graphView.removeAllSeries();
 
         // Fetch the Start Date and End Date - Default is the Max/Min
         if (startDate == null && endDate == null)
@@ -359,6 +372,7 @@ public class GraphFragment extends Fragment
 
         // Create the Series
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataObjectList.toArray(new DataPoint[dataObjectList.size()]));
+        series.setDrawDataPoints(true);
 
         series.setOnDataPointTapListener(dataPointTapListener);
 

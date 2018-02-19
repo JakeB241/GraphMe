@@ -15,7 +15,7 @@
         app:tabGravity="fill"
         app:tabMode="fixed"/>
 
-    <android.support.v4.view.ViewPager
+    <umich.jakebock.trackme.support_classes.TabViewPager
         android:id="@+id/view_pager"
         android:layout_below="@id/tab_layout"
         android:layout_width="match_parent"
