@@ -18,8 +18,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
+import com.jjoe64.graphview.LabelFormatter;
+import com.jjoe64.graphview.Viewport;
 import com.jjoe64.graphview.series.BarGraphSeries;
+import com.jjoe64.graphview.series.BaseSeries;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.LineGraphSeries;
@@ -41,6 +43,8 @@ import umich.jakebock.trackme.classes.DataObject;
 import umich.jakebock.trackme.classes.DataProject;
 import umich.jakebock.trackme.support_classes.DateTimePicker;
 
+import static com.google.android.gms.internal.zzahn.runOnUiThread;
+
 
 public class GraphFragment extends Fragment
 {
@@ -56,7 +60,11 @@ public class GraphFragment extends Fragment
     private Date minimumDate;
     private Date maximumDate;
 
+    private int dataObjectIndex;
+
     public static boolean isFullScreen;
+
+    private final double TIME_TO_DRAW_GRAPH_SECONDS = 0.75;
 
     public static final List<String> GRAPH_TYPES = Arrays.asList("Line", "Bar", "Point");
 
@@ -290,6 +298,8 @@ public class GraphFragment extends Fragment
     {
         // Fetch the Graph
         graphView = (GraphView) rootView.findViewById(R.id.graph_view);
+
+        // Remove Previous Series
         graphView.removeAllSeries();
 
         // Fetch the Start Date and End Date - Default is the Max/Min
@@ -326,9 +336,8 @@ public class GraphFragment extends Fragment
         }
 
         // Set the Number of Horizontal Labels
-        graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(graphView.getContext()));
-        //graphView.getGridLabelRenderer().setNumHorizontalLabels(5);
-        //graphView.getGridLabelRenderer().setNumVerticalLabels  (20);
+        graphView.getGridLabelRenderer().setNumHorizontalLabels(15);
+        graphView.getGridLabelRenderer().setNumVerticalLabels  (15);
 
         // Fetch the Max/Min Values for the Default Graph
         int minValue = (int) Collections.min(dataObjectList, new DataObjectInformationCompare()).getY();
@@ -344,6 +353,26 @@ public class GraphFragment extends Fragment
         graphView.getViewport().setMaxY(Math.ceil (maxValue));
         graphView.getViewport().setYAxisBoundsManual(true);
 
+        // Create the Grid Label Renderer
+        graphView.getGridLabelRenderer().setLabelFormatter(new LabelFormatter()
+        {
+            @Override
+            public String formatLabel(double value, boolean isValueX)
+            {
+                if (isValueX)
+                    return android.text.format.DateFormat.getDateFormat(getContext()).format(value);
+
+                else
+                    return String.valueOf(Math.round(value));
+            }
+
+            @Override
+            public void setViewport(Viewport viewport) {}
+        });
+
+        // Rotate the Labels on the X Axis
+        graphView.getGridLabelRenderer().setHorizontalLabelsAngle(120);
+
         // Set the Padding
         graphView.getGridLabelRenderer().setPadding(40);
 
@@ -351,69 +380,95 @@ public class GraphFragment extends Fragment
         graphView.getGridLabelRenderer().setHumanRounding(false);
 
         // Create the Graph
+        createGraph(currentGraphType);
+    }
+
+    private void createGraph(String currentGraphType)
+    {
+        // Create the Series
+        BaseSeries<DataPoint> series = null;
         switch (currentGraphType)
         {
+            // Line Graph
             case "Line":
-                createLineGraph();
+
+                // Create the Series
+                series = new LineGraphSeries<>();
+
+                // Create the Line Graph Settings
+                ((LineGraphSeries)series).setDrawDataPoints(true);
                 break;
+
+            // Bar Graph
             case "Bar":
-                createBarGraph();
+
+                // Create the Series
+                series = new BarGraphSeries<>();
                 break;
+
+            // Point Graph
             case "Point":
-                createPointGraph();
+
+                // Create the Series
+                series = new PointsGraphSeries<>();
                 break;
         }
-    }
-
-    private void createLineGraph()
-    {
-        // Remove all Previous Series
-        graphView.removeAllSeries();
-
-        // Create the Series
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataObjectList.toArray(new DataPoint[dataObjectList.size()]));
-        series.setDrawDataPoints(true);
-
-        series.setOnDataPointTapListener(dataPointTapListener);
 
         // Add the Series
         graphView.addSeries(series);
-    }
 
-    private void createBarGraph()
-    {
-        // Remove all Previous Series
-        graphView.removeAllSeries();
+        // Set the Data Object Index
+        dataObjectIndex = 0;
 
-        // Create the Series
-        BarGraphSeries<DataPoint> series = new BarGraphSeries<>(dataObjectList.toArray(new DataPoint[dataObjectList.size()]));
+        // Create the Graph
+        final BaseSeries<DataPoint> finalSeries = series;
+        new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                // Sleep until the Graph can be seen
+                try
+                {
+                    Thread.sleep(180);
+                }
 
+                catch (InterruptedException ignored) {}
+
+                // Loop through the Data Object List
+                for (final DataPoint dataPoint : dataObjectList)
+                {
+                    runOnUiThread(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            finalSeries.appendData(dataPoint, false, dataObjectList.size());
+                        }
+                    });
+
+                    // Sleep the Thread based on the Size
+                    try
+                    {
+                        Thread.sleep((long) ((TIME_TO_DRAW_GRAPH_SECONDS * 1000) /dataObjectList.size()));
+                    }
+
+                    catch (InterruptedException ignored) {}
+                }
+            }
+        }).start();
+
+        // Set the On Tap Listener
         series.setOnDataPointTapListener(dataPointTapListener);
-
-        // Add the Series
-        graphView.addSeries(series);
     }
 
-    private void createPointGraph()
-    {
-        // Remove all Previous Series
-        graphView.removeAllSeries();
-
-        // Create the Series
-        PointsGraphSeries<DataPoint> series = new PointsGraphSeries<>(dataObjectList.toArray(new DataPoint[dataObjectList.size()]));
-
-        series.setOnDataPointTapListener(dataPointTapListener);
-
-        // Add the Series
-        graphView.addSeries(series);
-    }
-
+    // Create the Data Point Tap Listener
     private OnDataPointTapListener dataPointTapListener = new OnDataPointTapListener()
     {
         @Override
         public void onTap(Series series, DataPointInterface dataPoint)
         {
-            Toast.makeText(getActivity(), Double.toString(dataPoint.getY()), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), android.text.format.DateFormat.getDateFormat(getContext()).format(dataPoint.getX()) + " - " + Double.toString(dataPoint.getY()), Toast.LENGTH_SHORT).show();
         }
     };
 }
