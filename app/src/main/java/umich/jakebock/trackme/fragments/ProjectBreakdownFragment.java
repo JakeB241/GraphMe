@@ -59,12 +59,12 @@ public class ProjectBreakdownFragment extends Fragment
 
         // Fetch the Tabs
         TabLayout.Tab listTab       = tabLayout.getTabAt(TabFragmentPagerAdapter.LIST_TAB_POSITION       );
-        TabLayout.Tab statisticsTab = tabLayout.getTabAt(TabFragmentPagerAdapter.STATISTICS_TAB_POSITION );
+        //TabLayout.Tab statisticsTab = tabLayout.getTabAt(TabFragmentPagerAdapter.STATISTICS_TAB_POSITION );
         TabLayout.Tab graphTab      = tabLayout.getTabAt(TabFragmentPagerAdapter.GRAPH_TAB_POSITION      );
 
         // Add the TabLayout Icons
         if (listTab         != null) listTab      .setIcon(R.drawable.list_icon      );
-        if (statisticsTab   != null) statisticsTab.setIcon(R.drawable.statistics_icon);
+        //if (statisticsTab   != null) statisticsTab.setIcon(R.drawable.statistics_icon);
         if (graphTab        != null) graphTab     .setIcon(R.drawable.graph_icon     );
 
         // Ensure that the ListTab is Selected First

@@ -3,6 +3,7 @@ package umich.jakebock.trackme.classes;
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.Date;
 
 /**
@@ -38,4 +39,23 @@ public class DataObject implements Serializable
     public void setObjectInformation(String objectInformation) {
         this.objectInformation = objectInformation;
     }
+
+    // Comparators
+    public static Comparator<DataObject> sortDescendingOrder = new Comparator<DataObject>()
+    {
+        @Override
+        public int compare(DataObject dataObject1, DataObject dataObject2)
+        {
+            return dataObject2.getObjectTime().compareTo(dataObject1.getObjectTime());
+        }
+    };
+
+    public static Comparator<DataObject> sortAscendingOrder = new Comparator<DataObject>()
+    {
+        @Override
+        public int compare(DataObject dataObject1, DataObject dataObject2)
+        {
+            return dataObject1.getObjectTime().compareTo(dataObject2.getObjectTime());
+        }
+    };
 }

@@ -8,6 +8,7 @@ import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -81,7 +82,7 @@ public class DateTimePicker
                             try
                             {
                                 // Create the Date Parser
-                                SimpleDateFormat dateParser = new SimpleDateFormat("MM dd yyyy HH mm", Locale.US);
+                                DateFormat dateParser = new SimpleDateFormat("MM dd yyyy HH mm", Locale.US);
 
                                 // Populate the Text View
                                 updateTimeLabel.setText(dataProject.returnDateFormat().format(dateParser.parse(chosenDate + " " + chosenTime)));
@@ -102,7 +103,7 @@ public class DateTimePicker
                     try
                     {
                         // Create the Date Parser
-                        SimpleDateFormat dateParser = new SimpleDateFormat("MM dd yyyy", Locale.US);
+                        DateFormat dateParser = new SimpleDateFormat("MM dd yyyy", Locale.US);
 
                         // Populate the Text View
                         updateTimeLabel.setText(dataProject.returnDateFormat().format(dateParser.parse(chosenDate)));
@@ -116,7 +117,7 @@ public class DateTimePicker
             }
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
 
-        // Set the Minumum and Maximum Dates
+        // Set the Minimum and Maximum Dates
         if (startDate != null && endDate != null)
         {
             datePickerDialog.getDatePicker().setMinDate(startDate.getTime());

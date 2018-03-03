@@ -8,7 +8,9 @@
         android:id="@+id/action_menu_share"
         android:orderInCategory="1"
         android:icon="@drawable/ic_share_black_24dp"
+        app:actionProviderClass="android.support.v7.widget.ShareActionProvider"
         app:showAsAction="ifRoom"/>
+
 
     <item
         android:title="@string/edit"

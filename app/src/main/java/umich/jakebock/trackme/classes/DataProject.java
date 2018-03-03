@@ -32,7 +32,7 @@ public class DataProject implements Serializable
     private ArrayList<DataObject>    dataObjectList;
     private ArrayList<Setting>       dataProjectSettings;
 
-    public static DateFormat dateWithoutTime = new SimpleDateFormat("M/d/yy", Locale.US);
+    public static DateFormat dateWithoutTime = new SimpleDateFormat("M/d/yy"       , Locale.US);
     public static DateFormat dateWithTime    = new SimpleDateFormat("M/d/yy h:mm a", Locale.US);
 
     public DataProject() {}

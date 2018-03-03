@@ -25,7 +25,6 @@ import android.widget.TextView;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 
 import umich.jakebock.trackme.R;
@@ -382,20 +381,12 @@ public class ListFragment extends Fragment
 
     private void notifyDataSetChangedAndSort()
     {
-        // Sort the Adapter Data
-        dataObjectListAdapter.sort(new Comparator<DataObject>()
-        {
-            @Override
-            public int compare(DataObject dataObject1, DataObject dataObject2)
-            {
-                return dataObject2.getObjectTime().compareTo(dataObject1.getObjectTime());
-            }
-        });
+        // Sort the Adapter Data in Descending Order
+        dataObjectListAdapter.sort(DataObject.sortDescendingOrder);
 
         // Notify the Data Set Changed
         dataObjectListAdapter.notifyDataSetChanged();
     }
-
 
     // Listener for the Action Mode Callback for the Action Bar (Long Click on List Items)
     private class DataObjectActionModeCallback implements ListView.MultiChoiceModeListener

@@ -1,6 +1,9 @@
 package umich.jakebock.trackme.activities;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -240,20 +243,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void importProject()
     {
-        // Create the File Select Intent
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("text/plain");
-        startActivityForResult(intent, FILE_SELECT_CODE);
-    }
+        // Show the How-To for Importing Projects
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Importing Data Project")
+               .setMessage("Data Object must be in the format of \'<Data_Object> <Space> <Date>\'\n\nDate must be in the format of MM/DD/YYY or MM/DD/YYY HH:MM")
+               .setCancelable(false)
+               .setPositiveButton("OK", new DialogInterface.OnClickListener()
+        {
+            public void onClick(DialogInterface dialog, int id)
+            {
+                // Create the File Select Intent
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("text/plain");
+                startActivityForResult(intent, FILE_SELECT_CODE);
+            }
+        });
 
-    private void shareProject()
-    {
-        // Create the Share Intent
-        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Subject Here");
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Share Body");
-        startActivity(Intent.createChooser(sharingIntent, "Share Project"));
+        // Show the Alert Dialog
+        AlertDialog alert = builder.create();
+        alert.show();
+
+        // Set the Color of the Positive Button
+        alert.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(Color.BLACK);
     }
 
     private void showProjectCreationFragment(ArrayList<DataObject> dataObjects)
@@ -278,6 +290,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             drawerLayout.closeDrawer(GravityCompat.START);
         }
 
+        // Exit out of Full Screen Graph
         else if (GraphFragment.isFullScreen)
         {
             // Fetch the Main App View and Content View

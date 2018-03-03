@@ -60,11 +60,11 @@ public class GraphFragment extends Fragment
     private Date minimumDate;
     private Date maximumDate;
 
-    private int dataObjectIndex;
-
     public static boolean isFullScreen;
 
     private final double TIME_TO_DRAW_GRAPH_SECONDS = 0.75;
+    private final int    MAX_Y_LABELS               = 15;
+    private final int    MAX_X_LABELS               = 15;
 
     public static final List<String> GRAPH_TYPES = Arrays.asList("Line", "Bar", "Point");
 
@@ -73,6 +73,7 @@ public class GraphFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
+        // Inflate the Root View
         rootView = inflater.inflate(R.layout.fragment_graph, container, false);
 
         // Allow the Fragment to Have a Custom Options Menu
@@ -87,14 +88,27 @@ public class GraphFragment extends Fragment
         // Set the FullScreen Flag
         isFullScreen = false;
 
-        if (currentDataProject.getDataObjectList().size() > 0)
-        {
-            // Initialize the Graph View
-            drawGraphView();
-        }
-
         // Return Root View
         return rootView;
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser)
+    {
+        // Call the Super
+        super.setUserVisibleHint(isVisibleToUser);
+
+        // Only Draw the Graph when the Fragment is Visible to the User
+        if (isVisibleToUser)
+        {
+            // Ensure there is Data to Graph the Graph View
+            if (currentDataProject.getDataObjectList().size() > 0)
+                drawGraphView();
+
+                // Message for Not Enough Data
+            else
+                Toast.makeText(getActivity(), "Enter Data to be Graphed!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -154,6 +168,18 @@ public class GraphFragment extends Fragment
         builder.show();
     }
 
+    private void calculateMaxMinDates()
+    {
+        // Calculate the Minimum and Maximum Date
+        minimumDate = Collections.min(currentDataProject.getDataObjectList(), DataObject.sortAscendingOrder).getObjectTime();
+        maximumDate = Collections.max(currentDataProject.getDataObjectList(), DataObject.sortAscendingOrder).getObjectTime();
+
+        // Set the Default Start Date and End Date to the Minimum and the Maximum Dates
+        startDate = minimumDate;
+        endDate   = maximumDate;
+    }
+
+
     private void showDateRangeSelection()
     {
         // Create the Data Object Prompt View
@@ -173,28 +199,9 @@ public class GraphFragment extends Fragment
         startDateTextView.setText(currentDataProject.returnDateFormat().format(startDate));
         endDateTextView  .setText(currentDataProject.returnDateFormat().format(endDate  ));
 
-        // Create the Click Listener for the Date Range
-        startDateTextView.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                // Show the Date Time Picker
-                DateTimePicker dateTimePicker = new DateTimePicker(getActivity(), currentDataProject, view, minimumDate, maximumDate);
-                dateTimePicker.showDateTimePicker();
-            }
-        });
-
-        endDateTextView.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                // Show the Date Time Picker
-                DateTimePicker dateTimePicker = new DateTimePicker(getActivity(), currentDataProject, view, minimumDate, maximumDate);
-                dateTimePicker.showDateTimePicker();
-            }
-        });
+        // Set the On Click Listeners for the State Date and End Date Text Views
+        startDateTextView.setOnClickListener(dateTextViewClickListener);
+        endDateTextView  .setOnClickListener(dateTextViewClickListener);
 
         // Create the Delete Button
         alertDialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener()
@@ -241,6 +248,20 @@ public class GraphFragment extends Fragment
             }
         });
 
+        // Create the Reset Button
+        alertDialogBuilder.setNeutralButton("Reset", new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                // Calculate the Minimum and Maximum Date
+                calculateMaxMinDates();
+
+                // Repopulate the Data Point List
+                drawGraphView();
+            }
+        });
+
         alertDialogBuilder.setView(dataObjectPromptView);
 
         // Show the Alert Dialog
@@ -250,6 +271,7 @@ public class GraphFragment extends Fragment
         // Set the Color of the Positive and Negative Button
         alert.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(Color.BLACK);
         alert.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
+        alert.getButton(DialogInterface.BUTTON_NEUTRAL) .setTextColor(Color.BLACK);
     }
 
     // Compare Class for the Dates
@@ -259,16 +281,6 @@ public class GraphFragment extends Fragment
         public int compare(DataPoint dataPoint1, DataPoint dataPoint2)
         {
             return Double.compare(dataPoint1.getY(), dataPoint2.getY());
-        }
-    }
-
-    // Compare Class for the Objects
-    private class DataObjectDateCompare implements Comparator<DataObject>
-    {
-        @Override
-        public int compare(DataObject dataObject1, DataObject dataObject2)
-        {
-            return dataObject1.getObjectTime().compareTo(dataObject2.getObjectTime());
         }
     }
 
@@ -296,22 +308,20 @@ public class GraphFragment extends Fragment
 
     private void drawGraphView()
     {
-        // Fetch the Graph
-        graphView = (GraphView) rootView.findViewById(R.id.graph_view);
+        // Remove all Views
+        ((RelativeLayout)rootView).removeAllViews();
 
-        // Remove Previous Series
-        graphView.removeAllSeries();
+        // Create a New Graph View
+        graphView = new GraphView(getActivity());
+
+        // Add the View
+        ((RelativeLayout)rootView).addView(graphView);
 
         // Fetch the Start Date and End Date - Default is the Max/Min
         if (startDate == null && endDate == null)
         {
             // Calculate the Minimum and Maximum Date
-            minimumDate = Collections.min(currentDataProject.getDataObjectList(), new DataObjectDateCompare()).getObjectTime();
-            maximumDate = Collections.max(currentDataProject.getDataObjectList(), new DataObjectDateCompare()).getObjectTime();
-
-            // Set the Default Start Date and End Date to the Minimum and the Maximum Dates
-            startDate = minimumDate;
-            endDate   = maximumDate;
+            calculateMaxMinDates();
         }
 
         // Create the Data Points
@@ -321,7 +331,7 @@ public class GraphFragment extends Fragment
         ArrayList<DataObject> dataObjects = currentDataProject.getDataObjectList();
 
         // Sort the Data
-        Collections.sort(dataObjects, new DataObjectDateCompare());
+        Collections.sort(dataObjects, DataObject.sortAscendingOrder);
 
         // Loop through the List
         for (DataObject dataObject : dataObjects)
@@ -336,12 +346,16 @@ public class GraphFragment extends Fragment
         }
 
         // Set the Number of Horizontal Labels
-        graphView.getGridLabelRenderer().setNumHorizontalLabels(15);
-        graphView.getGridLabelRenderer().setNumVerticalLabels  (15);
+        if (dataObjectList.size() >= MAX_Y_LABELS) graphView.getGridLabelRenderer().setNumHorizontalLabels(MAX_Y_LABELS         );
+        else                                       graphView.getGridLabelRenderer().setNumHorizontalLabels(dataObjectList.size());
+
+        // Set the Number of Vertical Labels
+        if (dataObjectList.size() >= MAX_X_LABELS) graphView.getGridLabelRenderer().setNumVerticalLabels  (MAX_X_LABELS         );
+        else                                       graphView.getGridLabelRenderer().setNumVerticalLabels  (dataObjectList.size());
 
         // Fetch the Max/Min Values for the Default Graph
-        int minValue = (int) Collections.min(dataObjectList, new DataObjectInformationCompare()).getY();
-        int maxValue = (int) Collections.max(dataObjectList, new DataObjectInformationCompare()).getY();
+        double minValue = Collections.min(dataObjectList, new DataObjectInformationCompare()).getY();
+        double maxValue = Collections.max(dataObjectList, new DataObjectInformationCompare()).getY();
 
         // Set the X Bounds Manually
         graphView.getViewport().setMinX(startDate.getTime());
@@ -353,22 +367,13 @@ public class GraphFragment extends Fragment
         graphView.getViewport().setMaxY(Math.ceil (maxValue));
         graphView.getViewport().setYAxisBoundsManual(true);
 
+        System.out.println("START DATE: " + startDate.getTime());
+        System.out.println("END DATE  : " + endDate  .getTime());
+        System.out.println("MIN: " + Math.floor(minValue));
+        System.out.println("MAX: " + Math.ceil (maxValue));
+
         // Create the Grid Label Renderer
-        graphView.getGridLabelRenderer().setLabelFormatter(new LabelFormatter()
-        {
-            @Override
-            public String formatLabel(double value, boolean isValueX)
-            {
-                if (isValueX)
-                    return android.text.format.DateFormat.getDateFormat(getContext()).format(value);
-
-                else
-                    return String.valueOf(Math.round(value));
-            }
-
-            @Override
-            public void setViewport(Viewport viewport) {}
-        });
+        graphView.getGridLabelRenderer().setLabelFormatter(labelFormatter);
 
         // Rotate the Labels on the X Axis
         graphView.getGridLabelRenderer().setHorizontalLabelsAngle(120);
@@ -380,10 +385,10 @@ public class GraphFragment extends Fragment
         graphView.getGridLabelRenderer().setHumanRounding(false);
 
         // Create the Graph
-        createGraph(currentGraphType);
+        createGraph();
     }
 
-    private void createGraph(String currentGraphType)
+    private void createGraph()
     {
         // Create the Series
         BaseSeries<DataPoint> series = null;
@@ -415,52 +420,80 @@ public class GraphFragment extends Fragment
         }
 
         // Add the Series
-        graphView.addSeries(series);
-
-        // Set the Data Object Index
-        dataObjectIndex = 0;
-
-        // Create the Graph
-        final BaseSeries<DataPoint> finalSeries = series;
-        new Thread(new Runnable()
+        if (series != null)
         {
-            @Override
-            public void run()
+            graphView.addSeries(series);
+
+            // Create the Graph
+            final BaseSeries<DataPoint> finalSeries = series;
+            new Thread(new Runnable()
             {
-                // Sleep until the Graph can be seen
-                try
+                @Override
+                public void run()
                 {
-                    Thread.sleep(180);
-                }
-
-                catch (InterruptedException ignored) {}
-
-                // Loop through the Data Object List
-                for (final DataPoint dataPoint : dataObjectList)
-                {
-                    runOnUiThread(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            finalSeries.appendData(dataPoint, false, dataObjectList.size());
-                        }
-                    });
-
-                    // Sleep the Thread based on the Size
+                    // Sleep until the Graph can be seen
                     try
                     {
-                        Thread.sleep((long) ((TIME_TO_DRAW_GRAPH_SECONDS * 1000) /dataObjectList.size()));
+                        Thread.sleep(180);
                     }
 
                     catch (InterruptedException ignored) {}
-                }
-            }
-        }).start();
 
-        // Set the On Tap Listener
-        series.setOnDataPointTapListener(dataPointTapListener);
+                    // Loop through the Data Object List
+                    for (final DataPoint dataPoint : dataObjectList)
+                    {
+                        runOnUiThread(new Runnable()
+                        {
+                            @Override
+                            public void run() {
+                                finalSeries.appendData(dataPoint, false, dataObjectList.size());
+                            }
+                        });
+
+                        // Sleep the Thread based on the Size
+                        try
+                        {
+                            Thread.sleep((long) ((TIME_TO_DRAW_GRAPH_SECONDS * 1000) / dataObjectList.size()));
+                        }
+
+                        catch (InterruptedException ignored) {}
+                    }
+                }
+            }).start();
+
+            // Set the On Tap Listener
+            series.setOnDataPointTapListener(dataPointTapListener);
+        }
     }
+
+    // Create the Click Listener for the Date Range
+    private View.OnClickListener dateTextViewClickListener = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View view)
+        {
+            // Show the Date Time Picker
+            DateTimePicker dateTimePicker = new DateTimePicker(getActivity(), currentDataProject, view, minimumDate, maximumDate);
+            dateTimePicker.showDateTimePicker();
+        }
+    };
+
+    // Label Formatter
+    private LabelFormatter labelFormatter = new LabelFormatter()
+    {
+        @Override
+        public String formatLabel(double value, boolean isValueX)
+        {
+            if (isValueX)
+                return android.text.format.DateFormat.getDateFormat(getContext()).format(value);
+
+            else
+                return String.valueOf(Math.round(value));
+        }
+
+        @Override
+        public void setViewport(Viewport viewport) {}
+    };
 
     // Create the Data Point Tap Listener
     private OnDataPointTapListener dataPointTapListener = new OnDataPointTapListener()

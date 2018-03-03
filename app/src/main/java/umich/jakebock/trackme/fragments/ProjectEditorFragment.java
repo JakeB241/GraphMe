@@ -9,8 +9,10 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -193,13 +195,16 @@ public class ProjectEditorFragment extends Fragment
         alert.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
     }
 
-    private void shareProject(DataProject dataProject)
+    private void shareProject(MenuItem item, DataProject dataProject)
     {
-        // Create the Share Intent
-        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, dataProject.getProjectTitle());
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Share Body");
-        startActivity(Intent.createChooser(sharingIntent, "Share Project"));
+        ShareActionProvider shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+
+        Intent myShareIntent = new Intent(Intent.ACTION_SEND);
+        myShareIntent.setType("text/plain");
+        myShareIntent.putExtra(Intent.EXTRA_SUBJECT, "");
+        myShareIntent.putExtra(Intent.EXTRA_TEXT   , "");
+
+        shareActionProvider.setShareIntent(myShareIntent);
     }
 
     // endregion
@@ -367,7 +372,7 @@ public class ProjectEditorFragment extends Fragment
                     showDeleteAlertDialog();
                     break;
                 case R.id.action_menu_share:
-                    shareProject(selectedProjects.get(0));
+                    shareProject(item, selectedProjects.get(0));
                     break;
                 default:
                     return false;

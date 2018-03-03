@@ -6,7 +6,6 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 
 import umich.jakebock.trackme.fragments.GraphFragment;
 import umich.jakebock.trackme.fragments.ListFragment;
-import umich.jakebock.trackme.fragments.StatisticsFragment;
 
 /**
  * Created by Jake on 12/9/2017.
@@ -15,9 +14,9 @@ import umich.jakebock.trackme.fragments.StatisticsFragment;
 public class TabFragmentPagerAdapter extends FragmentStatePagerAdapter
 {
     public  static final int LIST_TAB_POSITION         = 0;
-    public  static final int STATISTICS_TAB_POSITION   = 1;
-    public  static final int GRAPH_TAB_POSITION        = 2;
-    private static final int NUMBER_OF_TABS            = 3;
+    //public  static final int STATISTICS_TAB_POSITION   = 1;
+    public  static final int GRAPH_TAB_POSITION        = 1;
+    private static final int NUMBER_OF_TABS            = 2;
 
     public TabFragmentPagerAdapter(FragmentManager fragmentManager)
     {
@@ -31,7 +30,7 @@ public class TabFragmentPagerAdapter extends FragmentStatePagerAdapter
         switch (position)
         {
             case LIST_TAB_POSITION:         return new ListFragment();
-            case STATISTICS_TAB_POSITION:   return new StatisticsFragment();
+            //case STATISTICS_TAB_POSITION:   return new StatisticsFragment();
             case GRAPH_TAB_POSITION:        return new GraphFragment();
             default:                        return null;
         }
