@@ -28,5 +28,7 @@
     <string name="date_range_choice">Date Range</string>
     <string name="toggle_fullscreen">Toggle FullScreen</string>
     <string name="shar">Share</string>
+    <string name="include_time">Include Time</string>
+    <string name="remove_time">Remove Time</string>
 
 </resources>

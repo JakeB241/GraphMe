@@ -48,10 +48,10 @@ import umich.jakebock.trackme.fragments.ProjectEditorFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
-    private       DrawerLayout             drawerLayout;
-    private       DataProject              currentDataProject;
+    private DrawerLayout drawerLayout;
+    private DataProject  currentDataProject;
 
-    public static ArrayList<Setting>       settingsList;
+    public static ArrayList<Setting> settingsList;
 
     private static final int FILE_SELECT_CODE = 0;
 
@@ -138,11 +138,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         settingsList = new ArrayList<>();
 
         // Setting for Time Enabled Data Project
-        settingsList.add(new Setting("INCLUDE_TIME" , "Include Time in Date"   , Setting.SettingType.SWITCH, false, null));
+        //settingsList.add(new Setting("INCLUDE_TIME" , "Include Time in Date"   , Setting.SettingType.SWITCH, false, null));
 
         // Setting for Default Graph for Data Project
         // TODO Change to Line Graph when Line Graph Bug if Fixed
-        settingsList.add(new Setting("DEFAULT_GRAPH", "Default Displayed Graph", Setting.SettingType.SPINNER, GraphFragment.GRAPH_TYPES.get(1), GraphFragment.GRAPH_TYPES));
+        //settingsList.add(new Setting("DEFAULT_GRAPH", "Default Displayed Graph", Setting.SettingType.SPINNER, GraphFragment.GRAPH_TYPES.get(1), GraphFragment.GRAPH_TYPES));
     }
 
     @Override

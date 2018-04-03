@@ -84,7 +84,40 @@ public class ListFragment extends Fragment
 
         // Set the Action Bar Title to the Current Data Project Title
         if (actionBar != null) actionBar.setTitle(((MainActivity) getActivity()).getCurrentDataProject().getProjectTitle());
+
+        // Create the Custom Graph Fragment Menu
+        inflater.inflate(R.menu.list_fragment_menu, menu);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
+            // Graph Type Choice
+            case R.id.action_menu_time_toggle:
+                toggleIncludeTime(item);
+                break;
+        }
+
+        return false;
+    }
+
+    private void toggleIncludeTime(MenuItem item)
+    {
+        // Toggle the Include Time Setting
+        currentDataProject.findSettingById("INCLUDE_TIME").setChosenValue((!(Boolean)currentDataProject.findSettingById("INCLUDE_TIME").getChosenValue()));
+
+        // Set the Text for the Menu Item
+        if (!(Boolean)currentDataProject.findSettingById("INCLUDE_TIME").getChosenValue())
+            item.setTitle(R.string.include_time);
+        else
+            item.setTitle(R.string.remove_time);
+
+        // Reinitalize the Data Object List View
+        initializeDataObjectListView();
+    }
+
 
     private void initializeDataObjectListView()
     {
