@@ -9,10 +9,8 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.ShareActionProvider;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,10 +23,12 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import umich.jakebock.trackme.R;
 import umich.jakebock.trackme.activities.MainActivity;
 import umich.jakebock.trackme.activities.ProjectCreationActivity;
+import umich.jakebock.trackme.classes.DataObject;
 import umich.jakebock.trackme.classes.DataProject;
 import umich.jakebock.trackme.firebase.FirebaseHandler;
 import umich.jakebock.trackme.support_classes.DataProjectListAdapter;
@@ -195,16 +195,31 @@ public class ProjectEditorFragment extends Fragment
         alert.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
     }
 
-    private void shareProject(MenuItem item, DataProject dataProject)
+    private void shareProject(DataProject dataProject)
     {
-        ShareActionProvider shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+        // Create the Share Intent
+        Intent sendIntent         = new Intent(Intent.ACTION_SEND);
+        String projectTitle       = dataProject.getProjectTitle();
+        String projectInformation = "";
 
-        Intent myShareIntent = new Intent(Intent.ACTION_SEND);
-        myShareIntent.setType("text/plain");
-        myShareIntent.putExtra(Intent.EXTRA_SUBJECT, "");
-        myShareIntent.putExtra(Intent.EXTRA_TEXT   , "");
+        // Store the Data Object List
+        ArrayList<DataObject> dataObjects = dataProject.getDataObjectList();
 
-        shareActionProvider.setShareIntent(myShareIntent);
+        // Sort the Data
+        Collections.sort(dataObjects, DataObject.sortAscendingOrder);
+
+        // Create the Data String
+        for (DataObject data : dataObjects)
+        {
+            projectInformation += data.getObjectInformation() + " " + dataProject.returnDateFormat().format(data.getObjectTime()) + "\n";
+        }
+
+        // Add the Title
+        projectInformation = projectTitle + "\n" + projectInformation;
+
+        sendIntent.putExtra(Intent.EXTRA_TEXT, projectInformation);
+        sendIntent.setType("text/plain");
+        startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.share)));
     }
 
     // endregion
@@ -372,7 +387,7 @@ public class ProjectEditorFragment extends Fragment
                     showDeleteAlertDialog();
                     break;
                 case R.id.action_menu_share:
-                    shareProject(item, selectedProjects.get(0));
+                    shareProject(selectedProjects.get(0));
                     break;
                 default:
                     return false;

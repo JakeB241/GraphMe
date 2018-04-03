@@ -48,7 +48,7 @@ import static com.google.android.gms.internal.zzahn.runOnUiThread;
 
 public class GraphFragment extends Fragment
 {
-    private View                 rootView;
+    private RelativeLayout       rootView;
     private DataProject          currentDataProject;
     private GraphView            graphView;
     private ArrayList<DataPoint> dataObjectList;
@@ -74,19 +74,10 @@ public class GraphFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         // Inflate the Root View
-        rootView = inflater.inflate(R.layout.fragment_graph, container, false);
+        rootView = (RelativeLayout) inflater.inflate(R.layout.fragment_graph, container, false);
 
         // Allow the Fragment to Have a Custom Options Menu
         setHasOptionsMenu(true);
-
-        // Fetch the Data Project
-        currentDataProject = ((MainActivity) getActivity()).getCurrentDataProject();
-
-        // TODO FIX THIS
-        currentGraphType = "Line";
-
-        // Set the FullScreen Flag
-        isFullScreen = false;
 
         // Return Root View
         return rootView;
@@ -101,6 +92,15 @@ public class GraphFragment extends Fragment
         // Only Draw the Graph when the Fragment is Visible to the User
         if (isVisibleToUser)
         {
+            // Fetch the Data Project
+            currentDataProject = ((MainActivity) getActivity()).getCurrentDataProject();
+
+            // Default Graph Type
+            currentGraphType = "Line";
+
+            // Set the FullScreen Flag
+            isFullScreen = false;
+
             // Ensure there is Data to Graph the Graph View
             if (currentDataProject.getDataObjectList().size() > 0)
                 drawGraphView();
@@ -309,13 +309,13 @@ public class GraphFragment extends Fragment
     private void drawGraphView()
     {
         // Remove all Views
-        ((RelativeLayout)rootView).removeAllViews();
+        rootView.removeAllViews();
 
         // Create a New Graph View
         graphView = new GraphView(getActivity());
 
         // Add the View
-        ((RelativeLayout)rootView).addView(graphView);
+        rootView.addView(graphView);
 
         // Fetch the Start Date and End Date - Default is the Max/Min
         if (startDate == null && endDate == null)
@@ -366,11 +366,6 @@ public class GraphFragment extends Fragment
         graphView.getViewport().setMinY(Math.floor(minValue));
         graphView.getViewport().setMaxY(Math.ceil (maxValue));
         graphView.getViewport().setYAxisBoundsManual(true);
-
-        System.out.println("START DATE: " + startDate.getTime());
-        System.out.println("END DATE  : " + endDate  .getTime());
-        System.out.println("MIN: " + Math.floor(minValue));
-        System.out.println("MAX: " + Math.ceil (maxValue));
 
         // Create the Grid Label Renderer
         graphView.getGridLabelRenderer().setLabelFormatter(labelFormatter);

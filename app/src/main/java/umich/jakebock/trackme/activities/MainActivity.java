@@ -176,6 +176,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 // Create the Data Object List
                                 ArrayList<DataObject> dataObjects = new ArrayList<>();
 
+                                // Read the First Line (Title)
+                                String dataProjectTitle = br.readLine();
+
                                 // Read the File
                                 String line;
                                 while ((line = br.readLine()) != null)
@@ -189,8 +192,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                             String[] stringTokens = line.split(" +");
 
                                             // Match the First Token
-                                            String dataObjectDateString        = stringTokens[0];
-                                            String dataObjectInformationString = stringTokens[1];
+                                            String dataObjectInformationString = stringTokens[0];
+                                            String dataObjectDateString        = stringTokens[1];
 
                                             try
                                             {
@@ -220,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 Toast.makeText(this, "Import Successful", Toast.LENGTH_LONG).show();
 
                                 // Navigate to the Project Creation Activity
-                                showProjectCreationFragment(dataObjects);
+                                showProjectCreationFragment(dataProjectTitle, dataObjects);
                             }
                         }
                     }
@@ -246,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Show the How-To for Importing Projects
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Importing Data Project")
-               .setMessage("Data Object must be in the format of \'<Data_Object> <Space> <Date>\'\n\nDate must be in the format of MM/DD/YYY or MM/DD/YYY HH:MM")
+               .setMessage("Data Object must be in the format of \'<TITLE>\n<Data_Object> <Space> <Date>\'\n\nDate must be in the format of MM/DD/YYY or MM/DD/YYY HH:MM")
                .setCancelable(false)
                .setPositiveButton("OK", new DialogInterface.OnClickListener()
         {
@@ -268,13 +271,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         alert.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(Color.BLACK);
     }
 
-    private void showProjectCreationFragment(ArrayList<DataObject> dataObjects)
+    private void showProjectCreationFragment(String dataProjectTitle, ArrayList<DataObject> dataObjects)
     {
         // Create the Project Creation Activity
         Intent projectCreationIntent = new Intent(this, ProjectCreationActivity.class);
 
         // Add Extra to the Intent
-        if (dataObjects != null) projectCreationIntent.putExtra("DATA_OBJECTS", dataObjects);
+        if (dataProjectTitle != null) projectCreationIntent.putExtra("DATA_TITLE"  , dataProjectTitle);
+        if (dataObjects      != null) projectCreationIntent.putExtra("DATA_OBJECTS", dataObjects     );
 
         // Create the Project Creation Activity with Animation
         startActivity(projectCreationIntent);
@@ -331,16 +335,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 importProject();
                 break;
 
-            // Settings
-            case R.id.settings:
-                break;
-
             // Log the User Out
             case R.id.log_out:
                 logOut();
                 break;
         }
 
+        // Close the Drawer
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }

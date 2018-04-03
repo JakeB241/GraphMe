@@ -40,6 +40,7 @@ public class ProjectCreationActivity extends AppCompatActivity
     private DataProject           currentDataProject;
     private DataProject           previousDataProject;
     private ArrayList<DataObject> importedDataObjects;
+    private String                importedDataObjectTitle;
 
     private String projectTitle;
     private String projectImageFilePath = "";
@@ -66,7 +67,8 @@ public class ProjectCreationActivity extends AppCompatActivity
         previousDataProject = (DataProject) getIntent().getSerializableExtra("DATA_PROJECT");
 
         // Check to see if this is an Import
-        importedDataObjects = (ArrayList<DataObject>) getIntent().getSerializableExtra("DATA_OBJECTS");
+        importedDataObjects     = (ArrayList<DataObject>) getIntent().getSerializableExtra("DATA_OBJECTS");
+        importedDataObjectTitle = (String)                getIntent().getSerializableExtra("DATA_TITLE");
 
         // Create the FireBase Handler
         firebaseHandler = new FirebaseHandler(this);
@@ -379,6 +381,16 @@ public class ProjectCreationActivity extends AppCompatActivity
 
             // Set the Toolbar to Edit Project
             initializeToolbar(getResources().getString(R.string.title_activity_project_edit));
+        }
+
+        // Set the Imported Project Name
+        else if (importedDataObjectTitle != null)
+        {
+            // Set the Text of the Project Name
+            projectName.setText(importedDataObjectTitle);
+
+            // Initialize the Toolbar to Create Project
+            initializeToolbar(getResources().getString(R.string.title_activity_project_creation));
         }
 
         else
