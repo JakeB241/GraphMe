@@ -24,7 +24,7 @@
         android:layout_alignParentRight="true"
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
-        android:backgroundTint="@color/colorPrimary"
+        android:backgroundTint="@color/colorPrimaryDark"
         android:tint="@color/colorAccent" />
 
 </RelativeLayout>

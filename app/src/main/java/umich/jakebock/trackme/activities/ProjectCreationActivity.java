@@ -2,7 +2,6 @@ package umich.jakebock.trackme.activities;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -11,18 +10,14 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -116,7 +111,7 @@ public class ProjectCreationActivity extends AppCompatActivity
                 }
 
                 // Collect the Settings
-                collectSettings();
+                //collectSettings();
 
                 // Create the New Data Project
                 currentDataProject = new DataProject(projectTitle, projectImageFilePath, dataProjectSettings);
@@ -290,7 +285,7 @@ public class ProjectCreationActivity extends AppCompatActivity
     private void initializeSettings()
     {
         // Fetch the Setting Linear Layout
-        LinearLayout settingsLinearLayout = findViewById(R.id.settings_linear_layout);
+        /*LinearLayout settingsLinearLayout = findViewById(R.id.settings_linear_layout);
 
         // Fetch the Inflater
         LayoutInflater inflater = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -357,6 +352,19 @@ public class ProjectCreationActivity extends AppCompatActivity
 
             // Add the View
             settingsLinearLayout.addView(parentView);
+        }*/
+
+        // Initialize the Setting HashMap
+        dataProjectSettings = new ArrayList<>();
+
+        // Append the Settings to the Linear Layout
+        for (Setting setting : MainActivity.settingsList)
+        {
+            // Set the Default Value
+            setting.setChosenValue(setting.getDefaultValue());
+
+            // Add the Setting
+            dataProjectSettings.add(setting);
         }
     }
 
