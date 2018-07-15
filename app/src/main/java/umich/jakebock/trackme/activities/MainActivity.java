@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initializeAds()
     {
-        MobileAds.initialize(this, "ca-app-pub-9526664903701522/3045069586");
+        MobileAds.initialize(this, "ca-app-pub-9526664903701522~5124438011");
         AdView adView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         adView.loadAd(adRequest);

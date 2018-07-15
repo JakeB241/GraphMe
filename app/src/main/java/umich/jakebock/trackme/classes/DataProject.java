@@ -72,7 +72,8 @@ public class DataProject implements Serializable
         return cursor.getInt(0);
     }
 
-    private Bitmap returnCorrectlyOrientedImage(Context context, Uri photoUri) {
+    private Bitmap returnCorrectlyOrientedImage(Context context, Uri photoUri)
+    {
         InputStream is = null;
         try
         {
@@ -85,10 +86,12 @@ public class DataProject implements Serializable
             int rotatedWidth, rotatedHeight;
             int orientation = getOrientation(context, photoUri);
 
-            if (orientation == 90 || orientation == 270) {
+            if (orientation == 90 || orientation == 270)
+            {
                 rotatedWidth  = dbo.outHeight;
                 rotatedHeight = dbo.outWidth;
-            } else {
+            } else
+                {
                 rotatedWidth  = dbo.outWidth;
                 rotatedHeight = dbo.outHeight;
             }

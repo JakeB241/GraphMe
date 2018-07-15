@@ -1,5 +1,6 @@
 package umich.jakebock.trackme.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -28,6 +29,7 @@ import umich.jakebock.trackme.R;
 public class LoginActivity extends AppCompatActivity
 {
     private FirebaseAuth firebaseAuth;
+    private Context      context;
 
     public static String currentUserId;
 
@@ -47,6 +49,9 @@ public class LoginActivity extends AppCompatActivity
 
         // Get the FireBase Auth Instance
         firebaseAuth = FirebaseAuth.getInstance();
+
+        // Get the Context
+        context = getApplicationContext();
 
         // Set the Offline Data to True
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(true).build();
@@ -72,11 +77,10 @@ public class LoginActivity extends AppCompatActivity
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN)
         {
-            // The Task returned from this call is always completed, no need to attach a listener.
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-
             try
             {
+                // The Task returned from this call is always completed, no need to attach a listener.
+                Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
                 firebaseAuthWithGoogle(task.getResult(ApiException.class));
             }
 
@@ -84,8 +88,13 @@ public class LoginActivity extends AppCompatActivity
             {
                 // The ApiException status code indicates the detailed failure reason.
                 // Please refer to the GoogleSignInStatusCodes class reference for more information.
-                Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
+        }
+
+        else
+        {
+            Toast.makeText(context, "Error in Google Sign in! " + requestCode, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -100,15 +109,14 @@ public class LoginActivity extends AppCompatActivity
                 if (task.isSuccessful())
                 {
                     // Sign In Success
+                    Toast.makeText(context, "Firebase Sign in Successful!", Toast.LENGTH_LONG).show();
                     startMainActivity(firebaseAuth.getCurrentUser());
                 }
 
                 else
                 {
-                    // If sign in fails, display a message to the user.
-                    //Snackbar.make(findViewById(R.id.lo), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
-                    //Toast.makeText(this, "Authentican Failed", Toast.LENGTH_LONG).show();
-                    //updateUI(null);
+                    // If sign in fails, display a message to the user
+                    Toast.makeText(context, "Authentican Failed" + task.getResult().toString(), Toast.LENGTH_LONG).show();
                 }
             }
         });
