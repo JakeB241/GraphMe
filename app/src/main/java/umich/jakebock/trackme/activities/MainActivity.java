@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         currentDataProject = dataProject;
     }
-
+    
     private void initializeNavigationDrawer()
     {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);

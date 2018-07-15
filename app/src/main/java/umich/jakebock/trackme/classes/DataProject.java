@@ -136,6 +136,11 @@ public class DataProject implements Serializable
             e.printStackTrace();
         }
 
+        catch (SecurityException e)
+        {
+            e.printStackTrace();
+        }
+
         return null;
     }
 
