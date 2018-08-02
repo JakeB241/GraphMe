@@ -1,7 +1,6 @@
 package umich.jakebock.trackme.fragments;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -55,14 +54,14 @@ public class GraphFragment extends Fragment
     private GraphView            graphView;
     private ArrayList<DataPoint> dataObjectList;
     private String               currentGraphType;
+    private SharedPreferences    dataProjectPreferences;
+    private Boolean              showAllDates;
 
     private Date startDate;
     private Date endDate;
 
     private Date minimumDate;
     private Date maximumDate;
-
-    private SharedPreferences dataProjectPreferences;
 
     public static boolean isFullScreen;
 
@@ -183,18 +182,6 @@ public class GraphFragment extends Fragment
         endDate   = maximumDate;
     }
 
-    private void saveDateRange()
-    {
-        // Fetch the Shared Preferences
-        dataProjectPreferences = getActivity().getSharedPreferences(getString(R.string.preference_file_key) + currentDataProject.getProjectTitle(), Context.MODE_PRIVATE);
-
-        // Save the Date Range
-        SharedPreferences.Editor editor = dataProjectPreferences.edit();
-        editor.putLong(getString(R.string.start_date_shared_preference), startDate.getTime());
-        editor.putLong(getString(R.string.end_date_shared_preference)  , endDate  .getTime());
-        editor.apply();
-    }
-
 
     private void showDateRangeSelection()
     {
@@ -243,9 +230,6 @@ public class GraphFragment extends Fragment
                         endDate       = tempDate;
                     }
 
-                    // Save the Date Range to Shared Preferences
-                    saveDateRange();
-
                     // Repopulate the Data Point List
                     drawGraphView();
                 }
@@ -276,9 +260,6 @@ public class GraphFragment extends Fragment
                 // Calculate the Minimum and Maximum Date
                 calculateMaxMinDates();
 
-                // Save the Date Range to Shared Preferences
-                saveDateRange();
-
                 // Repopulate the Data Point List
                 drawGraphView();
             }
@@ -296,7 +277,7 @@ public class GraphFragment extends Fragment
         alert.getButton(DialogInterface.BUTTON_NEUTRAL) .setTextColor(Color.BLACK);
     }
 
-    // Compare Class for the Dates
+    // Compare Class for the Information
     private class DataObjectInformationCompare implements Comparator<DataPoint>
     {
         @Override
@@ -339,18 +320,8 @@ public class GraphFragment extends Fragment
         // Add the View
         rootView.addView(graphView);
 
-        // Fetch the Shared Preferences
-        dataProjectPreferences = getActivity().getSharedPreferences(getString(R.string.preference_file_key) + currentDataProject.getProjectTitle(), Context.MODE_PRIVATE);
-
-        // Fetch the Start Date and End Date from Shared Preferences
-        if (dataProjectPreferences.contains(getString(R.string.start_date_shared_preference)) && dataProjectPreferences.contains(getString(R.string.end_date_shared_preference)))
-        {
-            startDate = new Date(dataProjectPreferences.getLong(getString(R.string.start_date_shared_preference), 0));
-            endDate   = new Date(dataProjectPreferences.getLong(getString(R.string.end_date_shared_preference)  , 0));
-        }
-
         // Fetch the Start Date and End Date - Default is the Max/Min
-        else if (startDate == null && endDate == null)
+        if (startDate == null && endDate == null)
         {
             // Calculate the Minimum and Maximum Date
             calculateMaxMinDates();

@@ -1,37 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="10dp"
     android:paddingBottom="5dp"
     android:paddingLeft="20dp"
-    android:paddingRight="20dp"
-    android:weightSum="10">
+    android:paddingRight="20dp">
 
-    <EditText
-        android:id="@+id/data_object_information"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxLength="10"
-        android:textSize="18sp"
-        android:inputType="numberDecimal"
-        android:hint="@string/input_data"
-        android:backgroundTint="@color/colorPrimaryDark"
-        android:layout_marginRight="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_weight="4" />
+        android:weightSum="10">
 
-    <requestFocus />
+        <EditText
+            android:id="@+id/data_object_information"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:maxLength="10"
+            android:textSize="18sp"
+            android:inputType="numberDecimal"
+            android:hint="@string/input_data"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="4" />
 
-    <TextView
-        android:id="@+id/data_object_time"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:layout_weight="6"
-        android:gravity="end"
-        android:textAlignment="gravity"/>
+        <requestFocus />
+
+        <TextView
+            android:id="@+id/data_object_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:layout_weight="6"
+            android:gravity="end"
+            android:textAlignment="gravity"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/data_object_note"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
+            android:gravity="top"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:hint="@string/input_note"
+            android:textSize="18sp" />
+    </LinearLayout>
 
 </LinearLayout>

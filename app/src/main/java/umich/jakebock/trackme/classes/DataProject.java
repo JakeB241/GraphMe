@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import umich.jakebock.trackme.R;
+
 /**
  * Created by Jake on 12/10/2017.
  */
@@ -74,14 +76,18 @@ public class DataProject implements Serializable
 
     private Bitmap returnCorrectlyOrientedImage(Context context, Uri photoUri)
     {
-        InputStream is = null;
         try
         {
+            Bitmap srcBitmap;
+            InputStream is;
             is = context.getContentResolver().openInputStream(photoUri);
             BitmapFactory.Options dbo = new BitmapFactory.Options();
             dbo.inJustDecodeBounds = true;
             BitmapFactory.decodeStream(is, null, dbo);
-            is.close();
+            if (is != null)
+            {
+                is.close();
+            }
 
             int rotatedWidth, rotatedHeight;
             int orientation = getOrientation(context, photoUri);
@@ -90,13 +96,14 @@ public class DataProject implements Serializable
             {
                 rotatedWidth  = dbo.outHeight;
                 rotatedHeight = dbo.outWidth;
-            } else
-                {
+            }
+
+            else
+            {
                 rotatedWidth  = dbo.outWidth;
                 rotatedHeight = dbo.outHeight;
             }
 
-            Bitmap srcBitmap;
             is = context.getContentResolver().openInputStream(photoUri);
             if (rotatedWidth > 512 || rotatedHeight > 512)
             {
@@ -114,9 +121,14 @@ public class DataProject implements Serializable
             {
                 srcBitmap = BitmapFactory.decodeStream(is);
             }
-            is.close();
 
-            if (orientation > 0) {
+            if (is != null)
+            {
+                is.close();
+            }
+
+            if (orientation > 0)
+            {
                 Matrix matrix = new Matrix();
                 matrix.postRotate(orientation);
 
@@ -144,7 +156,8 @@ public class DataProject implements Serializable
         return null;
     }
 
-    public Setting findSettingById(String id) {
+    public Setting findSettingById(String id)
+    {
         for (Setting setting : dataProjectSettings)
         {
             if (setting.getSettingId().equals(id))
@@ -161,9 +174,15 @@ public class DataProject implements Serializable
             return dateWithoutTime;
     }
 
-    public Bitmap returnDataProjectImageBitmap(Context context, Uri uri) {
-        return returnCorrectlyOrientedImage(context, uri);
+    public Bitmap returnDataProjectImageBitmap(Context context, Uri uri)
+    {
+        Bitmap correctlyOrientedImage = returnCorrectlyOrientedImage(context, uri);
+        if (correctlyOrientedImage != null)
+            return correctlyOrientedImage;
+        else
+            return BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_image_black_24dp);
     }
+
 
     // Begin Getters/Setters
     public ArrayList<DataObject> getDataObjectList() {

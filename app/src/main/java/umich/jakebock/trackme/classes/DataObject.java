@@ -14,6 +14,7 @@ public class DataObject implements Serializable
 {
     private                  String objectInformation;
     private @ServerTimestamp Date   objectTime;
+    private                  String objectNote;
 
     public DataObject() {}
 
@@ -21,6 +22,14 @@ public class DataObject implements Serializable
     {
         this.objectInformation = objectInformation;
         this.objectTime        = objectTime;
+        this.objectNote        = null;
+    }
+
+    public DataObject(String objectInformation, Date objectTime, String objectNote)
+    {
+        this.objectInformation = objectInformation;
+        this.objectTime        = objectTime;
+        this.objectNote        = objectNote;
     }
 
     // Begin Getters/Setters
@@ -32,12 +41,20 @@ public class DataObject implements Serializable
         return objectInformation;
     }
 
+    public String getObjectNote() {
+        return objectNote;
+    }
+
     public void setObjectTime(Date objectTime) {
         this.objectTime = objectTime;
     }
 
     public void setObjectInformation(String objectInformation) {
         this.objectInformation = objectInformation;
+    }
+
+    public void setObjectNote(String objectNote) {
+        this.objectNote = objectNote;
     }
 
     // Comparators

@@ -255,12 +255,14 @@ public class ListFragment extends Fragment
         // Fetch the Data Object Components
         final EditText dataObjectInformation = dataObjectPromptView.findViewById(R.id.data_object_information);
         final TextView dataObjectTime        = dataObjectPromptView.findViewById(R.id.data_object_time       );
+        final EditText dataObjectNote        = dataObjectPromptView.findViewById(R.id.data_object_note       );
 
         if (dataObject != null)
         {
             // Set the Text of the Data Object
             dataObjectInformation.setText(dataObject.getObjectInformation());
             dataObjectTime       .setText(currentDataProject.returnDateFormat().format(dataObject.getObjectTime()));
+            dataObjectNote       .setText(dataObject.getObjectNote());
         }
 
         else
@@ -316,6 +318,7 @@ public class ListFragment extends Fragment
                                 // Edit a Current Data Object
                                 dataObject.setObjectInformation(dataObjectInformation.getText().toString());
                                 dataObject.setObjectTime       (currentDataProject.returnDateFormat().parse(dataObjectTime.getText().toString()));
+                                dataObject.setObjectNote       (dataObjectNote.getText().toString());
                             }
 
                             catch (ParseException e)
@@ -330,7 +333,7 @@ public class ListFragment extends Fragment
                             try
                             {
                                 // Create a New Data Object
-                                dataObjectListAdapter.add(new DataObject(dataObjectInformation.getText().toString(), currentDataProject.returnDateFormat().parse(dataObjectTime.getText().toString())));
+                                dataObjectListAdapter.add(new DataObject(dataObjectInformation.getText().toString(), currentDataProject.returnDateFormat().parse(dataObjectTime.getText().toString()), dataObjectNote.getText().toString()));
                             }
                             catch (ParseException e)
                             {
